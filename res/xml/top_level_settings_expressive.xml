@@ -21,6 +21,19 @@
     android:key="top_level_settings">
 
     <com.android.settingslib.widget.UntitledPreferenceCategory
+        android:order="-140"
+        android:key="yrrp_top_level_category">
+        <com.android.settings.widget.HomepagePreference
+            android:fragment="com.android.settings.yrrp.YrrpSettings"
+            android:icon="@drawable/ic_homepage_system_dashboard"
+            android:key="top_level_yrrp"
+            android:order="-15"
+            android:title="@string/yrrp_settings_title"
+            android:summary="@string/yrrp_settings_summary"
+            settings:highlightableMenuKey="@string/yrrp_menu_key"/>
+    </com.android.settingslib.widget.UntitledPreferenceCategory>
+
+    <com.android.settingslib.widget.UntitledPreferenceCategory
         android:order="-130"
         android:key="top_level_connectivity_category">
         <com.android.settings.widget.HomepagePreference
@@ -146,15 +159,6 @@
             android:title="@string/header_category_system"
             android:summary="@string/system_dashboard_summary"
             settings:highlightableMenuKey="@string/menu_key_system"/>
-
-        <com.android.settings.widget.HomepagePreference
-            android:fragment="com.android.settings.yrrp.YrrpSettings"
-            android:icon="@drawable/ic_homepage_system_dashboard"
-            android:key="top_level_yrrp"
-            android:order="-15"
-            android:title="@string/yrrp_settings_title"
-            android:summary="@string/yrrp_settings_summary"
-            settings:highlightableMenuKey="@string/yrrp_menu_key"/>
 
         <com.android.settings.widget.HomepagePreference
             android:fragment="com.android.settings.deviceinfo.aboutphone.MyDeviceInfoFragment"

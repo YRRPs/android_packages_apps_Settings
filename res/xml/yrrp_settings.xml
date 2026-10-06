@@ -19,49 +19,20 @@
         android:key="yrrp_settings_screen"
         android:title="@string/yrrp_settings_title">
 
-    <PreferenceCategory
-        android:key="yrrp_category_audio"
-        android:title="@string/yrrp_category_audio">
+    <Preference
+        android:key="yrrp_pulse_entry"
+        android:title="@string/yrrp_pulse_title"
+        android:fragment="com.android.settings.yrrp.YrrpPulseSettings"
+        settings:keywords="@string/yrrp_pulse_keywords"
+        settings:controller="com.android.settings.yrrp.YrrpPulseEntryPreferenceController"/>
 
-        <SwitchPreferenceCompat
-            android:key="yrrp_pulse_enabled"
-            android:title="@string/yrrp_pulse_enabled_title"
-            android:summary="@string/yrrp_pulse_enabled_summary"
-            android:persistent="false"
-            settings:controller="com.android.settings.yrrp.YrrpPulseEnabledPreferenceController"/>
-
-        <com.android.settings.yrrp.YrrpColorPreference
-            android:key="yrrp_pulse_color"
-            android:title="@string/yrrp_pulse_color_title"
-            android:persistent="false"
-            settings:controller="com.android.settings.yrrp.YrrpPulseColorPreferenceController"/>
-
-        <com.android.settingslib.widget.SliderPreference
-            android:key="yrrp_pulse_height"
-            android:title="@string/yrrp_pulse_height_title"
-            android:persistent="false"
-            settings:controller="com.android.settings.yrrp.YrrpPulseHeightPreferenceController"/>
-
-        <com.android.settingslib.widget.FooterPreference
-            android:key="yrrp_pulse_privacy"
-            android:title="@string/yrrp_pulse_privacy"
-            settings:searchable="false"/>
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:key="yrrp_category_animations"
-        android:title="@string/yrrp_category_animations">
-
-        <ListPreference
-            android:key="yrrp_screen_off_animation"
-            android:title="@string/yrrp_screen_off_animation_title"
-            android:entries="@array/yrrp_screen_off_animation_entries"
-            android:entryValues="@array/yrrp_screen_off_animation_values"
-            android:summary="%s"
-            android:persistent="false"
-            settings:controller="com.android.settings.yrrp.YrrpScreenOffAnimationPreferenceController"/>
-
-    </PreferenceCategory>
+    <ListPreference
+        android:key="yrrp_screen_off_animation"
+        android:title="@string/yrrp_screen_off_animation_title"
+        android:entries="@array/yrrp_screen_off_animation_entries"
+        android:entryValues="@array/yrrp_screen_off_animation_values"
+        android:summary="%s"
+        android:persistent="false"
+        settings:controller="com.android.settings.yrrp.YrrpScreenOffAnimationPreferenceController"/>
 
 </PreferenceScreen>

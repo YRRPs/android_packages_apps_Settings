@@ -21,15 +21,16 @@
     <!-- YRRPs settings: two-pane highlight key for the YRRPs homepage tile; must equal the tile key. -->
     <string name="yrrp_menu_key" translatable="false">top_level_yrrp</string>
 
-    <!-- YRRPs settings: audio category title. [CHAR LIMIT=40] -->
-    <string name="yrrp_category_audio">Audio</string>
-    <!-- YRRPs settings: animations category title. [CHAR LIMIT=40] -->
-    <string name="yrrp_category_animations">Animations</string>
-
-    <!-- YRRPs settings: Pulse switch title. [CHAR LIMIT=40] -->
-    <string name="yrrp_pulse_enabled_title">Pulse audio visualizer</string>
-    <!-- YRRPs settings: Pulse switch summary. [CHAR LIMIT=NONE] -->
-    <string name="yrrp_pulse_enabled_summary">Show a spectrum of playing audio in the navigation bar</string>
+    <!-- YRRPs settings: Pulse row on the YRRPs page and title of the Pulse page. Both must stay
+         this one string: SettingsIntelligence's site-map lookup matches on class name plus title.
+         [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_title">Pulse</string>
+    <!-- YRRPs settings: search keywords for Pulse. [CHAR_LIMIT=NONE] -->
+    <string name="yrrp_pulse_keywords">audio, visualizer, music, spectrum, navigation bar</string>
+    <!-- YRRPs settings: intro text at the top of the Pulse page. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_pulse_intro">Show a spectrum of playing audio in the navigation bar</string>
+    <!-- YRRPs settings: Pulse page main switch title. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_main_switch_title">Use Pulse</string>
     <!-- YRRPs settings: Pulse color row and picker dialog title. [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_color_title">Pulse color</string>
     <!-- YRRPs settings: label of the red channel slider in the Pulse color picker. [CHAR LIMIT=20] -->

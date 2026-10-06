@@ -17,16 +17,30 @@
 package com.android.settings.yrrp;
 
 import android.app.settings.SettingsEnums;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
 
 import com.android.settings.R;
 import com.android.settings.dashboard.DashboardFragment;
 import com.android.settings.search.BaseSearchIndexProvider;
 import com.android.settingslib.search.SearchIndexable;
 
-/** A page for YRRPs features. Setting behavior lives in the page's preference controllers. */
+/** The Pulse page. Setting behavior lives in the page's preference controllers. */
 @SearchIndexable
-public class YrrpSettings extends DashboardFragment {
-    private static final String TAG = "YrrpSettings";
+public class YrrpPulseSettings extends DashboardFragment {
+    private static final String TAG = "YrrpPulseSettings";
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        // Runs on every attach, so the color result listener survives recreation.
+        final YrrpPulseColorPreferenceController colorController =
+                use(YrrpPulseColorPreferenceController.class);
+        if (colorController != null) {
+            colorController.init(this);
+        }
+    }
 
     @Override
     public int getMetricsCategory() {
@@ -36,7 +50,7 @@ public class YrrpSettings extends DashboardFragment {
 
     @Override
     protected int getPreferenceScreenResId() {
-        return R.xml.yrrp_settings;
+        return R.xml.yrrp_pulse_settings;
     }
 
     @Override
@@ -46,5 +60,5 @@ public class YrrpSettings extends DashboardFragment {
 
     /** For Search. */
     public static final BaseSearchIndexProvider SEARCH_INDEX_DATA_PROVIDER =
-            new BaseSearchIndexProvider(R.xml.yrrp_settings);
+            new BaseSearchIndexProvider(R.xml.yrrp_pulse_settings);
 }
