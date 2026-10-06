@@ -21,6 +21,11 @@
     <!-- YRRPs settings: two-pane highlight key for the YRRPs homepage tile; must equal the tile key. -->
     <string name="yrrp_menu_key" translatable="false">top_level_yrrp</string>
 
+    <!-- YRRPs settings: category heading for audio features on the YRRPs page. [CHAR LIMIT=40] -->
+    <string name="yrrp_category_audio">Audio</string>
+    <!-- YRRPs settings: category heading for animation features on the YRRPs page. [CHAR LIMIT=40] -->
+    <string name="yrrp_category_animations">Animations</string>
+
     <!-- YRRPs settings: Pulse row on the YRRPs page and title of the Pulse page. Both must stay
          this one string: SettingsIntelligence's site-map lookup matches on class name plus title.
          [CHAR LIMIT=40] -->
@@ -50,10 +55,14 @@
     <!-- YRRPs settings: Pulse privacy footer. [CHAR LIMIT=NONE] -->
     <string name="yrrp_pulse_privacy">Pulse processes the local playback spectrum in memory. It does not store or transmit audio.</string>
 
-    <!-- YRRPs settings: screen-off animation list title. [CHAR LIMIT=40] -->
+    <!-- YRRPs settings: screen-off animation row on the YRRPs page and title of the screen-off
+         animation page. Both must stay this one string: SettingsIntelligence's site-map lookup
+         matches on class name plus title. [CHAR LIMIT=40] -->
     <string name="yrrp_screen_off_animation_title">Screen-off animation</string>
-    <!-- YRRPs settings: stock screen-off animation choice. [CHAR LIMIT=30] -->
+    <!-- YRRPs settings: search keywords for the screen-off animation. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_screen_off_animation_keywords">CRT, screen off, power off animation</string>
+    <!-- YRRPs settings: stock screen-off animation choice and row summary. [CHAR LIMIT=30] -->
     <string name="yrrp_screen_off_animation_stock">Stock</string>
-    <!-- YRRPs settings: CRT screen-off animation choice. [CHAR LIMIT=30] -->
+    <!-- YRRPs settings: CRT screen-off animation choice and row summary. [CHAR LIMIT=30] -->
     <string name="yrrp_screen_off_animation_crt">CRT</string>
 </resources>

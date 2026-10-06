@@ -22,27 +22,31 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 
 import com.android.settings.core.BasePreferenceController;
+import com.android.settingslib.widget.SelectorWithWidgetPreference;
 
-/** Chooses the screen-off animation (Stock or CRT) for the current user. */
+/**
+ * One screen-off animation choice (Stock or CRT) for the current user. Each radio row on the
+ * screen-off animation page binds its own instance by key.
+ */
 public class YrrpScreenOffAnimationPreferenceController extends BasePreferenceController
-        implements Preference.OnPreferenceChangeListener, DefaultLifecycleObserver {
+        implements SelectorWithWidgetPreference.OnClickListener, DefaultLifecycleObserver {
 
-    // Must match R.array.yrrp_screen_off_animation_values.
-    private static final String VALUE_STOCK = modeToValue(YrrpSettingsStore.SCREEN_OFF_STOCK);
-    private static final String VALUE_CRT = modeToValue(YrrpSettingsStore.SCREEN_OFF_CRT);
+    // Must match the radio keys in R.xml.yrrp_screen_off_animation_settings.
+    static final String KEY_STOCK = "yrrp_screen_off_animation_stock";
+    static final String KEY_CRT = "yrrp_screen_off_animation_crt";
 
+    private final int mMode;
     private final YrrpSettingsStore mStore;
     private final YrrpSecureSettingObserver mObserver;
-    private @Nullable ListPreference mPreference;
 
     public YrrpScreenOffAnimationPreferenceController(
             @NonNull Context context, @NonNull String preferenceKey) {
         super(context, preferenceKey);
+        mMode = keyToMode(preferenceKey);
         mStore = new YrrpSettingsStore(context);
         mObserver =
                 new YrrpSecureSettingObserver(
@@ -57,7 +61,10 @@ public class YrrpScreenOffAnimationPreferenceController extends BasePreferenceCo
     @Override
     public void displayPreference(@NonNull PreferenceScreen screen) {
         super.displayPreference(screen);
-        mPreference = screen.findPreference(getPreferenceKey());
+        final SelectorWithWidgetPreference preference = screen.findPreference(getPreferenceKey());
+        if (preference != null) {
+            preference.setOnClickListener(this);
+        }
         mObserver.displayPreference(screen);
     }
 
@@ -71,33 +78,32 @@ public class YrrpScreenOffAnimationPreferenceController extends BasePreferenceCo
         mObserver.onStop(owner);
     }
 
-    /** Shows the normalized stored mode; an unknown stored value shows Stock and is kept. */
+    /** Checks this row when it matches the normalized stored mode; an unknown value is kept. */
     @Override
     public void updateState(@Nullable Preference preference) {
-        if (preference instanceof ListPreference) {
-            ((ListPreference) preference).setValue(modeToValue(mStore.getScreenOffAnimation()));
+        if (preference instanceof SelectorWithWidgetPreference) {
+            ((SelectorWithWidgetPreference) preference)
+                    .setChecked(mStore.getScreenOffAnimation() == mMode);
         }
     }
 
-    /** Accepts only the exact entry values; the store logs a failed write. */
+    /**
+     * Writes this row's mode; every row, this one included, refreshes from its observer. A failed
+     * write is logged by the store and leaves the selection unchanged.
+     */
     @Override
-    public boolean onPreferenceChange(@NonNull Preference preference, @Nullable Object newValue) {
-        final int mode;
-        if (VALUE_STOCK.equals(newValue)) {
-            mode = YrrpSettingsStore.SCREEN_OFF_STOCK;
-        } else if (VALUE_CRT.equals(newValue)) {
-            mode = YrrpSettingsStore.SCREEN_OFF_CRT;
-        } else {
-            return false;
-        }
-        if (!mStore.setScreenOffAnimation(mode)) {
-            updateState(mPreference);
-            return false;
-        }
-        return true;
+    public void onRadioButtonClicked(@NonNull SelectorWithWidgetPreference preference) {
+        mStore.setScreenOffAnimation(mMode);
     }
 
-    private static String modeToValue(int mode) {
-        return Integer.toString(YrrpSettingsStore.normalizeScreenOffAnimation(mode));
+    private static int keyToMode(@NonNull String key) {
+        switch (key) {
+            case KEY_STOCK:
+                return YrrpSettingsStore.SCREEN_OFF_STOCK;
+            case KEY_CRT:
+                return YrrpSettingsStore.SCREEN_OFF_CRT;
+            default:
+                throw new IllegalArgumentException("unknown screen-off animation key");
+        }
     }
 }
