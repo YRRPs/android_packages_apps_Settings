@@ -34,7 +34,7 @@ import com.android.settings.accessibility.ColorPreference;
 import com.android.settings.core.BasePreferenceController;
 
 /**
- * Shows the Pulse color and opens the RGB picker; writes only a color confirmed in the picker.
+ * Shows the Pulse color and opacity and opens the picker; writes only values confirmed in it.
  *
  * <p>The row stays visible but disabled while Pulse is off.
  */
@@ -42,7 +42,6 @@ public class YrrpPulseColorPreferenceController extends BasePreferenceController
         implements DefaultLifecycleObserver {
 
     private static final String TAG = "YrrpPulseColorPref";
-    private static final int OPAQUE = 0xFF000000;
 
     private final YrrpSettingsStore mStore;
     private final YrrpSecureSettingObserver mObserver;
@@ -59,6 +58,7 @@ public class YrrpPulseColorPreferenceController extends BasePreferenceController
                         this,
                         mStore,
                         YrrpSettingsStore.PULSE_COLOR,
+                        YrrpSettingsStore.PULSE_ALPHA,
                         YrrpSettingsStore.PULSE_ENABLED);
     }
 
@@ -107,7 +107,9 @@ public class YrrpPulseColorPreferenceController extends BasePreferenceController
         }
         preference.setEnabled(mStore.isPulseEnabled());
         if (preference instanceof ColorPreference) {
-            showColor((ColorPreference) preference, mStore.getPulseColor());
+            showColor(
+                    (ColorPreference) preference,
+                    YrrpSettingsStore.toArgb(mStore.getPulseColor(), mStore.getPulseAlpha()));
         }
     }
 
@@ -127,13 +129,13 @@ public class YrrpPulseColorPreferenceController extends BasePreferenceController
     }
 
     /**
-     * The row's swatch and summary come from a one-entry list, so the summary is {@code #RRGGBB}
-     * and the swatch is the opaque color. The preference is not persistent, so nothing is stored.
+     * The row's swatch and summary come from a one-entry list, so the summary, which is also the
+     * swatch's content description, is {@code #AARRGGBB} and the swatch is the translucent color
+     * over ColorPreference's checkerboard. The preference is not persistent, so nothing is stored.
      */
-    private static void showColor(@NonNull ColorPreference preference, int rgb) {
-        final int argb = OPAQUE | rgb;
+    private static void showColor(@NonNull ColorPreference preference, int argb) {
         preference.setValues(new int[] {argb});
-        preference.setTitles(new CharSequence[] {YrrpColorPickerDialogFragment.formatRgb(rgb)});
+        preference.setTitles(new CharSequence[] {YrrpSettingsStore.formatArgb(argb)});
         preference.setValue(argb);
     }
 
@@ -150,22 +152,36 @@ public class YrrpPulseColorPreferenceController extends BasePreferenceController
                 || manager.findFragmentByTag(YrrpColorPickerDialogFragment.TAG) != null) {
             return;
         }
-        YrrpColorPickerDialogFragment.newInstance(mStore.getPulseColor())
+        YrrpColorPickerDialogFragment.newInstance(mStore.getPulseColor(), mStore.getPulseAlpha())
                 .showNow(manager, YrrpColorPickerDialogFragment.TAG);
     }
 
-    /** The result bundle is untrusted input: require the key and keep only the RGB bits. */
+    /**
+     * The result bundle is untrusted input: both keys are required, the RGB bits are masked and the
+     * alpha is clamped. A result missing either key writes nothing.
+     */
     private void onColorConfirmed(@NonNull Bundle result) {
-        if (!result.containsKey(YrrpColorPickerDialogFragment.RESULT_RGB)) {
-            return;
+        if (result.containsKey(YrrpColorPickerDialogFragment.RESULT_RGB)
+                && result.containsKey(YrrpColorPickerDialogFragment.RESULT_ALPHA)) {
+            writeColor(
+                    YrrpSettingsStore.normalizeColor(
+                            result.getInt(YrrpColorPickerDialogFragment.RESULT_RGB)),
+                    YrrpSettingsStore.normalizeAlpha(
+                            result.getInt(YrrpColorPickerDialogFragment.RESULT_ALPHA)));
         }
-        final int rgb =
-                YrrpSettingsStore.normalizeColor(
-                        result.getInt(YrrpColorPickerDialogFragment.RESULT_RGB));
-        // On failure the store logs the key; either way the row re-reads the persisted color.
-        mStore.setPulseColor(rgb);
+        // On failure the store logs the key; either way the row re-reads both persisted values.
         if (mPreference != null) {
             updateState(mPreference);
+        }
+    }
+
+    /**
+     * Writes the color, then the opacity only if the color was stored. The two secure settings
+     * writes are separate, so an observer can briefly see the new color with the old opacity.
+     */
+    private void writeColor(int rgb, int alpha) {
+        if (mStore.setPulseColor(rgb)) {
+            mStore.setPulseAlpha(alpha);
         }
     }
 }

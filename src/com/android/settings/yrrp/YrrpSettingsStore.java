@@ -26,6 +26,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
+import java.util.Locale;
 import java.util.function.IntSupplier;
 
 /**
@@ -40,10 +41,14 @@ public class YrrpSettingsStore {
 
     static final String PULSE_ENABLED = "lineage_pulse_enabled";
     static final String PULSE_COLOR = "lineage_pulse_color";
+    static final String PULSE_ALPHA = "lineage_pulse_alpha";
     static final String PULSE_HEIGHT_DP = "lineage_pulse_height_dp";
     static final String SCREEN_OFF_ANIMATION = "lineage_screen_off_animation";
 
     static final int PULSE_COLOR_DEFAULT = 0xFFFFFF;
+    static final int PULSE_ALPHA_DEFAULT = 217;
+    static final int PULSE_ALPHA_MIN = 26;
+    static final int PULSE_ALPHA_MAX = 255;
     static final int PULSE_HEIGHT_DEFAULT_DP = 48;
     static final int PULSE_HEIGHT_MIN_DP = 8;
     static final int PULSE_HEIGHT_MAX_DP = 96;
@@ -93,6 +98,16 @@ public class YrrpSettingsStore {
         return putInt(PULSE_COLOR, normalizeColor(rgb));
     }
 
+    /** Returns the stored Pulse opacity (alpha) clamped to the supported range. */
+    public int getPulseAlpha() {
+        return normalizeAlpha(getInt(PULSE_ALPHA, PULSE_ALPHA_DEFAULT));
+    }
+
+    /** Writes {@code alpha} clamped to the supported range. Returns false if the write failed. */
+    public boolean setPulseAlpha(int alpha) {
+        return putInt(PULSE_ALPHA, normalizeAlpha(alpha));
+    }
+
     /** Returns the stored Pulse height clamped to the drawable range, as SystemUI draws it. */
     public int getPulseHeightDp() {
         return normalizeHeightForDisplay(getInt(PULSE_HEIGHT_DP, PULSE_HEIGHT_DEFAULT_DP));
@@ -124,6 +139,21 @@ public class YrrpSettingsStore {
 
     static int normalizeColor(int raw) {
         return raw & 0xFFFFFF;
+    }
+
+    static int normalizeAlpha(int raw) {
+        return Math.max(PULSE_ALPHA_MIN, Math.min(PULSE_ALPHA_MAX, raw));
+    }
+
+    /** Packs the RGB bits of {@code rgb} with {@code alpha}, clamped, as ARGB. */
+    static int toArgb(int rgb, int alpha) {
+        return (normalizeAlpha(alpha) << 24) | normalizeColor(rgb);
+    }
+
+    /** Formats {@code argb} as {@code #AARRGGBB}, uppercase and locale independent. */
+    @NonNull
+    static String formatArgb(int argb) {
+        return String.format(Locale.US, "#%08X", argb);
     }
 
     static int normalizeHeightForDisplay(int raw) {
