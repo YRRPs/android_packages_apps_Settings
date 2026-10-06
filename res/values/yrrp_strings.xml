@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <!-- YRRPs settings page title. [CHAR LIMIT=30] -->
+    <string name="yrrp_settings_title" translatable="false">YRRPs</string>
+    <!-- Summary of the YRRPs settings entry. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_settings_summary">Pulse visualizer, screen-off animation</string>
+
+    <!-- YRRPs settings: audio category title. [CHAR LIMIT=40] -->
+    <string name="yrrp_category_audio">Audio</string>
+    <!-- YRRPs settings: animations category title. [CHAR LIMIT=40] -->
+    <string name="yrrp_category_animations">Animations</string>
+
+    <!-- YRRPs settings: Pulse switch title. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_enabled_title">Pulse audio visualizer</string>
+    <!-- YRRPs settings: Pulse switch summary. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_pulse_enabled_summary">Show a spectrum of playing audio in the navigation bar</string>
+    <!-- YRRPs settings: Pulse privacy footer. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_pulse_privacy">Pulse processes the local playback spectrum in memory. It does not store or transmit audio.</string>
+
+    <!-- YRRPs settings: screen-off animation list title. [CHAR LIMIT=40] -->
+    <string name="yrrp_screen_off_animation_title">Screen-off animation</string>
+    <!-- YRRPs settings: stock screen-off animation choice. [CHAR LIMIT=30] -->
+    <string name="yrrp_screen_off_animation_stock">Stock</string>
+    <!-- YRRPs settings: CRT screen-off animation choice. [CHAR LIMIT=30] -->
+    <string name="yrrp_screen_off_animation_crt">CRT</string>
+</resources>
