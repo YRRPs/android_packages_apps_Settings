@@ -93,7 +93,7 @@ public class YrrpPulseEnabledPreferenceController extends TogglePreferenceContro
 
     @Override
     public int getSliceHighlightMenuRes() {
-        return R.string.menu_key_system;
+        return R.string.yrrp_menu_key;
     }
 
     private void refreshPersistedState() {

@@ -18,6 +18,8 @@
     <string name="yrrp_settings_title" translatable="false">YRRPs</string>
     <!-- Summary of the YRRPs settings entry. [CHAR LIMIT=NONE] -->
     <string name="yrrp_settings_summary">Pulse visualizer, screen-off animation</string>
+    <!-- YRRPs settings: two-pane highlight key for the YRRPs homepage tile; must equal the tile key. -->
+    <string name="yrrp_menu_key" translatable="false">top_level_yrrp</string>
 
     <!-- YRRPs settings: audio category title. [CHAR LIMIT=40] -->
     <string name="yrrp_category_audio">Audio</string>

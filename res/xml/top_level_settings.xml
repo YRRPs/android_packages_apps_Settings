@@ -156,6 +156,15 @@
             settings:highlightableMenuKey="@string/menu_key_system"/>
 
         <com.android.settings.widget.HomepagePreference
+            android:fragment="com.android.settings.yrrp.YrrpSettings"
+            android:icon="@drawable/ic_settings_system_dashboard_filled"
+            android:key="top_level_yrrp"
+            android:order="-15"
+            android:title="@string/yrrp_settings_title"
+            android:summary="@string/yrrp_settings_summary"
+            settings:highlightableMenuKey="@string/yrrp_menu_key"/>
+
+        <com.android.settings.widget.HomepagePreference
             android:fragment="com.android.settings.deviceinfo.aboutphone.MyDeviceInfoFragment"
             android:icon="@drawable/ic_settings_about_device_filled"
             android:key="top_level_about_device"
