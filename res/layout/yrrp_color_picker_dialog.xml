@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="?android:attr/dialogPreferredPadding"
+        android:paddingEnd="?android:attr/dialogPreferredPadding"
+        android:paddingTop="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="16dp">
+
+            <!-- Decorative: the hex text next to it carries the value for TalkBack. -->
+            <View
+                android:id="@+id/yrrp_color_swatch"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/yrrp_color_swatch"
+                android:importantForAccessibility="no"/>
+
+            <TextView
+                android:id="@+id/yrrp_color_hex"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textAppearance="?android:attr/textAppearanceListItem"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textDirection="ltr"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/yrrp_color_red_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/yrrp_color_red"
+            android:text="@string/yrrp_pulse_color_red"
+            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+            android:textColor="?android:attr/textColorSecondary"/>
+
+        <SeekBar
+            android:id="@+id/yrrp_color_red"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:min="0"/>
+
+        <TextView
+            android:id="@+id/yrrp_color_green_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/yrrp_color_green"
+            android:text="@string/yrrp_pulse_color_green"
+            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+            android:textColor="?android:attr/textColorSecondary"/>
+
+        <SeekBar
+            android:id="@+id/yrrp_color_green"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:min="0"/>
+
+        <TextView
+            android:id="@+id/yrrp_color_blue_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/yrrp_color_blue"
+            android:text="@string/yrrp_pulse_color_blue"
+            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+            android:textColor="?android:attr/textColorSecondary"/>
+
+        <SeekBar
+            android:id="@+id/yrrp_color_blue"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:min="0"/>
+
+    </LinearLayout>
+
+</ScrollView>

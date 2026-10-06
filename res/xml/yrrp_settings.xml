@@ -30,6 +30,18 @@
             android:persistent="false"
             settings:controller="com.android.settings.yrrp.YrrpPulseEnabledPreferenceController"/>
 
+        <com.android.settings.yrrp.YrrpColorPreference
+            android:key="yrrp_pulse_color"
+            android:title="@string/yrrp_pulse_color_title"
+            android:persistent="false"
+            settings:controller="com.android.settings.yrrp.YrrpPulseColorPreferenceController"/>
+
+        <com.android.settingslib.widget.SliderPreference
+            android:key="yrrp_pulse_height"
+            android:title="@string/yrrp_pulse_height_title"
+            android:persistent="false"
+            settings:controller="com.android.settings.yrrp.YrrpPulseHeightPreferenceController"/>
+
         <com.android.settingslib.widget.FooterPreference
             android:key="yrrp_pulse_privacy"
             android:title="@string/yrrp_pulse_privacy"

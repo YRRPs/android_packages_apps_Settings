@@ -17,6 +17,9 @@
 package com.android.settings.yrrp;
 
 import android.app.settings.SettingsEnums;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
 
 import com.android.settings.R;
 import com.android.settings.dashboard.DashboardFragment;
@@ -27,6 +30,17 @@ import com.android.settingslib.search.SearchIndexable;
 @SearchIndexable
 public class YrrpSettings extends DashboardFragment {
     private static final String TAG = "YrrpSettings";
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        // Runs on every attach, so the color result listener survives recreation.
+        final YrrpPulseColorPreferenceController colorController =
+                use(YrrpPulseColorPreferenceController.class);
+        if (colorController != null) {
+            colorController.init(this);
+        }
+    }
 
     @Override
     public int getMetricsCategory() {

@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- YRRPs settings page title. [CHAR LIMIT=30] -->
     <string name="yrrp_settings_title" translatable="false">YRRPs</string>
     <!-- Summary of the YRRPs settings entry. [CHAR LIMIT=NONE] -->
@@ -30,6 +30,22 @@
     <string name="yrrp_pulse_enabled_title">Pulse audio visualizer</string>
     <!-- YRRPs settings: Pulse switch summary. [CHAR LIMIT=NONE] -->
     <string name="yrrp_pulse_enabled_summary">Show a spectrum of playing audio in the navigation bar</string>
+    <!-- YRRPs settings: Pulse color row and picker dialog title. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_color_title">Pulse color</string>
+    <!-- YRRPs settings: label of the red channel slider in the Pulse color picker. [CHAR LIMIT=20] -->
+    <string name="yrrp_pulse_color_red">Red</string>
+    <!-- YRRPs settings: label of the green channel slider in the Pulse color picker. [CHAR LIMIT=20] -->
+    <string name="yrrp_pulse_color_green">Green</string>
+    <!-- YRRPs settings: label of the blue channel slider in the Pulse color picker. [CHAR LIMIT=20] -->
+    <string name="yrrp_pulse_color_blue">Blue</string>
+    <!-- YRRPs settings: spoken value (0-255) of a color channel slider, e.g. "128"; the slider label names the channel. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_pulse_color_channel_state"><xliff:g id="value" example="128">%1$d</xliff:g></string>
+    <!-- YRRPs settings: spoken description of the picked color, e.g. "Selected color #80FF00". [CHAR LIMIT=NONE] -->
+    <string name="yrrp_pulse_color_hex_description">Selected color <xliff:g id="hex" example="#80FF00">%1$s</xliff:g></string>
+    <!-- YRRPs settings: Pulse height slider title. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_height_title">Pulse height</string>
+    <!-- YRRPs settings: Pulse height value, e.g. "48 dp". [CHAR LIMIT=20] -->
+    <string name="yrrp_pulse_height_value"><xliff:g id="height" example="48">%d</xliff:g> dp</string>
     <!-- YRRPs settings: Pulse privacy footer. [CHAR LIMIT=NONE] -->
     <string name="yrrp_pulse_privacy">Pulse processes the local playback spectrum in memory. It does not store or transmit audio.</string>
 
