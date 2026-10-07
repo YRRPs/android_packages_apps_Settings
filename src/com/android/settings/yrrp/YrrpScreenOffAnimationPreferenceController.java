@@ -20,6 +20,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.preference.Preference;
@@ -45,9 +46,18 @@ public class YrrpScreenOffAnimationPreferenceController extends BasePreferenceCo
 
     public YrrpScreenOffAnimationPreferenceController(
             @NonNull Context context, @NonNull String preferenceKey) {
+        this(context, preferenceKey, new YrrpSettingsStore(context));
+    }
+
+    /** Injects the store, so tests can count writes and make them fail. */
+    @VisibleForTesting
+    YrrpScreenOffAnimationPreferenceController(
+            @NonNull Context context,
+            @NonNull String preferenceKey,
+            @NonNull YrrpSettingsStore store) {
         super(context, preferenceKey);
         mMode = keyToMode(preferenceKey);
-        mStore = new YrrpSettingsStore(context);
+        mStore = store;
         mObserver =
                 new YrrpSecureSettingObserver(
                         context, this, mStore, YrrpSettingsStore.SCREEN_OFF_ANIMATION);
