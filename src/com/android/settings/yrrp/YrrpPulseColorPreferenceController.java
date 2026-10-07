@@ -23,6 +23,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -50,8 +51,17 @@ public class YrrpPulseColorPreferenceController extends BasePreferenceController
 
     public YrrpPulseColorPreferenceController(
             @NonNull Context context, @NonNull String preferenceKey) {
+        this(context, preferenceKey, new YrrpSettingsStore(context));
+    }
+
+    /** Injects the store, so tests can count writes and make them fail. */
+    @VisibleForTesting
+    YrrpPulseColorPreferenceController(
+            @NonNull Context context,
+            @NonNull String preferenceKey,
+            @NonNull YrrpSettingsStore store) {
         super(context, preferenceKey);
-        mStore = new YrrpSettingsStore(context);
+        mStore = store;
         mObserver =
                 new YrrpSecureSettingObserver(
                         context,
