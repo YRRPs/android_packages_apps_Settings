@@ -21,7 +21,8 @@
 
     <PreferenceCategory
         android:key="yrrp_category_audio"
-        android:title="@string/yrrp_category_audio">
+        android:title="@string/yrrp_category_audio"
+        settings:searchable="false">
 
         <Preference
             android:key="yrrp_pulse_entry"
@@ -34,7 +35,8 @@
 
     <PreferenceCategory
         android:key="yrrp_category_animations"
-        android:title="@string/yrrp_category_animations">
+        android:title="@string/yrrp_category_animations"
+        settings:searchable="false">
 
         <Preference
             android:key="yrrp_screen_off_animation_entry"
