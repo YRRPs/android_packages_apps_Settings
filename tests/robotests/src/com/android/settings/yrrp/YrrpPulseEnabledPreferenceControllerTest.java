@@ -46,6 +46,9 @@ import org.robolectric.shadows.ShadowContentResolver;
 
 @RunWith(RobolectricTestRunner.class)
 public class YrrpPulseEnabledPreferenceControllerTest {
+    /** Read back when a key was never written. */
+    private static final int MISSING = Integer.MIN_VALUE;
+
     private static final String PREF_KEY = "yrrp_pulse_enabled";
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -55,6 +58,7 @@ public class YrrpPulseEnabledPreferenceControllerTest {
     private YrrpPulseEnabledPreferenceController mController;
     private MainSwitchPreference mPreference;
     private PreferenceScreen mScreen;
+    private LifecycleOwner mLifecycleOwner;
     private Lifecycle mLifecycle;
 
     @Before
@@ -68,8 +72,8 @@ public class YrrpPulseEnabledPreferenceControllerTest {
         mPreference.setKey(PREF_KEY);
         mScreen = new PreferenceManager(mContext).createPreferenceScreen(mContext);
         mScreen.addPreference(mPreference);
-        final LifecycleOwner lifecycleOwner = () -> mLifecycle;
-        mLifecycle = new Lifecycle(lifecycleOwner);
+        mLifecycleOwner = () -> mLifecycle;
+        mLifecycle = new Lifecycle(mLifecycleOwner);
         mLifecycle.addObserver(mController);
     }
 
@@ -98,7 +102,7 @@ public class YrrpPulseEnabledPreferenceControllerTest {
 
         assertThat(mController.isChecked()).isTrue();
         assertThat(mBackend.mWrites).isEmpty();
-        assertThat(rawEnabled()).isEqualTo("7");
+        assertThat(rawEnabled()).isEqualTo(7);
     }
 
     @Test
@@ -108,7 +112,7 @@ public class YrrpPulseEnabledPreferenceControllerTest {
         assertThat(mController.setChecked(true)).isTrue();
 
         assertThat(mBackend.mWrites).containsExactly("lineage_pulse_enabled=1");
-        assertThat(rawEnabled()).isEqualTo("1");
+        assertThat(rawEnabled()).isEqualTo(1);
     }
 
     @Test
@@ -118,7 +122,7 @@ public class YrrpPulseEnabledPreferenceControllerTest {
         assertThat(mController.setChecked(false)).isTrue();
 
         assertThat(mBackend.mWrites).containsExactly("lineage_pulse_enabled=0");
-        assertThat(rawEnabled()).isEqualTo("0");
+        assertThat(rawEnabled()).isEqualTo(0);
     }
 
     @Test
@@ -131,7 +135,7 @@ public class YrrpPulseEnabledPreferenceControllerTest {
 
         assertThat(mBackend.mWrites).containsExactly("lineage_pulse_enabled=1");
         assertThat(mPreference.isChecked()).isFalse();
-        assertThat(rawEnabled()).isNull();
+        assertThat(rawEnabled()).isEqualTo(MISSING);
     }
 
     @Test
@@ -188,8 +192,8 @@ public class YrrpPulseEnabledPreferenceControllerTest {
         Settings.Secure.putInt(mContentResolver, YrrpSettingsStore.PULSE_ENABLED, value);
     }
 
-    private String rawEnabled() {
-        return Settings.Secure.getString(mContentResolver, YrrpSettingsStore.PULSE_ENABLED);
+    private int rawEnabled() {
+        return Settings.Secure.getInt(mContentResolver, YrrpSettingsStore.PULSE_ENABLED, MISSING);
     }
 
     private static Uri enabledUri() {

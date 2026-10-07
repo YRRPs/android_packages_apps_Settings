@@ -17,6 +17,7 @@
 package com.android.settings.yrrp;
 
 import static androidx.lifecycle.Lifecycle.Event.ON_START;
+import static androidx.lifecycle.Lifecycle.Event.ON_STOP;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -25,6 +26,7 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
@@ -51,31 +53,41 @@ import java.util.Map;
 
 @RunWith(RobolectricTestRunner.class)
 public class YrrpScreenOffAnimationPreferenceControllerTest {
+    /** Read back when a key was never written. */
+    private static final int MISSING = Integer.MIN_VALUE;
+
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private ContentResolver mContentResolver;
+    private YrrpRecordingSecureBackend mBackend;
     private YrrpScreenOffAnimationPreferenceController mStockController;
     private YrrpScreenOffAnimationPreferenceController mCrtController;
     private SelectorWithWidgetPreference mStockPreference;
     private SelectorWithWidgetPreference mCrtPreference;
     private PreferenceScreen mScreen;
+    private LifecycleOwner mLifecycleOwner;
     private Lifecycle mLifecycle;
 
     @Before
     public void setUp() {
         mContentResolver = mContext.getContentResolver();
+        mBackend = new YrrpRecordingSecureBackend(mContext);
         mStockController =
                 new YrrpScreenOffAnimationPreferenceController(
-                        mContext, YrrpScreenOffAnimationPreferenceController.KEY_STOCK);
+                        mContext,
+                        YrrpScreenOffAnimationPreferenceController.KEY_STOCK,
+                        mBackend.newStore());
         mCrtController =
                 new YrrpScreenOffAnimationPreferenceController(
-                        mContext, YrrpScreenOffAnimationPreferenceController.KEY_CRT);
+                        mContext,
+                        YrrpScreenOffAnimationPreferenceController.KEY_CRT,
+                        mBackend.newStore());
         mStockPreference = newRadio(YrrpScreenOffAnimationPreferenceController.KEY_STOCK);
         mCrtPreference = newRadio(YrrpScreenOffAnimationPreferenceController.KEY_CRT);
         mScreen = new PreferenceManager(mContext).createPreferenceScreen(mContext);
         mScreen.addPreference(mStockPreference);
         mScreen.addPreference(mCrtPreference);
-        final LifecycleOwner lifecycleOwner = () -> mLifecycle;
-        mLifecycle = new Lifecycle(lifecycleOwner);
+        mLifecycleOwner = () -> mLifecycle;
+        mLifecycle = new Lifecycle(mLifecycleOwner);
         mLifecycle.addObserver(mStockController);
         mLifecycle.addObserver(mCrtController);
     }
@@ -131,7 +143,8 @@ public class YrrpScreenOffAnimationPreferenceControllerTest {
 
         assertThat(mStockPreference.isChecked()).isTrue();
         assertThat(mCrtPreference.isChecked()).isFalse();
-        assertThat(rawAnimation()).isNull();
+        assertThat(rawAnimation()).isEqualTo(MISSING);
+        assertThat(mBackend.mWrites).isEmpty();
     }
 
     @Test
@@ -162,7 +175,8 @@ public class YrrpScreenOffAnimationPreferenceControllerTest {
 
         assertThat(mStockPreference.isChecked()).isTrue();
         assertThat(mCrtPreference.isChecked()).isFalse();
-        assertThat(rawAnimation()).isEqualTo("99");
+        assertThat(rawAnimation()).isEqualTo(99);
+        assertThat(mBackend.mWrites).isEmpty();
     }
 
     @Test
@@ -172,7 +186,8 @@ public class YrrpScreenOffAnimationPreferenceControllerTest {
 
         mCrtPreference.onClick();
 
-        assertThat(rawAnimation()).isEqualTo("1");
+        assertThat(mBackend.mWrites).containsExactly("lineage_screen_off_animation=1");
+        assertThat(rawAnimation()).isEqualTo(1);
     }
 
     @Test
@@ -182,7 +197,40 @@ public class YrrpScreenOffAnimationPreferenceControllerTest {
 
         mStockPreference.onClick();
 
-        assertThat(rawAnimation()).isEqualTo("0");
+        assertThat(mBackend.mWrites).containsExactly("lineage_screen_off_animation=0");
+        assertThat(rawAnimation()).isEqualTo(0);
+    }
+
+    @Test
+    public void clickStock_writeFails_keepsCrtChecked() {
+        putAnimation(1);
+        displayBothRows();
+        mLifecycle.handleLifecycleEvent(ON_START);
+        updateBothRows();
+        mBackend.mFailingKeys.add(YrrpSettingsStore.SCREEN_OFF_ANIMATION);
+
+        mStockPreference.onClick();
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertThat(mBackend.mWrites).containsExactly("lineage_screen_off_animation=0");
+        assertThat(rawAnimation()).isEqualTo(1);
+        assertThat(mStockPreference.isChecked()).isFalse();
+        assertThat(mCrtPreference.isChecked()).isTrue();
+    }
+
+    @Test
+    public void onStart_eachRowRegistersObserverForAnimationKey() {
+        mLifecycle.handleLifecycleEvent(ON_START);
+
+        assertThat(shadowOf(mContentResolver).getContentObservers(animationUri())).hasSize(2);
+    }
+
+    @Test
+    public void onStop_unregistersObservers() {
+        mLifecycle.handleLifecycleEvent(ON_START);
+        mLifecycle.handleLifecycleEvent(ON_STOP);
+
+        assertThat(shadowOf(mContentResolver).getContentObservers(animationUri())).isEmpty();
     }
 
     @Test
@@ -212,6 +260,10 @@ public class YrrpScreenOffAnimationPreferenceControllerTest {
         assertThat(mCrtPreference.isChecked()).isFalse();
     }
 
+    private static Uri animationUri() {
+        return Settings.Secure.getUriFor(YrrpSettingsStore.SCREEN_OFF_ANIMATION);
+    }
+
     private SelectorWithWidgetPreference newRadio(String key) {
         final SelectorWithWidgetPreference preference = new SelectorWithWidgetPreference(mContext);
         preference.setKey(key);
@@ -232,7 +284,8 @@ public class YrrpScreenOffAnimationPreferenceControllerTest {
         Settings.Secure.putInt(mContentResolver, YrrpSettingsStore.SCREEN_OFF_ANIMATION, value);
     }
 
-    private String rawAnimation() {
-        return Settings.Secure.getString(mContentResolver, YrrpSettingsStore.SCREEN_OFF_ANIMATION);
+    private int rawAnimation() {
+        return Settings.Secure.getInt(
+                mContentResolver, YrrpSettingsStore.SCREEN_OFF_ANIMATION, MISSING);
     }
 }

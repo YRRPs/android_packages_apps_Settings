@@ -49,6 +49,9 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class YrrpPulseHeightPreferenceControllerTest {
+    /** Read back when a key was never written. */
+    private static final int MISSING = Integer.MIN_VALUE;
+
     private static final String PREF_KEY = "yrrp_pulse_height";
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -57,6 +60,7 @@ public class YrrpPulseHeightPreferenceControllerTest {
     private YrrpPulseHeightPreferenceController mController;
     private SliderPreference mPreference;
     private PreferenceScreen mScreen;
+    private LifecycleOwner mLifecycleOwner;
     private Lifecycle mLifecycle;
 
     @Before
@@ -69,8 +73,8 @@ public class YrrpPulseHeightPreferenceControllerTest {
         mPreference.setKey(PREF_KEY);
         mScreen = new PreferenceManager(mContext).createPreferenceScreen(mContext);
         mScreen.addPreference(mPreference);
-        final LifecycleOwner lifecycleOwner = () -> mLifecycle;
-        mLifecycle = new Lifecycle(lifecycleOwner);
+        mLifecycleOwner = () -> mLifecycle;
+        mLifecycle = new Lifecycle(mLifecycleOwner);
         mLifecycle.addObserver(mController);
     }
 
@@ -154,7 +158,7 @@ public class YrrpPulseHeightPreferenceControllerTest {
         mLifecycle.handleLifecycleEvent(ON_START);
 
         assertThat(mBackend.mWrites).isEmpty();
-        assertThat(raw(YrrpSettingsStore.PULSE_HEIGHT_DP)).isEqualTo("10");
+        assertThat(raw(YrrpSettingsStore.PULSE_HEIGHT_DP)).isEqualTo(10);
     }
 
     @Test
@@ -165,6 +169,26 @@ public class YrrpPulseHeightPreferenceControllerTest {
 
         assertThat(mBackend.mWrites).containsExactly("lineage_pulse_height_dp=8");
         assertThat(String.valueOf(mPreference.getSummary())).isEqualTo("8 dp");
+    }
+
+    @Test
+    public void setSliderPosition_belowRange_writesMinimumOnce() {
+        mController.displayPreference(mScreen);
+
+        assertThat(mController.setSliderPosition(4)).isTrue();
+
+        assertThat(mBackend.mWrites).containsExactly("lineage_pulse_height_dp=8");
+        assertThat(raw(YrrpSettingsStore.PULSE_HEIGHT_DP)).isEqualTo(8);
+    }
+
+    @Test
+    public void setSliderPosition_aboveRange_writesMaximumOnce() {
+        mController.displayPreference(mScreen);
+
+        assertThat(mController.setSliderPosition(100)).isTrue();
+
+        assertThat(mBackend.mWrites).containsExactly("lineage_pulse_height_dp=96");
+        assertThat(raw(YrrpSettingsStore.PULSE_HEIGHT_DP)).isEqualTo(96);
     }
 
     @Test
@@ -198,7 +222,7 @@ public class YrrpPulseHeightPreferenceControllerTest {
         assertThat(mController.setSliderPosition(60)).isFalse();
 
         assertThat(mBackend.mWrites).containsExactly("lineage_pulse_height_dp=60");
-        assertThat(raw(YrrpSettingsStore.PULSE_HEIGHT_DP)).isEqualTo("40");
+        assertThat(raw(YrrpSettingsStore.PULSE_HEIGHT_DP)).isEqualTo(40);
         assertThat(String.valueOf(mPreference.getSummary())).isEqualTo("40 dp");
     }
 
@@ -261,7 +285,7 @@ public class YrrpPulseHeightPreferenceControllerTest {
         Settings.Secure.putInt(mContentResolver, key, value);
     }
 
-    private String raw(String key) {
-        return Settings.Secure.getString(mContentResolver, key);
+    private int raw(String key) {
+        return Settings.Secure.getInt(mContentResolver, key, MISSING);
     }
 }

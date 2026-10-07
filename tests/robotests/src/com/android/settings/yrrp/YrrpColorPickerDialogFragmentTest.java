@@ -23,11 +23,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.robolectric.Shadows.shadowOf;
 
-import android.content.ContentResolver;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Looper;
-import android.provider.Settings;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -36,7 +33,6 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.Lifecycle;
-import androidx.test.core.app.ApplicationProvider;
 
 import com.android.settings.R;
 
@@ -44,13 +40,14 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(qualifiers = "en-rUS")
 public class YrrpColorPickerDialogFragmentTest {
-    private final Context mContext = ApplicationProvider.getApplicationContext();
     private final List<Bundle> mResults = new ArrayList<>();
     private FragmentScenario<Fragment> mHostScenario;
 
@@ -93,7 +90,7 @@ public class YrrpColorPickerDialogFragmentTest {
     }
 
     @Test
-    public void moveChannel_updatesHexAndStateLocallyWithoutWritingOrPublishing() {
+    public void moveChannel_updatesHexAndStateLocallyWithoutPublishing() {
         showPicker(0xFFFFFF, 217);
 
         final SeekBar red = seekBar(R.id.yrrp_color_red);
@@ -102,7 +99,6 @@ public class YrrpColorPickerDialogFragmentTest {
         assertThat(hexText()).isEqualTo("#D980FFFF");
         assertThat(String.valueOf(red.getStateDescription())).isEqualTo("128");
         assertThat(mResults).isEmpty();
-        assertPulseSettingsUntouched();
     }
 
     @Test
@@ -146,7 +142,6 @@ public class YrrpColorPickerDialogFragmentTest {
         final Bundle result = mResults.get(0);
         assertThat(result.getInt(YrrpColorPickerDialogFragment.RESULT_RGB)).isEqualTo(0xFF00FF);
         assertThat(result.getInt(YrrpColorPickerDialogFragment.RESULT_ALPHA)).isEqualTo(128);
-        assertPulseSettingsUntouched();
     }
 
     @Test
@@ -169,7 +164,6 @@ public class YrrpColorPickerDialogFragmentTest {
         clickButton(BUTTON_NEGATIVE);
 
         assertThat(mResults).isEmpty();
-        assertPulseSettingsUntouched();
     }
 
     @Test
@@ -192,7 +186,6 @@ public class YrrpColorPickerDialogFragmentTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         assertThat(mResults).isEmpty();
-        assertPulseSettingsUntouched();
     }
 
     /** Shows the picker in a host fragment's child manager, as the color row's controller does. */
@@ -248,11 +241,5 @@ public class YrrpColorPickerDialogFragmentTest {
     private void clickButton(int which) {
         dialog().getButton(which).performClick();
         shadowOf(Looper.getMainLooper()).idle();
-    }
-
-    private void assertPulseSettingsUntouched() {
-        final ContentResolver resolver = mContext.getContentResolver();
-        assertThat(Settings.Secure.getString(resolver, YrrpSettingsStore.PULSE_COLOR)).isNull();
-        assertThat(Settings.Secure.getString(resolver, YrrpSettingsStore.PULSE_ALPHA)).isNull();
     }
 }

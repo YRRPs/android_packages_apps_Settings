@@ -49,6 +49,9 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class YrrpPulseColorPreferenceControllerTest {
+    /** Read back when a key was never written. */
+    private static final int MISSING = Integer.MIN_VALUE;
+
     private static final String PREF_KEY = "yrrp_pulse_color";
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -57,6 +60,7 @@ public class YrrpPulseColorPreferenceControllerTest {
     private YrrpPulseColorPreferenceController mController;
     private YrrpColorPreference mPreference;
     private PreferenceScreen mScreen;
+    private LifecycleOwner mLifecycleOwner;
     private Lifecycle mLifecycle;
     private FragmentScenario<Fragment> mHostScenario;
 
@@ -70,8 +74,8 @@ public class YrrpPulseColorPreferenceControllerTest {
         mPreference.setKey(PREF_KEY);
         mScreen = new PreferenceManager(mContext).createPreferenceScreen(mContext);
         mScreen.addPreference(mPreference);
-        final LifecycleOwner lifecycleOwner = () -> mLifecycle;
-        mLifecycle = new Lifecycle(lifecycleOwner);
+        mLifecycleOwner = () -> mLifecycle;
+        mLifecycle = new Lifecycle(mLifecycleOwner);
         mLifecycle.addObserver(mController);
         mController.displayPreference(mScreen);
     }
@@ -110,7 +114,7 @@ public class YrrpPulseColorPreferenceControllerTest {
 
         assertThat(summary()).isEqualTo("#1A123456");
         assertThat(mBackend.mWrites).isEmpty();
-        assertThat(raw(YrrpSettingsStore.PULSE_ALPHA)).isEqualTo("0");
+        assertThat(raw(YrrpSettingsStore.PULSE_ALPHA)).isEqualTo(0);
     }
 
     @Test
@@ -264,7 +268,7 @@ public class YrrpPulseColorPreferenceControllerTest {
         confirm(result(0xFF00FF, 255));
 
         assertThat(mBackend.mWrites).containsExactly("lineage_pulse_color=" + 0xFF00FF);
-        assertThat(raw(YrrpSettingsStore.PULSE_ALPHA)).isEqualTo("128");
+        assertThat(raw(YrrpSettingsStore.PULSE_ALPHA)).isEqualTo(128);
         assertThat(summary()).isEqualTo("#8000FF00");
     }
 
@@ -324,7 +328,7 @@ public class YrrpPulseColorPreferenceControllerTest {
         Settings.Secure.putInt(mContentResolver, key, value);
     }
 
-    private String raw(String key) {
-        return Settings.Secure.getString(mContentResolver, key);
+    private int raw(String key) {
+        return Settings.Secure.getInt(mContentResolver, key, MISSING);
     }
 }

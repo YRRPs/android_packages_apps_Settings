@@ -44,6 +44,9 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class YrrpPulseEntryPreferenceControllerTest {
+    /** Read back when a key was never written. */
+    private static final int MISSING = Integer.MIN_VALUE;
+
     private static final String PREF_KEY = "yrrp_pulse";
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -51,6 +54,7 @@ public class YrrpPulseEntryPreferenceControllerTest {
     private YrrpPulseEntryPreferenceController mController;
     private Preference mPreference;
     private PreferenceScreen mScreen;
+    private LifecycleOwner mLifecycleOwner;
     private Lifecycle mLifecycle;
 
     @Before
@@ -61,15 +65,15 @@ public class YrrpPulseEntryPreferenceControllerTest {
         mPreference.setKey(PREF_KEY);
         mScreen = new PreferenceManager(mContext).createPreferenceScreen(mContext);
         mScreen.addPreference(mPreference);
-        final LifecycleOwner lifecycleOwner = () -> mLifecycle;
-        mLifecycle = new Lifecycle(lifecycleOwner);
+        mLifecycleOwner = () -> mLifecycle;
+        mLifecycle = new Lifecycle(mLifecycleOwner);
         mLifecycle.addObserver(mController);
     }
 
     @Test
     public void getSummary_missingSetting_isOffWithoutWriting() {
         assertThat(mController.getSummary().toString()).isEqualTo(text(R.string.switch_off_text));
-        assertThat(rawEnabled()).isNull();
+        assertThat(rawEnabled()).isEqualTo(MISSING);
     }
 
     @Test
@@ -91,7 +95,7 @@ public class YrrpPulseEntryPreferenceControllerTest {
         putEnabled(7);
 
         assertThat(mController.getSummary().toString()).isEqualTo(text(R.string.switch_on_text));
-        assertThat(rawEnabled()).isEqualTo("7");
+        assertThat(rawEnabled()).isEqualTo(7);
     }
 
     @Test
@@ -102,7 +106,7 @@ public class YrrpPulseEntryPreferenceControllerTest {
         mController.updateState(mPreference);
 
         assertThat(mPreference.getSummary().toString()).isEqualTo(text(R.string.switch_on_text));
-        assertThat(rawEnabled()).isEqualTo("7");
+        assertThat(rawEnabled()).isEqualTo(7);
     }
 
     @Test
@@ -115,6 +119,22 @@ public class YrrpPulseEntryPreferenceControllerTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         assertThat(mPreference.getSummary().toString()).isEqualTo(text(R.string.switch_on_text));
+    }
+
+    @Test
+    public void onStart_registersObserverForEnabledKey() {
+        mLifecycle.handleLifecycleEvent(ON_START);
+
+        assertThat(
+                        shadowOf(mContentResolver)
+                                .getContentObservers(
+                                        Settings.Secure.getUriFor(YrrpSettingsStore.PULSE_ENABLED)))
+                .hasSize(1);
+    }
+
+    @Test
+    public void isSliceable_isFalse() {
+        assertThat(mController.isSliceable()).isFalse();
     }
 
     @Test
@@ -137,7 +157,7 @@ public class YrrpPulseEntryPreferenceControllerTest {
         Settings.Secure.putInt(mContentResolver, YrrpSettingsStore.PULSE_ENABLED, value);
     }
 
-    private String rawEnabled() {
-        return Settings.Secure.getString(mContentResolver, YrrpSettingsStore.PULSE_ENABLED);
+    private int rawEnabled() {
+        return Settings.Secure.getInt(mContentResolver, YrrpSettingsStore.PULSE_ENABLED, MISSING);
     }
 }

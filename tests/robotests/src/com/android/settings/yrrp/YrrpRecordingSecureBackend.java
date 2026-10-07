@@ -30,8 +30,9 @@ import java.util.Set;
  * A {@link YrrpSettingsStore.Backend} over Robolectric's secure settings that records every write
  * attempt and can fail writes to chosen keys without storing them.
  *
- * <p>Successful writes go through {@link Settings.Secure}, so registered content observers are
- * notified as on a device.
+ * <p>Successful writes go through {@link Settings.Secure}. Robolectric's secure settings notify
+ * registered content observers only when the stored value changes; writing the value already stored
+ * notifies nobody.
  */
 final class YrrpRecordingSecureBackend implements YrrpSettingsStore.Backend {
     /** Every write attempt, failed ones included, as {@code key=value} in call order. */
