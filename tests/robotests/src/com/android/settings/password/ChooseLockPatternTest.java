@@ -174,7 +174,10 @@ public class ChooseLockPatternTest {
     }
 
     private LockscreenCredential createPattern(String patternString) {
-        return LockscreenCredential.createPattern(LockPatternUtils.byteArrayToPattern(
-                patternString.getBytes()));
+        // ChooseLockPattern uses the default size when the intent has no pattern_size extra.
+        final byte patternSize = LockPatternUtils.PATTERN_SIZE_DEFAULT;
+        return LockscreenCredential.createPattern(
+                LockPatternUtils.byteArrayToPattern(patternString.getBytes(), patternSize),
+                patternSize);
     }
 }
