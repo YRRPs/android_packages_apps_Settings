@@ -60,6 +60,7 @@ public class YrrpPulseSettingsTest {
                         "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_height",
                         "  com.android.settingslib.widget.FooterPreference#yrrp_pulse_privacy")
                 .inOrder();
+        // Kept alongside the outline check on purpose: this one runs the production key parser.
         assertThat(XmlTestUtils.getKeysFromPreferenceXml(mContext, R.xml.yrrp_pulse_settings))
                 .containsExactly(
                         "yrrp_pulse_settings_screen",

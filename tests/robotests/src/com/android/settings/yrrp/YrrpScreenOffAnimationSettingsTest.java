@@ -59,6 +59,7 @@ public class YrrpScreenOffAnimationSettingsTest {
                         "  " + SELECTOR + "#yrrp_screen_off_animation_stock",
                         "  " + SELECTOR + "#yrrp_screen_off_animation_crt")
                 .inOrder();
+        // Kept alongside the outline check on purpose: this one runs the production key parser.
         assertThat(
                         XmlTestUtils.getKeysFromPreferenceXml(
                                 mContext, R.xml.yrrp_screen_off_animation_settings))

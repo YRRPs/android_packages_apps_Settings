@@ -56,6 +56,7 @@ public class YrrpSettingsTest {
                         "  PreferenceCategory#yrrp_category_animations",
                         "    Preference#yrrp_screen_off_animation_entry")
                 .inOrder();
+        // Kept alongside the outline check on purpose: this one runs the production key parser.
         assertThat(XmlTestUtils.getKeysFromPreferenceXml(mContext, R.xml.yrrp_settings))
                 .containsExactly(
                         "yrrp_settings_screen",

@@ -73,8 +73,13 @@ final class YrrpXmlElements {
             return id == null ? 0 : id;
         }
 
+        /** The {@code android:order} value; fails the test when the attribute is missing. */
         int order() {
-            return Integer.parseInt(value("order"));
+            final String order = value("order");
+            if (order == null) {
+                throw new AssertionError("no android:order on " + key());
+            }
+            return Integer.parseInt(order);
         }
 
         /** {@code tag#key}, indented two spaces per nesting level below the root. */

@@ -35,6 +35,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.util.ReflectionHelpers;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,16 +44,38 @@ public class YrrpSettingsNavigationTest {
     private static final String YRRP_CATEGORY = "yrrp_top_level_category";
     private static final String YRRP_HOMEPAGE_ENTRY = "top_level_yrrp";
 
-    private final Context mContext = ApplicationProvider.getApplicationContext();
+    /**
+     * Private static fields of {@link HighlightableMenu}, read and written by reflection. The names
+     * are load-bearing: renaming either field still compiles but fails these tests at runtime.
+     */
+    private static final String FIELD_XML_PARSED = "sXmlParsed";
 
+    private static final String FIELD_MENU_TO_PREFERENCE_KEY_MAP = "MENU_TO_PREFERENCE_KEY_MAP";
+
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+    private Map<String, String> mSavedMenuToPreferenceKey;
+    private boolean mSavedXmlParsed;
+
+    /**
+     * Saves the process-wide HighlightableMenu state, then clears it so each test parses afresh.
+     */
     @Before
     public void setUp() {
-        resetHighlightableMenu();
+        mSavedMenuToPreferenceKey = new HashMap<>(menuToPreferenceKeyMap());
+        mSavedXmlParsed =
+                ReflectionHelpers.getStaticField(HighlightableMenu.class, FIELD_XML_PARSED);
+        ReflectionHelpers.setStaticField(HighlightableMenu.class, FIELD_XML_PARSED, false);
+        menuToPreferenceKeyMap().clear();
     }
 
+    /** Restores the state saved in {@link #setUp()} for later tests in this process. */
     @After
     public void tearDown() {
-        resetHighlightableMenu();
+        final Map<String, String> map = menuToPreferenceKeyMap();
+        map.clear();
+        map.putAll(mSavedMenuToPreferenceKey);
+        ReflectionHelpers.setStaticField(
+                HighlightableMenu.class, FIELD_XML_PARSED, mSavedXmlParsed);
     }
 
     @Test
@@ -98,6 +121,7 @@ public class YrrpSettingsNavigationTest {
         final YrrpXmlElements.Element category = YrrpXmlElements.find(elements, YRRP_CATEGORY);
         final YrrpXmlElements.Element next = YrrpXmlElements.find(elements, nextKey);
 
+        // Depth 2 is a direct child of the PreferenceScreen root.
         assertThat(category.mDepth).isEqualTo(2);
         assertThat(category.order()).isEqualTo(yrrpOrder);
         assertThat(next.order()).isEqualTo(nextOrder);
@@ -113,12 +137,8 @@ public class YrrpSettingsNavigationTest {
         assertThat(entry.resourceId("highlightableMenuKey")).isEqualTo(R.string.yrrp_menu_key);
     }
 
-    /** HighlightableMenu parses once per process; clear it so each test parses afresh. */
-    private static void resetHighlightableMenu() {
-        ReflectionHelpers.setStaticField(HighlightableMenu.class, "sXmlParsed", false);
-        final Map<String, String> menuToPreferenceKey =
-                ReflectionHelpers.getStaticField(
-                        HighlightableMenu.class, "MENU_TO_PREFERENCE_KEY_MAP");
-        menuToPreferenceKey.clear();
+    private static Map<String, String> menuToPreferenceKeyMap() {
+        return ReflectionHelpers.getStaticField(
+                HighlightableMenu.class, FIELD_MENU_TO_PREFERENCE_KEY_MAP);
     }
 }
