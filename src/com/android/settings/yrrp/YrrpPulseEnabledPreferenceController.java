@@ -19,11 +19,9 @@ package com.android.settings.yrrp;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 
 import com.android.settings.R;
@@ -35,7 +33,6 @@ public class YrrpPulseEnabledPreferenceController extends TogglePreferenceContro
 
     private final YrrpSettingsStore mStore;
     private final YrrpSecureSettingObserver mObserver;
-    private @Nullable Preference mPreference;
 
     public YrrpPulseEnabledPreferenceController(
             @NonNull Context context, @NonNull String preferenceKey) {
@@ -63,7 +60,6 @@ public class YrrpPulseEnabledPreferenceController extends TogglePreferenceContro
     @Override
     public void displayPreference(@NonNull PreferenceScreen screen) {
         super.displayPreference(screen);
-        mPreference = screen.findPreference(getPreferenceKey());
         mObserver.displayPreference(screen);
     }
 
@@ -90,7 +86,7 @@ public class YrrpPulseEnabledPreferenceController extends TogglePreferenceContro
     public boolean setChecked(boolean isChecked) {
         final boolean written = mStore.setPulseEnabled(isChecked);
         if (!written) {
-            refreshPersistedState();
+            mObserver.refresh();
         }
         return written;
     }
@@ -101,14 +97,9 @@ public class YrrpPulseEnabledPreferenceController extends TogglePreferenceContro
         return false;
     }
 
+    // Kept deliberately: the plan pins yrrp_menu_key as the highlight if slices are ever enabled.
     @Override
     public int getSliceHighlightMenuRes() {
         return R.string.yrrp_menu_key;
-    }
-
-    private void refreshPersistedState() {
-        if (mPreference != null) {
-            updateState(mPreference);
-        }
     }
 }

@@ -58,7 +58,6 @@ public class YrrpColorPickerDialogFragment extends InstrumentedDialogFragment {
     private static final String ARG_INITIAL_ALPHA = "yrrp_initial_alpha";
     private static final String STATE_RGB = "yrrp_current_rgb";
     private static final String STATE_ALPHA = "yrrp_current_alpha";
-    private static final int RGB_MASK = 0xFFFFFF;
     private static final int CHANNEL_MAX = 0xFF;
 
     private static final int[] SEEK_BAR_IDS = {
@@ -78,7 +77,7 @@ public class YrrpColorPickerDialogFragment extends InstrumentedDialogFragment {
     @NonNull
     static YrrpColorPickerDialogFragment newInstance(int rgb, int alpha) {
         final Bundle args = new Bundle();
-        args.putInt(ARG_INITIAL_RGB, rgb & RGB_MASK);
+        args.putInt(ARG_INITIAL_RGB, YrrpSettingsStore.normalizeColor(rgb));
         args.putInt(ARG_INITIAL_ALPHA, YrrpSettingsStore.normalizeAlpha(alpha));
         final YrrpColorPickerDialogFragment fragment = new YrrpColorPickerDialogFragment();
         fragment.setArguments(args);
@@ -95,7 +94,9 @@ public class YrrpColorPickerDialogFragment extends InstrumentedDialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         final Context context = requireContext();
-        setChannels(initialValue(savedInstanceState, STATE_RGB, ARG_INITIAL_RGB, 0) & RGB_MASK);
+        setChannels(
+                YrrpSettingsStore.normalizeColor(
+                        initialValue(savedInstanceState, STATE_RGB, ARG_INITIAL_RGB, 0)));
         mAlpha =
                 YrrpSettingsStore.normalizeAlpha(
                         initialValue(
@@ -258,7 +259,7 @@ public class YrrpColorPickerDialogFragment extends InstrumentedDialogFragment {
 
     private void publishResult() {
         final Bundle result = new Bundle();
-        result.putInt(RESULT_RGB, currentRgb() & RGB_MASK);
+        result.putInt(RESULT_RGB, YrrpSettingsStore.normalizeColor(currentRgb()));
         result.putInt(RESULT_ALPHA, YrrpSettingsStore.normalizeAlpha(mAlpha));
         getParentFragmentManager().setFragmentResult(RESULT_KEY, result);
     }

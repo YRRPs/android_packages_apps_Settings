@@ -30,8 +30,8 @@ import com.android.settings.accessibility.ColorPreference;
  *
  * <p>androidx {@code Preference.performClick()} calls {@code onClick()}, which for a {@code
  * DialogPreference} shows the dialog, before any click listener or controller sees the click. The
- * grid is therefore suppressed here, and the owning controller opens the RGB picker from {@code
- * handlePreferenceTreeClick}.
+ * grid is therefore suppressed here, and the owning controller opens the color and opacity picker
+ * from {@code handlePreferenceTreeClick}.
  */
 public class YrrpColorPreference extends ColorPreference {
 

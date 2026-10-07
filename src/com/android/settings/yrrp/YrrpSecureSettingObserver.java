@@ -40,8 +40,9 @@ import java.util.List;
  * Content and lifecycle observer that refreshes its owning preference controller when any of the
  * owning controller's YRRPs secure settings change.
  *
- * <p>Composed into toggle and list controllers rather than subclassed. The owner forwards {@link
- * #displayPreference}, {@link #onStart} and {@link #onStop}.
+ * <p>Composed into the YRRPs preference controllers rather than subclassed. The owner forwards
+ * {@link #displayPreference}, {@link #onStart} and {@link #onStop}, and may call {@link #refresh}
+ * to re-read its preference after a failed or confirmed write.
  */
 public class YrrpSecureSettingObserver extends ContentObserver implements DefaultLifecycleObserver {
 
@@ -84,10 +85,17 @@ public class YrrpSecureSettingObserver extends ContentObserver implements Defaul
         mContentResolver.unregisterContentObserver(this);
     }
 
+    /** Re-reads the owner's preference from its controller, once it is bound. */
+    public void refresh() {
+        if (mPreference != null) {
+            mController.updateState(mPreference);
+        }
+    }
+
     @Override
     public void onChange(boolean selfChange, @Nullable Uri uri) {
-        if (mPreference != null && (uri == null || mUris.contains(uri))) {
-            mController.updateState(mPreference);
+        if (uri == null || mUris.contains(uri)) {
+            refresh();
         }
     }
 }

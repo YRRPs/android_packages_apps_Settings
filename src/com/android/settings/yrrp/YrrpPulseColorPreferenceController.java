@@ -47,7 +47,6 @@ public class YrrpPulseColorPreferenceController extends BasePreferenceController
     private final YrrpSettingsStore mStore;
     private final YrrpSecureSettingObserver mObserver;
     private @Nullable Fragment mHost;
-    private @Nullable Preference mPreference;
 
     public YrrpPulseColorPreferenceController(
             @NonNull Context context, @NonNull String preferenceKey) {
@@ -96,7 +95,6 @@ public class YrrpPulseColorPreferenceController extends BasePreferenceController
     @Override
     public void displayPreference(@NonNull PreferenceScreen screen) {
         super.displayPreference(screen);
-        mPreference = screen.findPreference(getPreferenceKey());
         mObserver.displayPreference(screen);
     }
 
@@ -180,9 +178,7 @@ public class YrrpPulseColorPreferenceController extends BasePreferenceController
                             result.getInt(YrrpColorPickerDialogFragment.RESULT_ALPHA)));
         }
         // On failure the store logs the key; either way the row re-reads both persisted values.
-        if (mPreference != null) {
-            updateState(mPreference);
-        }
+        mObserver.refresh();
     }
 
     /**

@@ -141,6 +141,7 @@ public class YrrpPulseHeightPreferenceController extends SliderPreferenceControl
         return false;
     }
 
+    // Kept deliberately: the plan pins yrrp_menu_key as the highlight if slices are ever enabled.
     @Override
     public int getSliceHighlightMenuRes() {
         return R.string.yrrp_menu_key;
