@@ -44,6 +44,7 @@ public class YrrpSettingsStore {
     static final String PULSE_ALPHA = "lineage_pulse_alpha";
     static final String PULSE_HEIGHT_DP = "lineage_pulse_height_dp";
     static final String PULSE_COLOR_MODE = "lineage_pulse_color_mode";
+    static final String PULSE_BOOST = "lineage_pulse_log_boost";
     static final String SCREEN_OFF_ANIMATION = "lineage_screen_off_animation";
 
     static final int PULSE_COLOR_DEFAULT = 0xFFFFFF;
@@ -56,6 +57,10 @@ public class YrrpSettingsStore {
     static final int PULSE_HEIGHT_STEP_DP = 4;
     static final int PULSE_COLOR_MODE_SOLID = 0;
     static final int PULSE_COLOR_MODE_MATCH_THEME = 1;
+    /** Strength k of SystemUI's PulseHeightCurve; 0 draws bar heights linearly. */
+    static final int PULSE_BOOST_DEFAULT = 20;
+    static final int PULSE_BOOST_MIN = 0;
+    static final int PULSE_BOOST_MAX = 100;
     static final int SCREEN_OFF_STOCK = 0;
     static final int SCREEN_OFF_CRT = 1;
 
@@ -137,6 +142,16 @@ public class YrrpSettingsStore {
         return putInt(PULSE_COLOR_MODE, mode);
     }
 
+    /** Returns the stored Pulse low-level boost clamped to the supported range. */
+    public int getPulseBoost() {
+        return normalizeBoost(getInt(PULSE_BOOST, PULSE_BOOST_DEFAULT));
+    }
+
+    /** Writes {@code boost} clamped to the supported range. Returns false if the write failed. */
+    public boolean setPulseBoost(int boost) {
+        return putInt(PULSE_BOOST, normalizeBoost(boost));
+    }
+
     /** Returns {@link #SCREEN_OFF_CRT} only for an exact CRT value, otherwise Stock. */
     public int getScreenOffAnimation() {
         return normalizeScreenOffAnimation(getInt(SCREEN_OFF_ANIMATION, SCREEN_OFF_STOCK));
@@ -191,6 +206,10 @@ public class YrrpSettingsStore {
         return raw == PULSE_COLOR_MODE_MATCH_THEME
                 ? PULSE_COLOR_MODE_MATCH_THEME
                 : PULSE_COLOR_MODE_SOLID;
+    }
+
+    static int normalizeBoost(int raw) {
+        return Math.max(PULSE_BOOST_MIN, Math.min(PULSE_BOOST_MAX, raw));
     }
 
     static int normalizeScreenOffAnimation(int raw) {
