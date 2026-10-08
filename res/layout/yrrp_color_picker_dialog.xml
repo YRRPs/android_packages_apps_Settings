@@ -97,21 +97,6 @@
             android:layout_height="48dp"
             android:min="0"/>
 
-        <TextView
-            android:id="@+id/yrrp_color_alpha_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:labelFor="@+id/yrrp_color_alpha"
-            android:text="@string/yrrp_pulse_color_opacity"
-            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
-            android:textColor="?android:attr/textColorSecondary"/>
-
-        <!-- The 10-100% range is set in code from YrrpSettingsStore's alpha bounds. -->
-        <SeekBar
-            android:id="@+id/yrrp_color_alpha"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"/>
-
     </LinearLayout>
 
 </ScrollView>

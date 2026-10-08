@@ -43,6 +43,7 @@ public class YrrpSettingsStore {
     static final String PULSE_COLOR = "lineage_pulse_color";
     static final String PULSE_ALPHA = "lineage_pulse_alpha";
     static final String PULSE_HEIGHT_DP = "lineage_pulse_height_dp";
+    static final String PULSE_COLOR_MODE = "lineage_pulse_color_mode";
     static final String SCREEN_OFF_ANIMATION = "lineage_screen_off_animation";
 
     static final int PULSE_COLOR_DEFAULT = 0xFFFFFF;
@@ -53,6 +54,8 @@ public class YrrpSettingsStore {
     static final int PULSE_HEIGHT_MIN_DP = 8;
     static final int PULSE_HEIGHT_MAX_DP = 96;
     static final int PULSE_HEIGHT_STEP_DP = 4;
+    static final int PULSE_COLOR_MODE_SOLID = 0;
+    static final int PULSE_COLOR_MODE_MATCH_THEME = 1;
     static final int SCREEN_OFF_STOCK = 0;
     static final int SCREEN_OFF_CRT = 1;
 
@@ -118,6 +121,22 @@ public class YrrpSettingsStore {
         return putInt(PULSE_HEIGHT_DP, normalizeHeightForWrite(heightDp));
     }
 
+    /**
+     * Returns {@link #PULSE_COLOR_MODE_MATCH_THEME} only for an exact Match theme value, otherwise
+     * Solid, as SystemUI reads it.
+     */
+    public int getPulseColorMode() {
+        return normalizeColorMode(getInt(PULSE_COLOR_MODE, PULSE_COLOR_MODE_SOLID));
+    }
+
+    /** Rejects anything other than Solid or Match theme instead of coercing it. */
+    public boolean setPulseColorMode(int mode) {
+        if (mode != PULSE_COLOR_MODE_SOLID && mode != PULSE_COLOR_MODE_MATCH_THEME) {
+            return false;
+        }
+        return putInt(PULSE_COLOR_MODE, mode);
+    }
+
     /** Returns {@link #SCREEN_OFF_CRT} only for an exact CRT value, otherwise Stock. */
     public int getScreenOffAnimation() {
         return normalizeScreenOffAnimation(getInt(SCREEN_OFF_ANIMATION, SCREEN_OFF_STOCK));
@@ -145,15 +164,15 @@ public class YrrpSettingsStore {
         return Math.max(PULSE_ALPHA_MIN, Math.min(PULSE_ALPHA_MAX, raw));
     }
 
-    /** Packs the RGB bits of {@code rgb} with {@code alpha}, clamped, as ARGB. */
-    static int toArgb(int rgb, int alpha) {
-        return (normalizeAlpha(alpha) << 24) | normalizeColor(rgb);
+    /** Returns the RGB bits of {@code rgb} with full alpha, for drawing the color opaque. */
+    static int toOpaqueColor(int rgb) {
+        return 0xFF000000 | normalizeColor(rgb);
     }
 
-    /** Formats {@code argb} as {@code #AARRGGBB}, uppercase and locale independent. */
+    /** Formats the RGB bits of {@code rgb} as {@code #RRGGBB}, uppercase and locale independent. */
     @NonNull
-    static String formatArgb(int argb) {
-        return String.format(Locale.US, "#%08X", argb);
+    static String formatRgb(int rgb) {
+        return String.format(Locale.US, "#%06X", normalizeColor(rgb));
     }
 
     static int normalizeHeightForDisplay(int raw) {
@@ -166,6 +185,12 @@ public class YrrpSettingsStore {
                 + ((clamped - PULSE_HEIGHT_MIN_DP + PULSE_HEIGHT_STEP_DP / 2)
                                 / PULSE_HEIGHT_STEP_DP)
                         * PULSE_HEIGHT_STEP_DP;
+    }
+
+    static int normalizeColorMode(int raw) {
+        return raw == PULSE_COLOR_MODE_MATCH_THEME
+                ? PULSE_COLOR_MODE_MATCH_THEME
+                : PULSE_COLOR_MODE_SOLID;
     }
 
     static int normalizeScreenOffAnimation(int raw) {

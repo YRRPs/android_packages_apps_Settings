@@ -88,33 +88,32 @@ public class YrrpPulseColorPreferenceControllerTest {
     }
 
     @Test
-    public void updateState_missingSettings_showsDefaultArgbWithoutWriting() {
+    public void updateState_missingSettings_showsDefaultRgbWithoutWriting() {
         mController.updateState(mPreference);
 
-        assertThat(summary()).isEqualTo("#D9FFFFFF");
+        assertThat(summary()).isEqualTo("#FFFFFF");
         assertThat(mBackend.mWrites).isEmpty();
     }
 
     @Test
-    public void updateState_storedColorAndAlpha_showsArgb() {
+    public void updateState_storedColor_showsRgbIgnoringAlpha() {
         putSecure(YrrpSettingsStore.PULSE_COLOR, 0xFF00FF);
         putSecure(YrrpSettingsStore.PULSE_ALPHA, 128);
 
         mController.updateState(mPreference);
 
-        assertThat(summary()).isEqualTo("#80FF00FF");
+        assertThat(summary()).isEqualTo("#FF00FF");
     }
 
     @Test
-    public void updateState_outOfRangeStoredValues_showsNormalizedArgbWithoutWriting() {
+    public void updateState_highColorBits_showsMaskedRgbWithoutWriting() {
         putSecure(YrrpSettingsStore.PULSE_COLOR, 0xAB123456);
-        putSecure(YrrpSettingsStore.PULSE_ALPHA, 0);
 
         mController.updateState(mPreference);
 
-        assertThat(summary()).isEqualTo("#1A123456");
+        assertThat(summary()).isEqualTo("#123456");
         assertThat(mBackend.mWrites).isEmpty();
-        assertThat(raw(YrrpSettingsStore.PULSE_ALPHA)).isEqualTo(0);
+        assertThat(raw(YrrpSettingsStore.PULSE_COLOR)).isEqualTo(0xAB123456);
     }
 
     @Test
@@ -127,12 +126,37 @@ public class YrrpPulseColorPreferenceControllerTest {
     }
 
     @Test
-    public void updateState_pulseOn_enablesRow() {
+    public void updateState_pulseOnInSolid_enablesRow() {
         putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
+        putSecure(YrrpSettingsStore.PULSE_COLOR_MODE, YrrpSettingsStore.PULSE_COLOR_MODE_SOLID);
 
         mController.updateState(mPreference);
 
         assertThat(mPreference.isEnabled()).isTrue();
+    }
+
+    @Test
+    public void updateState_pulseOnInMatchTheme_disablesVisibleRow() {
+        putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
+        putSecure(
+                YrrpSettingsStore.PULSE_COLOR_MODE,
+                YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME);
+
+        mController.updateState(mPreference);
+
+        assertThat(mPreference.isEnabled()).isFalse();
+        assertThat(mPreference.isVisible()).isTrue();
+    }
+
+    @Test
+    public void updateState_unknownColorMode_treatsAsSolid() {
+        putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
+        putSecure(YrrpSettingsStore.PULSE_COLOR_MODE, 99);
+
+        mController.updateState(mPreference);
+
+        assertThat(mPreference.isEnabled()).isTrue();
+        assertThat(mBackend.mWrites).isEmpty();
     }
 
     @Test
@@ -148,23 +172,42 @@ public class YrrpPulseColorPreferenceControllerTest {
     }
 
     @Test
+    public void externalColorModeChange_whileStarted_togglesRow() {
+        putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
+        mLifecycle.handleLifecycleEvent(ON_START);
+        mController.updateState(mPreference);
+        assertThat(mPreference.isEnabled()).isTrue();
+
+        putSecure(
+                YrrpSettingsStore.PULSE_COLOR_MODE,
+                YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertThat(mPreference.isEnabled()).isFalse();
+
+        putSecure(YrrpSettingsStore.PULSE_COLOR_MODE, YrrpSettingsStore.PULSE_COLOR_MODE_SOLID);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertThat(mPreference.isEnabled()).isTrue();
+    }
+
+    @Test
     public void externalColorChange_whileStarted_refreshesSummary() {
         mLifecycle.handleLifecycleEvent(ON_START);
         mController.updateState(mPreference);
 
-        putSecure(YrrpSettingsStore.PULSE_ALPHA, 128);
+        putSecure(YrrpSettingsStore.PULSE_COLOR, 0x00FF00);
         shadowOf(Looper.getMainLooper()).idle();
 
-        assertThat(summary()).isEqualTo("#80FFFFFF");
+        assertThat(summary()).isEqualTo("#00FF00");
     }
 
     @Test
-    public void onStart_observesColorAlphaAndEnabled() {
+    public void onStart_observesColorEnabledAndColorMode() {
         mLifecycle.handleLifecycleEvent(ON_START);
 
         assertThat(observerCount(YrrpSettingsStore.PULSE_COLOR)).isEqualTo(1);
-        assertThat(observerCount(YrrpSettingsStore.PULSE_ALPHA)).isEqualTo(1);
         assertThat(observerCount(YrrpSettingsStore.PULSE_ENABLED)).isEqualTo(1);
+        assertThat(observerCount(YrrpSettingsStore.PULSE_COLOR_MODE)).isEqualTo(1);
+        assertThat(observerCount(YrrpSettingsStore.PULSE_ALPHA)).isEqualTo(0);
     }
 
     @Test
@@ -181,7 +224,7 @@ public class YrrpPulseColorPreferenceControllerTest {
     }
 
     @Test
-    public void handlePreferenceTreeClick_opensPickerAtStoredColorWithoutWriting() {
+    public void handlePreferenceTreeClick_opensPickerAtStoredRgbWithoutWriting() {
         putSecure(YrrpSettingsStore.PULSE_COLOR, 0xFF00FF);
         putSecure(YrrpSettingsStore.PULSE_ALPHA, 128);
         launchHost();
@@ -195,96 +238,49 @@ public class YrrpPulseColorPreferenceControllerTest {
                                             .findFragmentByTag(YrrpColorPickerDialogFragment.TAG);
                     assertThat(picker).isNotNull();
                     final TextView hex = picker.requireDialog().findViewById(R.id.yrrp_color_hex);
-                    assertThat(hex.getText().toString()).isEqualTo("#80FF00FF");
+                    assertThat(hex.getText().toString()).isEqualTo("#FF00FF");
                 });
         assertThat(mBackend.mWrites).isEmpty();
     }
 
     @Test
-    public void colorConfirmed_writesColorThenAlphaAndShowsThem() {
+    public void colorConfirmed_writesOnlyColorAndShowsIt() {
         launchHost();
 
-        confirm(result(0xFF00FF, 128));
+        confirm(result(0xFF00FF));
 
-        assertThat(mBackend.mWrites)
-                .containsExactly("lineage_pulse_color=" + 0xFF00FF, "lineage_pulse_alpha=128")
-                .inOrder();
-        assertThat(summary()).isEqualTo("#80FF00FF");
+        assertThat(mBackend.mWrites).containsExactly("lineage_pulse_color=" + 0xFF00FF);
+        assertThat(summary()).isEqualTo("#FF00FF");
     }
 
     @Test
-    public void colorConfirmed_masksRgbAndClampsHighAlpha() {
+    public void colorConfirmed_masksRgb() {
         launchHost();
 
-        confirm(result(0xAB123456, 300));
+        confirm(result(0xAB123456));
 
-        assertThat(mBackend.mWrites)
-                .containsExactly("lineage_pulse_color=" + 0x123456, "lineage_pulse_alpha=255")
-                .inOrder();
-    }
-
-    @Test
-    public void colorConfirmed_clampsLowAlpha() {
-        launchHost();
-
-        confirm(result(0x123456, 0));
-
-        assertThat(mBackend.mWrites)
-                .containsExactly("lineage_pulse_color=" + 0x123456, "lineage_pulse_alpha=26")
-                .inOrder();
-    }
-
-    @Test
-    public void colorConfirmed_missingAlpha_writesNothingAndShowsPersisted() {
-        putSecure(YrrpSettingsStore.PULSE_ALPHA, 128);
-        launchHost();
-        final Bundle result = new Bundle();
-        result.putInt(YrrpColorPickerDialogFragment.RESULT_RGB, 0x00FF00);
-
-        confirm(result);
-
-        assertThat(mBackend.mWrites).isEmpty();
-        assertThat(summary()).isEqualTo("#80FFFFFF");
+        assertThat(mBackend.mWrites).containsExactly("lineage_pulse_color=" + 0x123456);
     }
 
     @Test
     public void colorConfirmed_missingRgb_writesNothing() {
         launchHost();
-        final Bundle result = new Bundle();
-        result.putInt(YrrpColorPickerDialogFragment.RESULT_ALPHA, 128);
 
-        confirm(result);
+        confirm(new Bundle());
 
         assertThat(mBackend.mWrites).isEmpty();
     }
 
     @Test
-    public void colorConfirmed_colorWriteFails_skipsAlphaAndShowsPersisted() {
+    public void colorConfirmed_writeFails_showsPersisted() {
         putSecure(YrrpSettingsStore.PULSE_COLOR, 0x00FF00);
-        putSecure(YrrpSettingsStore.PULSE_ALPHA, 128);
         mBackend.mFailingKeys.add(YrrpSettingsStore.PULSE_COLOR);
         launchHost();
 
-        confirm(result(0xFF00FF, 255));
+        confirm(result(0xFF00FF));
 
         assertThat(mBackend.mWrites).containsExactly("lineage_pulse_color=" + 0xFF00FF);
-        assertThat(raw(YrrpSettingsStore.PULSE_ALPHA)).isEqualTo(128);
-        assertThat(summary()).isEqualTo("#8000FF00");
-    }
-
-    @Test
-    public void colorConfirmed_alphaWriteFails_showsBothPersistedValues() {
-        putSecure(YrrpSettingsStore.PULSE_COLOR, 0x00FF00);
-        putSecure(YrrpSettingsStore.PULSE_ALPHA, 128);
-        mBackend.mFailingKeys.add(YrrpSettingsStore.PULSE_ALPHA);
-        launchHost();
-
-        confirm(result(0xFF00FF, 255));
-
-        assertThat(mBackend.mWrites)
-                .containsExactly("lineage_pulse_color=" + 0xFF00FF, "lineage_pulse_alpha=255")
-                .inOrder();
-        assertThat(summary()).isEqualTo("#80FF00FF");
+        assertThat(summary()).isEqualTo("#00FF00");
     }
 
     private void launchHost() {
@@ -307,10 +303,9 @@ public class YrrpPulseColorPreferenceControllerTest {
         shadowOf(Looper.getMainLooper()).idle();
     }
 
-    private static Bundle result(int rgb, int alpha) {
+    private static Bundle result(int rgb) {
         final Bundle result = new Bundle();
         result.putInt(YrrpColorPickerDialogFragment.RESULT_RGB, rgb);
-        result.putInt(YrrpColorPickerDialogFragment.RESULT_ALPHA, alpha);
         return result;
     }
 

@@ -31,7 +31,7 @@
          [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_title">Pulse</string>
     <!-- YRRPs settings: search keywords for Pulse. [CHAR_LIMIT=NONE] -->
-    <string name="yrrp_pulse_keywords">audio, visualizer, music, spectrum, navigation bar, opacity, transparency</string>
+    <string name="yrrp_pulse_keywords">audio, visualizer, music, spectrum, navigation bar, opacity, transparency, color mode, theme, dark theme</string>
     <!-- YRRPs settings: intro text at the top of the Pulse page. [CHAR LIMIT=NONE] -->
     <string name="yrrp_pulse_intro">Show a spectrum of playing audio in the navigation bar</string>
     <!-- YRRPs settings: Pulse page main switch title. [CHAR LIMIT=40] -->
@@ -44,12 +44,24 @@
     <string name="yrrp_pulse_color_green">Green</string>
     <!-- YRRPs settings: label of the blue channel slider in the Pulse color picker. [CHAR LIMIT=20] -->
     <string name="yrrp_pulse_color_blue">Blue</string>
-    <!-- YRRPs settings: label of the opacity slider in the Pulse color picker. [CHAR LIMIT=20] -->
-    <string name="yrrp_pulse_color_opacity">Opacity</string>
     <!-- YRRPs settings: spoken value (0-255) of a color channel slider, e.g. "128"; the slider label names the channel. [CHAR LIMIT=NONE] -->
     <string name="yrrp_pulse_color_channel_state"><xliff:g id="value" example="128">%1$d</xliff:g></string>
-    <!-- YRRPs settings: spoken description of the picked color as #AARRGGBB, opacity first, e.g. "Selected color #D980FF00". [CHAR LIMIT=NONE] -->
-    <string name="yrrp_pulse_color_hex_description">Selected color <xliff:g id="hex" example="#D980FF00">%1$s</xliff:g></string>
+    <!-- YRRPs settings: spoken description of the picked color as #RRGGBB, e.g. "Selected color #80FF00". [CHAR LIMIT=NONE] -->
+    <string name="yrrp_pulse_color_hex_description">Selected color <xliff:g id="hex" example="#80FF00">%1$s</xliff:g></string>
+    <!-- YRRPs settings: Pulse color mode category title on the Pulse page. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_color_mode_title">Color mode</string>
+    <!-- YRRPs settings: Pulse color mode that draws the chosen Pulse color. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_color_mode_solid">Solid</string>
+    <!-- YRRPs settings: Pulse color mode that follows the system dark theme. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_color_mode_match_theme">Match theme</string>
+    <!-- YRRPs settings: summary of the Match theme Pulse color mode. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_pulse_color_mode_match_theme_summary">White bars with dark theme, black bars with light theme</string>
+    <!-- YRRPs settings: search keywords for the Pulse color mode rows. [CHAR_LIMIT=NONE] -->
+    <string name="yrrp_pulse_color_mode_keywords">Pulse color mode, theme, dark theme, light theme, black, white</string>
+    <!-- YRRPs settings: Pulse opacity slider title. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_opacity_title">Pulse opacity</string>
+    <!-- YRRPs settings: search keywords for the Pulse opacity slider. [CHAR_LIMIT=NONE] -->
+    <string name="yrrp_pulse_opacity_keywords">Pulse, opacity, transparency, alpha</string>
     <!-- YRRPs settings: Pulse height slider title. [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_height_title">Pulse height</string>
     <!-- YRRPs settings: Pulse height value, e.g. "48 dp". [CHAR LIMIT=20] -->

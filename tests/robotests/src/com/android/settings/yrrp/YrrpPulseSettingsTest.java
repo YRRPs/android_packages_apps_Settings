@@ -56,7 +56,13 @@ public class YrrpPulseSettingsTest {
                         "PreferenceScreen#yrrp_pulse_settings_screen",
                         "  com.android.settingslib.widget.TopIntroPreference#yrrp_pulse_intro",
                         "  com.android.settingslib.widget.MainSwitchPreference#yrrp_pulse_enabled",
+                        "  PreferenceCategory#yrrp_pulse_color_mode_category",
+                        "    com.android.settingslib.widget.SelectorWithWidgetPreference"
+                                + "#yrrp_pulse_color_mode_solid",
+                        "    com.android.settingslib.widget.SelectorWithWidgetPreference"
+                                + "#yrrp_pulse_color_mode_match_theme",
                         "  com.android.settings.yrrp.YrrpColorPreference#yrrp_pulse_color",
+                        "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_opacity",
                         "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_height",
                         "  com.android.settingslib.widget.FooterPreference#yrrp_pulse_privacy")
                 .inOrder();
@@ -66,7 +72,11 @@ public class YrrpPulseSettingsTest {
                         "yrrp_pulse_settings_screen",
                         "yrrp_pulse_intro",
                         "yrrp_pulse_enabled",
+                        "yrrp_pulse_color_mode_category",
+                        "yrrp_pulse_color_mode_solid",
+                        "yrrp_pulse_color_mode_match_theme",
                         "yrrp_pulse_color",
+                        "yrrp_pulse_opacity",
                         "yrrp_pulse_height",
                         "yrrp_pulse_privacy")
                 .inOrder();
@@ -80,6 +90,27 @@ public class YrrpPulseSettingsTest {
                         "yrrp_pulse_enabled");
 
         assertThat(mainSwitch.resourceId("keywords")).isEqualTo(R.string.yrrp_pulse_keywords);
+    }
+
+    @Test
+    public void colorModeRows_carryColorModeKeywords() throws Exception {
+        final List<YrrpXmlElements.Element> elements =
+                YrrpXmlElements.read(mContext, R.xml.yrrp_pulse_settings);
+        for (String key :
+                new String[] {"yrrp_pulse_color_mode_solid", "yrrp_pulse_color_mode_match_theme"}) {
+            assertThat(YrrpXmlElements.find(elements, key).resourceId("keywords"))
+                    .isEqualTo(R.string.yrrp_pulse_color_mode_keywords);
+        }
+    }
+
+    @Test
+    public void colorModeCategory_isNotSearchable() throws Exception {
+        final List<YrrpXmlElements.Element> elements =
+                YrrpXmlElements.read(mContext, R.xml.yrrp_pulse_settings);
+        assertThat(
+                        YrrpXmlElements.find(elements, "yrrp_pulse_color_mode_category")
+                                .value("searchable"))
+                .isEqualTo("false");
     }
 
     @Test
