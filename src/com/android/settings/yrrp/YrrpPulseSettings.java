@@ -38,6 +38,8 @@ public class YrrpPulseSettings extends DashboardFragment {
     private static final String TAG = "YrrpPulseSettings";
     private static final String KEY_ADVANCED = "yrrp_pulse_advanced";
 
+    // Keep getInitialExpandedChildCount() at its default 0: a collapsible screen around the
+    // collapsible Advanced group makes PreferenceGroupAdapter throw on nested expandable groups.
     @Override
     public void onCreate(@Nullable Bundle icicle) {
         super.onCreate(icicle);
