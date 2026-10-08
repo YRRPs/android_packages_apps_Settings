@@ -45,6 +45,8 @@ public class YrrpSettingsStore {
     static final String PULSE_HEIGHT_DP = "lineage_pulse_height_dp";
     static final String PULSE_COLOR_MODE = "lineage_pulse_color_mode";
     static final String PULSE_BOOST = "lineage_pulse_log_boost";
+    static final String PULSE_BAR_COUNT = "lineage_pulse_bar_count";
+    static final String PULSE_BAR_GAP_PERCENT = "lineage_pulse_bar_gap_percent";
     static final String SCREEN_OFF_ANIMATION = "lineage_screen_off_animation";
 
     static final int PULSE_COLOR_DEFAULT = 0xFFFFFF;
@@ -61,6 +63,16 @@ public class YrrpSettingsStore {
     static final int PULSE_BOOST_DEFAULT = 20;
     static final int PULSE_BOOST_MIN = 0;
     static final int PULSE_BOOST_MAX = 100;
+    /** Bars drawn across the width; SystemUI resamples its 32 analysed bands onto this count. */
+    static final int PULSE_BAR_COUNT_DEFAULT = 32;
+    static final int PULSE_BAR_COUNT_MIN = 16;
+    static final int PULSE_BAR_COUNT_MAX = 64;
+    static final int PULSE_BAR_COUNT_STEP = 4;
+    /** Percent of each bar's slot left empty. The defaults reproduce the pre-setting layout. */
+    static final int PULSE_BAR_GAP_PERCENT_DEFAULT = 30;
+    static final int PULSE_BAR_GAP_PERCENT_MIN = 0;
+    static final int PULSE_BAR_GAP_PERCENT_MAX = 80;
+    static final int PULSE_BAR_GAP_PERCENT_STEP = 5;
     static final int SCREEN_OFF_STOCK = 0;
     static final int SCREEN_OFF_CRT = 1;
 
@@ -152,6 +164,27 @@ public class YrrpSettingsStore {
         return putInt(PULSE_BOOST, normalizeBoost(boost));
     }
 
+    /** Returns the stored Pulse bar count clamped to the supported range, as SystemUI draws it. */
+    public int getPulseBarCount() {
+        return normalizeBarCountForDisplay(getInt(PULSE_BAR_COUNT, PULSE_BAR_COUNT_DEFAULT));
+    }
+
+    /** Writes the bar count clamped and snapped to the slider step. Returns false on failure. */
+    public boolean setPulseBarCount(int count) {
+        return putInt(PULSE_BAR_COUNT, normalizeBarCountForWrite(count));
+    }
+
+    /** Returns the stored Pulse bar gap clamped to the supported range, as SystemUI draws it. */
+    public int getPulseBarGapPercent() {
+        return normalizeBarGapForDisplay(
+                getInt(PULSE_BAR_GAP_PERCENT, PULSE_BAR_GAP_PERCENT_DEFAULT));
+    }
+
+    /** Writes the bar gap clamped and snapped to the slider step. Returns false on failure. */
+    public boolean setPulseBarGapPercent(int percent) {
+        return putInt(PULSE_BAR_GAP_PERCENT, normalizeBarGapForWrite(percent));
+    }
+
     /** Returns {@link #SCREEN_OFF_CRT} only for an exact CRT value, otherwise Stock. */
     public int getScreenOffAnimation() {
         return normalizeScreenOffAnimation(getInt(SCREEN_OFF_ANIMATION, SCREEN_OFF_STOCK));
@@ -195,11 +228,36 @@ public class YrrpSettingsStore {
     }
 
     static int normalizeHeightForWrite(int raw) {
-        final int clamped = normalizeHeightForDisplay(raw);
-        return PULSE_HEIGHT_MIN_DP
-                + ((clamped - PULSE_HEIGHT_MIN_DP + PULSE_HEIGHT_STEP_DP / 2)
-                                / PULSE_HEIGHT_STEP_DP)
-                        * PULSE_HEIGHT_STEP_DP;
+        return snapToStep(
+                normalizeHeightForDisplay(raw), PULSE_HEIGHT_MIN_DP, PULSE_HEIGHT_STEP_DP);
+    }
+
+    static int normalizeBarCountForDisplay(int raw) {
+        return Math.max(PULSE_BAR_COUNT_MIN, Math.min(PULSE_BAR_COUNT_MAX, raw));
+    }
+
+    static int normalizeBarCountForWrite(int raw) {
+        return snapToStep(
+                normalizeBarCountForDisplay(raw), PULSE_BAR_COUNT_MIN, PULSE_BAR_COUNT_STEP);
+    }
+
+    static int normalizeBarGapForDisplay(int raw) {
+        return Math.max(PULSE_BAR_GAP_PERCENT_MIN, Math.min(PULSE_BAR_GAP_PERCENT_MAX, raw));
+    }
+
+    static int normalizeBarGapForWrite(int raw) {
+        return snapToStep(
+                normalizeBarGapForDisplay(raw),
+                PULSE_BAR_GAP_PERCENT_MIN,
+                PULSE_BAR_GAP_PERCENT_STEP);
+    }
+
+    /**
+     * Rounds an already clamped {@code value} to the nearest {@code min + n * step}, halves up.
+     * Each range's maximum must lie on its grid, so the result never leaves the range.
+     */
+    private static int snapToStep(int value, int min, int step) {
+        return min + ((value - min + step / 2) / step) * step;
     }
 
     static int normalizeColorMode(int raw) {

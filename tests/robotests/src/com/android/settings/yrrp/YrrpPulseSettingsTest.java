@@ -69,6 +69,8 @@ public class YrrpPulseSettingsTest {
                         "  com.android.settings.yrrp.YrrpColorPreference#yrrp_pulse_color",
                         "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_opacity",
                         "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_height",
+                        "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_bar_count",
+                        "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_bar_gap",
                         "  PreferenceCategory#yrrp_pulse_advanced",
                         "    com.android.settingslib.widget.SliderPreference#yrrp_pulse_boost",
                         "  com.android.settingslib.widget.FooterPreference#yrrp_pulse_privacy")
@@ -85,6 +87,8 @@ public class YrrpPulseSettingsTest {
                         "yrrp_pulse_color",
                         "yrrp_pulse_opacity",
                         "yrrp_pulse_height",
+                        "yrrp_pulse_bar_count",
+                        "yrrp_pulse_bar_gap",
                         "yrrp_pulse_advanced",
                         "yrrp_pulse_boost",
                         "yrrp_pulse_privacy")
@@ -148,6 +152,27 @@ public class YrrpPulseSettingsTest {
                 .isEqualTo(YrrpPulseBoostPreferenceController.class.getName());
         assertThat(YrrpPulseSettings.SEARCH_INDEX_DATA_PROVIDER.getNonIndexableKeys(mContext))
                 .doesNotContain("yrrp_pulse_boost");
+    }
+
+    @Test
+    public void barSliders_areSearchableWithKeywordsAndControllers() throws Exception {
+        final List<YrrpXmlElements.Element> elements =
+                YrrpXmlElements.read(mContext, R.xml.yrrp_pulse_settings);
+        final YrrpXmlElements.Element count =
+                YrrpXmlElements.find(elements, "yrrp_pulse_bar_count");
+        final YrrpXmlElements.Element gap = YrrpXmlElements.find(elements, "yrrp_pulse_bar_gap");
+
+        assertThat(count.resourceId("title")).isEqualTo(R.string.yrrp_pulse_bar_count_title);
+        assertThat(count.resourceId("keywords"))
+                .isEqualTo(R.string.yrrp_pulse_bar_count_keywords);
+        assertThat(count.value("controller"))
+                .isEqualTo(YrrpPulseBarCountPreferenceController.class.getName());
+        assertThat(gap.resourceId("title")).isEqualTo(R.string.yrrp_pulse_bar_gap_title);
+        assertThat(gap.resourceId("keywords")).isEqualTo(R.string.yrrp_pulse_bar_gap_keywords);
+        assertThat(gap.value("controller"))
+                .isEqualTo(YrrpPulseBarGapPreferenceController.class.getName());
+        assertThat(YrrpPulseSettings.SEARCH_INDEX_DATA_PROVIDER.getNonIndexableKeys(mContext))
+                .containsNoneOf("yrrp_pulse_bar_count", "yrrp_pulse_bar_gap");
     }
 
     @Test

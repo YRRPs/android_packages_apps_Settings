@@ -72,6 +72,20 @@
         android:persistent="false"
         settings:controller="com.android.settings.yrrp.YrrpPulseHeightPreferenceController"/>
 
+    <com.android.settingslib.widget.SliderPreference
+        android:key="yrrp_pulse_bar_count"
+        android:title="@string/yrrp_pulse_bar_count_title"
+        android:persistent="false"
+        settings:keywords="@string/yrrp_pulse_bar_count_keywords"
+        settings:controller="com.android.settings.yrrp.YrrpPulseBarCountPreferenceController"/>
+
+    <com.android.settingslib.widget.SliderPreference
+        android:key="yrrp_pulse_bar_gap"
+        android:title="@string/yrrp_pulse_bar_gap_title"
+        android:persistent="false"
+        settings:keywords="@string/yrrp_pulse_bar_gap_keywords"
+        settings:controller="com.android.settings.yrrp.YrrpPulseBarGapPreferenceController"/>
+
     <!-- Untitled on purpose: the collapsed group draws the "Advanced" expand row itself. -->
     <PreferenceCategory
         android:key="yrrp_pulse_advanced"
