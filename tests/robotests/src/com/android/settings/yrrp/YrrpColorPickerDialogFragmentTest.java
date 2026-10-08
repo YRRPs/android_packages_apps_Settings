@@ -25,6 +25,8 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.os.Bundle;
 import android.os.Looper;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -59,106 +61,84 @@ public class YrrpColorPickerDialogFragmentTest {
     }
 
     @Test
-    public void newInstance_defaults_showsDefaultColorAndOpacity() {
-        showPicker(0xFFFFFF, 217);
+    public void newInstance_default_showsDefaultRgb() {
+        showPicker(0xFFFFFF);
 
-        assertThat(hexText()).isEqualTo("#D9FFFFFF");
+        assertThat(hexText()).isEqualTo("#FFFFFF");
         assertThat(seekBar(R.id.yrrp_color_red).getProgress()).isEqualTo(0xFF);
         assertThat(seekBar(R.id.yrrp_color_green).getProgress()).isEqualTo(0xFF);
         assertThat(seekBar(R.id.yrrp_color_blue).getProgress()).isEqualTo(0xFF);
-        final SeekBar alpha = seekBar(R.id.yrrp_color_alpha);
-        assertThat(alpha.getProgress()).isEqualTo(217);
-        assertThat(alpha.getMin()).isEqualTo(26);
-        assertThat(alpha.getMax()).isEqualTo(255);
     }
 
     @Test
-    public void newInstance_outOfRangeArguments_masksRgbAndClampsAlpha() {
-        showPicker(0xAB123456, 300);
+    public void layout_hasOnlyTheThreeChannelSliders() {
+        showPicker(0xFFFFFF);
 
-        assertThat(hexText()).isEqualTo("#FF123456");
+        final View swatch = dialog().findViewById(R.id.yrrp_color_swatch);
+        assertThat(countSeekBars(swatch.getRootView())).isEqualTo(3);
+    }
+
+    @Test
+    public void newInstance_highBits_masksRgb() {
+        showPicker(0xAB123456);
+
+        assertThat(hexText()).isEqualTo("#123456");
         assertThat(seekBar(R.id.yrrp_color_red).getProgress()).isEqualTo(0x12);
-        assertThat(seekBar(R.id.yrrp_color_alpha).getProgress()).isEqualTo(255);
-    }
-
-    @Test
-    public void newInstance_alphaBelowMinimum_isClamped() {
-        showPicker(0x123456, 0);
-
-        assertThat(hexText()).isEqualTo("#1A123456");
-        assertThat(seekBar(R.id.yrrp_color_alpha).getProgress()).isEqualTo(26);
     }
 
     @Test
     public void moveChannel_updatesHexAndStateLocallyWithoutPublishing() {
-        showPicker(0xFFFFFF, 217);
+        showPicker(0xFFFFFF);
 
         final SeekBar red = seekBar(R.id.yrrp_color_red);
         red.setProgress(0x80);
 
-        assertThat(hexText()).isEqualTo("#D980FFFF");
+        assertThat(hexText()).isEqualTo("#80FFFF");
         assertThat(String.valueOf(red.getStateDescription())).isEqualTo("128");
         assertThat(mResults).isEmpty();
     }
 
     @Test
-    public void opacityStateDescription_isRoundedPercentage() {
-        showPicker(0xFFFFFF, 217);
-
-        final SeekBar alpha = seekBar(R.id.yrrp_color_alpha);
-        assertThat(String.valueOf(alpha.getStateDescription())).isEqualTo("85%");
-
-        alpha.setProgress(128);
-
-        assertThat(String.valueOf(alpha.getStateDescription())).isEqualTo("50%");
-        assertThat(hexText()).isEqualTo("#80FFFFFF");
-    }
-
-    @Test
     public void recreation_restoresLocalChoice() {
-        showPicker(0xFFFFFF, 217);
+        showPicker(0xFFFFFF);
         seekBar(R.id.yrrp_color_red).setProgress(0x80);
-        seekBar(R.id.yrrp_color_alpha).setProgress(128);
 
         mHostScenario.recreate();
         mHostScenario.onFragment(this::listenForResults);
         shadowOf(Looper.getMainLooper()).idle();
 
-        assertThat(hexText()).isEqualTo("#8080FFFF");
+        assertThat(hexText()).isEqualTo("#80FFFF");
         assertThat(seekBar(R.id.yrrp_color_red).getProgress()).isEqualTo(0x80);
-        assertThat(seekBar(R.id.yrrp_color_alpha).getProgress()).isEqualTo(128);
         assertThat(mResults).isEmpty();
     }
 
     @Test
-    public void positiveButton_publishesOneResultWithChosenColor() {
-        showPicker(0xFFFFFF, 217);
+    public void positiveButton_publishesOneResultWithOnlyChosenRgb() {
+        showPicker(0xFFFFFF);
         seekBar(R.id.yrrp_color_green).setProgress(0);
-        seekBar(R.id.yrrp_color_alpha).setProgress(128);
 
         clickButton(BUTTON_POSITIVE);
 
         assertThat(mResults).hasSize(1);
         final Bundle result = mResults.get(0);
+        assertThat(result.keySet()).containsExactly(YrrpColorPickerDialogFragment.RESULT_RGB);
         assertThat(result.getInt(YrrpColorPickerDialogFragment.RESULT_RGB)).isEqualTo(0xFF00FF);
-        assertThat(result.getInt(YrrpColorPickerDialogFragment.RESULT_ALPHA)).isEqualTo(128);
     }
 
     @Test
-    public void positiveButton_outOfRangeArguments_publishesMaskedRgbAndClampedAlpha() {
-        showPicker(0xAB123456, 300);
+    public void positiveButton_highBits_publishesMaskedRgb() {
+        showPicker(0xAB123456);
 
         clickButton(BUTTON_POSITIVE);
 
         assertThat(mResults).hasSize(1);
-        final Bundle result = mResults.get(0);
-        assertThat(result.getInt(YrrpColorPickerDialogFragment.RESULT_RGB)).isEqualTo(0x123456);
-        assertThat(result.getInt(YrrpColorPickerDialogFragment.RESULT_ALPHA)).isEqualTo(255);
+        assertThat(mResults.get(0).getInt(YrrpColorPickerDialogFragment.RESULT_RGB))
+                .isEqualTo(0x123456);
     }
 
     @Test
     public void negativeButton_publishesNothing() {
-        showPicker(0xFFFFFF, 217);
+        showPicker(0xFFFFFF);
         seekBar(R.id.yrrp_color_red).setProgress(0);
 
         clickButton(BUTTON_NEGATIVE);
@@ -168,7 +148,7 @@ public class YrrpColorPickerDialogFragmentTest {
 
     @Test
     public void back_publishesNothing() {
-        showPicker(0xFFFFFF, 217);
+        showPicker(0xFFFFFF);
         seekBar(R.id.yrrp_color_red).setProgress(0);
 
         dialog().getOnBackPressedDispatcher().onBackPressed();
@@ -179,7 +159,7 @@ public class YrrpColorPickerDialogFragmentTest {
 
     @Test
     public void cancel_publishesNothing() {
-        showPicker(0xFFFFFF, 217);
+        showPicker(0xFFFFFF);
         seekBar(R.id.yrrp_color_red).setProgress(0);
 
         dialog().cancel();
@@ -189,7 +169,7 @@ public class YrrpColorPickerDialogFragmentTest {
     }
 
     /** Shows the picker in a host fragment's child manager, as the color row's controller does. */
-    private void showPicker(int rgb, int alpha) {
+    private void showPicker(int rgb) {
         mHostScenario =
                 FragmentScenario.launch(
                         Fragment.class,
@@ -199,7 +179,7 @@ public class YrrpColorPickerDialogFragmentTest {
         mHostScenario.onFragment(
                 host -> {
                     listenForResults(host);
-                    YrrpColorPickerDialogFragment.newInstance(rgb, alpha)
+                    YrrpColorPickerDialogFragment.newInstance(rgb)
                             .showNow(
                                     host.getChildFragmentManager(),
                                     YrrpColorPickerDialogFragment.TAG);
@@ -227,6 +207,20 @@ public class YrrpColorPickerDialogFragmentTest {
                     dialog[0] = (AlertDialog) picker.requireDialog();
                 });
         return dialog[0];
+    }
+
+    private static int countSeekBars(View view) {
+        if (view instanceof SeekBar) {
+            return 1;
+        }
+        int count = 0;
+        if (view instanceof ViewGroup) {
+            final ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                count += countSeekBars(group.getChildAt(i));
+            }
+        }
+        return count;
     }
 
     private SeekBar seekBar(int id) {

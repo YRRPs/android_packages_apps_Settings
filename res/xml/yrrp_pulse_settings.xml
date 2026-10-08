@@ -31,11 +31,40 @@
         settings:keywords="@string/yrrp_pulse_keywords"
         settings:controller="com.android.settings.yrrp.YrrpPulseEnabledPreferenceController"/>
 
+    <PreferenceCategory
+        android:key="yrrp_pulse_color_mode_category"
+        android:title="@string/yrrp_pulse_color_mode_title"
+        settings:searchable="false">
+
+        <com.android.settingslib.widget.SelectorWithWidgetPreference
+            android:key="yrrp_pulse_color_mode_solid"
+            android:title="@string/yrrp_pulse_color_mode_solid"
+            android:persistent="false"
+            settings:keywords="@string/yrrp_pulse_color_mode_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpPulseColorModePreferenceController"/>
+
+        <com.android.settingslib.widget.SelectorWithWidgetPreference
+            android:key="yrrp_pulse_color_mode_match_theme"
+            android:title="@string/yrrp_pulse_color_mode_match_theme"
+            android:summary="@string/yrrp_pulse_color_mode_match_theme_summary"
+            android:persistent="false"
+            settings:keywords="@string/yrrp_pulse_color_mode_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpPulseColorModePreferenceController"/>
+
+    </PreferenceCategory>
+
     <com.android.settings.yrrp.YrrpColorPreference
         android:key="yrrp_pulse_color"
         android:title="@string/yrrp_pulse_color_title"
         android:persistent="false"
         settings:controller="com.android.settings.yrrp.YrrpPulseColorPreferenceController"/>
+
+    <com.android.settingslib.widget.SliderPreference
+        android:key="yrrp_pulse_opacity"
+        android:title="@string/yrrp_pulse_opacity_title"
+        android:persistent="false"
+        settings:keywords="@string/yrrp_pulse_opacity_keywords"
+        settings:controller="com.android.settings.yrrp.YrrpPulseOpacityPreferenceController"/>
 
     <com.android.settingslib.widget.SliderPreference
         android:key="yrrp_pulse_height"
