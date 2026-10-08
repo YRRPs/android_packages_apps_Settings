@@ -72,6 +72,21 @@
         android:persistent="false"
         settings:controller="com.android.settings.yrrp.YrrpPulseHeightPreferenceController"/>
 
+    <!-- Untitled on purpose: the collapsed group draws the "Advanced" expand row itself. -->
+    <PreferenceCategory
+        android:key="yrrp_pulse_advanced"
+        settings:initialExpandedChildrenCount="0"
+        settings:searchable="false">
+
+        <com.android.settingslib.widget.SliderPreference
+            android:key="yrrp_pulse_boost"
+            android:title="@string/yrrp_pulse_boost_title"
+            android:persistent="false"
+            settings:keywords="@string/yrrp_pulse_boost_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpPulseBoostPreferenceController"/>
+
+    </PreferenceCategory>
+
     <com.android.settingslib.widget.FooterPreference
         android:key="yrrp_pulse_privacy"
         android:title="@string/yrrp_pulse_privacy"

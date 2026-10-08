@@ -66,6 +66,14 @@
     <string name="yrrp_pulse_height_title">Pulse height</string>
     <!-- YRRPs settings: Pulse height value, e.g. "48 dp". [CHAR LIMIT=20] -->
     <string name="yrrp_pulse_height_value"><xliff:g id="height" example="48">%d</xliff:g> dp</string>
+    <!-- YRRPs settings: Pulse low-level boost slider title. Raises quiet spectrum bars through a logarithmic height curve. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_boost_title">Low-level boost</string>
+    <!-- YRRPs settings: Pulse low-level boost value from 1 to 100, e.g. "20". [CHAR LIMIT=20] -->
+    <string name="yrrp_pulse_boost_value"><xliff:g id="boost" example="20">%d</xliff:g></string>
+    <!-- YRRPs settings: Pulse low-level boost value at 0, where bar heights stay linear. [CHAR LIMIT=20] -->
+    <string name="yrrp_pulse_boost_off">Off</string>
+    <!-- YRRPs settings: search keywords for the Pulse low-level boost slider. [CHAR_LIMIT=NONE] -->
+    <string name="yrrp_pulse_boost_keywords">pulse, quiet, logarithmic, curve, bars, advanced</string>
     <!-- YRRPs settings: Pulse privacy footer. [CHAR LIMIT=NONE] -->
     <string name="yrrp_pulse_privacy">Pulse processes the local playback spectrum in memory. It does not store or transmit audio.</string>
 

@@ -24,65 +24,55 @@ import androidx.annotation.VisibleForTesting;
 import com.android.settings.R;
 
 /**
- * Sets the Pulse bar height in 4 dp steps between 8 and 96 dp.
- *
- * <p>The text shows the stored height clamped to that range; the thumb shows the nearest step.
+ * Sets the Pulse low-level boost: the strength k of SystemUI's logarithmic bar-height curve, 0 to
+ * 100 in steps of 1. At 0 the curve is off and bars are drawn linearly.
  */
-public class YrrpPulseHeightPreferenceController extends YrrpPulseSliderPreferenceController {
+public class YrrpPulseBoostPreferenceController extends YrrpPulseSliderPreferenceController {
 
-    public YrrpPulseHeightPreferenceController(
+    public YrrpPulseBoostPreferenceController(
             @NonNull Context context, @NonNull String preferenceKey) {
         this(context, preferenceKey, new YrrpSettingsStore(context));
     }
 
     /** Injects the store, so tests can count writes and make them fail. */
     @VisibleForTesting
-    YrrpPulseHeightPreferenceController(
+    YrrpPulseBoostPreferenceController(
             @NonNull Context context,
             @NonNull String preferenceKey,
             @NonNull YrrpSettingsStore store) {
-        super(context, preferenceKey, store, YrrpSettingsStore.PULSE_HEIGHT_DP);
-    }
-
-    /**
-     * The thumb snaps to the nearest step for display only: with a step size above zero, the
-     * material Slider throws IllegalStateException for a value off the valueFrom + n * stepSize
-     * grid (BaseSlider.validateValues), and the stored value may be off the grid.
-     */
-    @Override
-    public int getSliderPosition() {
-        return YrrpSettingsStore.normalizeHeightForWrite(getStoredValue());
+        super(context, preferenceKey, store, YrrpSettingsStore.PULSE_BOOST);
     }
 
     @Override
     public int getMax() {
-        return YrrpSettingsStore.PULSE_HEIGHT_MAX_DP;
+        return YrrpSettingsStore.PULSE_BOOST_MAX;
     }
 
     @Override
     public int getMin() {
-        return YrrpSettingsStore.PULSE_HEIGHT_MIN_DP;
+        return YrrpSettingsStore.PULSE_BOOST_MIN;
     }
 
     @Override
     protected int getStoredValue() {
-        return mStore.getPulseHeightDp();
+        return mStore.getPulseBoost();
     }
 
-    /** Writes the height clamped and snapped to the slider step. */
     @Override
     protected boolean storeValue(int position) {
-        return mStore.setPulseHeightDp(position);
+        return mStore.setPulseBoost(position);
     }
 
     @Override
     protected int getSliderStep() {
-        return YrrpSettingsStore.PULSE_HEIGHT_STEP_DP;
+        return 1;
     }
 
     @NonNull
     @Override
-    protected String formatValue(int heightDp) {
-        return mContext.getString(R.string.yrrp_pulse_height_value, heightDp);
+    protected String formatValue(int boost) {
+        return boost == YrrpSettingsStore.PULSE_BOOST_MIN
+                ? mContext.getString(R.string.yrrp_pulse_boost_off)
+                : mContext.getString(R.string.yrrp_pulse_boost_value, boost);
     }
 }
