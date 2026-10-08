@@ -66,6 +66,16 @@
     <string name="yrrp_pulse_height_title">Pulse height</string>
     <!-- YRRPs settings: Pulse height value, e.g. "48 dp". [CHAR LIMIT=20] -->
     <string name="yrrp_pulse_height_value"><xliff:g id="height" example="48">%d</xliff:g> dp</string>
+    <!-- YRRPs settings: Pulse bar count slider title. Sets how many spectrum bars span the screen width. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_bar_count_title">Bar count</string>
+    <!-- YRRPs settings: Pulse bar count value, e.g. "32 bars". [CHAR LIMIT=20] -->
+    <string name="yrrp_pulse_bar_count_value"><xliff:g id="count" example="32">%d</xliff:g> bars</string>
+    <!-- YRRPs settings: search keywords for the Pulse bar count slider. [CHAR_LIMIT=NONE] -->
+    <string name="yrrp_pulse_bar_count_keywords">Pulse, bars, count, number, density</string>
+    <!-- YRRPs settings: Pulse bar gap slider title. Sets the space between neighbouring spectrum bars. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_bar_gap_title">Bar gap</string>
+    <!-- YRRPs settings: search keywords for the Pulse bar gap slider. [CHAR_LIMIT=NONE] -->
+    <string name="yrrp_pulse_bar_gap_keywords">Pulse, bars, gap, spacing, width</string>
     <!-- YRRPs settings: Pulse low-level boost slider title. Raises quiet spectrum bars through a logarithmic height curve. [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_boost_title">Low-level boost</string>
     <!-- YRRPs settings: Pulse low-level boost value from 1 to 100, e.g. "20". [CHAR LIMIT=20] -->

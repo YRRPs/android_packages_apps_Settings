@@ -39,6 +39,8 @@ public class YrrpSettingsStoreTest {
     private static final String KEY_ALPHA = "lineage_pulse_alpha";
     private static final String KEY_HEIGHT = "lineage_pulse_height_dp";
     private static final String KEY_BOOST = "lineage_pulse_log_boost";
+    private static final String KEY_BAR_COUNT = "lineage_pulse_bar_count";
+    private static final String KEY_BAR_GAP = "lineage_pulse_bar_gap_percent";
     private static final String KEY_ANIMATION = "lineage_screen_off_animation";
     private static final String KEY_COLOR_MODE = "lineage_pulse_color_mode";
 
@@ -56,13 +58,15 @@ public class YrrpSettingsStoreTest {
     }
 
     @Test
-    public void setters_writeExactlyTheSevenKeys() {
+    public void setters_writeExactlyTheNineKeys() {
         mStore.setPulseEnabled(true);
         mStore.setPulseColor(0x123456);
         mStore.setPulseAlpha(128);
         mStore.setPulseHeightDp(48);
         mStore.setPulseColorMode(YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME);
         mStore.setPulseBoost(20);
+        mStore.setPulseBarCount(32);
+        mStore.setPulseBarGapPercent(30);
         mStore.setScreenOffAnimation(YrrpSettingsStore.SCREEN_OFF_CRT);
 
         assertThat(mBackend.keys(USER))
@@ -73,17 +77,21 @@ public class YrrpSettingsStoreTest {
                         KEY_HEIGHT,
                         KEY_COLOR_MODE,
                         KEY_BOOST,
+                        KEY_BAR_COUNT,
+                        KEY_BAR_GAP,
                         KEY_ANIMATION);
     }
 
     @Test
-    public void getters_readTheSevenKeys() {
+    public void getters_readTheNineKeys() {
         mBackend.put(KEY_ENABLED, 1, USER);
         mBackend.put(KEY_COLOR, 0x123456, USER);
         mBackend.put(KEY_ALPHA, 100, USER);
         mBackend.put(KEY_HEIGHT, 20, USER);
         mBackend.put(KEY_COLOR_MODE, 1, USER);
         mBackend.put(KEY_BOOST, 70, USER);
+        mBackend.put(KEY_BAR_COUNT, 48, USER);
+        mBackend.put(KEY_BAR_GAP, 50, USER);
         mBackend.put(KEY_ANIMATION, 1, USER);
 
         assertThat(mStore.getPulseColorMode())
@@ -93,6 +101,8 @@ public class YrrpSettingsStoreTest {
         assertThat(mStore.getPulseAlpha()).isEqualTo(100);
         assertThat(mStore.getPulseHeightDp()).isEqualTo(20);
         assertThat(mStore.getPulseBoost()).isEqualTo(70);
+        assertThat(mStore.getPulseBarCount()).isEqualTo(48);
+        assertThat(mStore.getPulseBarGapPercent()).isEqualTo(50);
         assertThat(mStore.getScreenOffAnimation()).isEqualTo(YrrpSettingsStore.SCREEN_OFF_CRT);
     }
 
@@ -128,6 +138,8 @@ public class YrrpSettingsStoreTest {
         assertThat(mStore.getPulseHeightDp()).isEqualTo(48);
         assertThat(mStore.getPulseColorMode()).isEqualTo(YrrpSettingsStore.PULSE_COLOR_MODE_SOLID);
         assertThat(mStore.getPulseBoost()).isEqualTo(20);
+        assertThat(mStore.getPulseBarCount()).isEqualTo(32);
+        assertThat(mStore.getPulseBarGapPercent()).isEqualTo(30);
         assertThat(mStore.getScreenOffAnimation()).isEqualTo(YrrpSettingsStore.SCREEN_OFF_STOCK);
     }
 
@@ -240,6 +252,51 @@ public class YrrpSettingsStoreTest {
     }
 
     @Test
+    public void getPulseBarCount_clampsWithoutSnapping() {
+        assertThat(readBarCount(-1)).isEqualTo(16);
+        assertThat(readBarCount(17)).isEqualTo(17);
+        assertThat(readBarCount(50)).isEqualTo(50);
+        assertThat(readBarCount(99)).isEqualTo(64);
+    }
+
+    @Test
+    public void setPulseBarCount_writesClampedValueSnappedToStep() {
+        assertThat(writeBarCount(0)).isEqualTo(16);
+        assertThat(writeBarCount(17)).isEqualTo(16);
+        assertThat(writeBarCount(18)).isEqualTo(20);
+        assertThat(writeBarCount(30)).isEqualTo(32);
+        assertThat(writeBarCount(64)).isEqualTo(64);
+        assertThat(writeBarCount(200)).isEqualTo(64);
+    }
+
+    @Test
+    public void normalizeBarCountForWrite_putsOffGridReadOnGrid() {
+        assertThat(YrrpSettingsStore.normalizeBarCountForWrite(readBarCount(50))).isEqualTo(52);
+    }
+
+    @Test
+    public void getPulseBarGapPercent_clampsWithoutSnapping() {
+        assertThat(readBarGap(-5)).isEqualTo(0);
+        assertThat(readBarGap(33)).isEqualTo(33);
+        assertThat(readBarGap(81)).isEqualTo(80);
+    }
+
+    @Test
+    public void setPulseBarGapPercent_writesClampedValueSnappedToStep() {
+        assertThat(writeBarGap(-1)).isEqualTo(0);
+        assertThat(writeBarGap(2)).isEqualTo(0);
+        assertThat(writeBarGap(3)).isEqualTo(5);
+        assertThat(writeBarGap(33)).isEqualTo(35);
+        assertThat(writeBarGap(80)).isEqualTo(80);
+        assertThat(writeBarGap(99)).isEqualTo(80);
+    }
+
+    @Test
+    public void normalizeBarGapForWrite_putsOffGridReadOnGrid() {
+        assertThat(YrrpSettingsStore.normalizeBarGapForWrite(readBarGap(33))).isEqualTo(35);
+    }
+
+    @Test
     public void isPulseEnabled_readsAnyNonZeroAsTrue() {
         mBackend.put(KEY_ENABLED, 7, USER);
 
@@ -322,6 +379,8 @@ public class YrrpSettingsStoreTest {
         assertThat(mStore.setPulseHeightDp(48)).isFalse();
         assertThat(mStore.setPulseColorMode(1)).isFalse();
         assertThat(mStore.setPulseBoost(20)).isFalse();
+        assertThat(mStore.setPulseBarCount(32)).isFalse();
+        assertThat(mStore.setPulseBarGapPercent(30)).isFalse();
         assertThat(mStore.setScreenOffAnimation(YrrpSettingsStore.SCREEN_OFF_CRT)).isFalse();
     }
 
@@ -333,6 +392,8 @@ public class YrrpSettingsStoreTest {
         assertThat(mStore.setPulseHeightDp(48)).isTrue();
         assertThat(mStore.setPulseColorMode(1)).isTrue();
         assertThat(mStore.setPulseBoost(20)).isTrue();
+        assertThat(mStore.setPulseBarCount(32)).isTrue();
+        assertThat(mStore.setPulseBarGapPercent(30)).isTrue();
         assertThat(mStore.setScreenOffAnimation(YrrpSettingsStore.SCREEN_OFF_CRT)).isTrue();
     }
 
@@ -349,6 +410,8 @@ public class YrrpSettingsStoreTest {
         mStore.getPulseHeightDp();
         mStore.getPulseColorMode();
         mStore.getPulseBoost();
+        mStore.getPulseBarCount();
+        mStore.getPulseBarGapPercent();
         mStore.getScreenOffAnimation();
     }
 
@@ -385,6 +448,26 @@ public class YrrpSettingsStoreTest {
     private int writeBoost(int value) {
         mStore.setPulseBoost(value);
         return mBackend.get(KEY_BOOST, USER);
+    }
+
+    private int readBarCount(int raw) {
+        mBackend.put(KEY_BAR_COUNT, raw, USER);
+        return mStore.getPulseBarCount();
+    }
+
+    private int writeBarCount(int value) {
+        mStore.setPulseBarCount(value);
+        return mBackend.get(KEY_BAR_COUNT, USER);
+    }
+
+    private int readBarGap(int raw) {
+        mBackend.put(KEY_BAR_GAP, raw, USER);
+        return mStore.getPulseBarGapPercent();
+    }
+
+    private int writeBarGap(int value) {
+        mStore.setPulseBarGapPercent(value);
+        return mBackend.get(KEY_BAR_GAP, USER);
     }
 
     private int readAnimation(int raw) {
