@@ -56,7 +56,6 @@ public class YrrpColorPickerDialogFragment extends InstrumentedDialogFragment {
     private static final String ARG_INITIAL_RGB = "yrrp_initial_rgb";
     private static final String STATE_RGB = "yrrp_current_rgb";
     private static final int CHANNEL_MAX = 0xFF;
-    private static final int OPAQUE = 0xFF000000;
 
     private static final int[] SEEK_BAR_IDS = {
         R.id.yrrp_color_red, R.id.yrrp_color_green, R.id.yrrp_color_blue
@@ -216,7 +215,7 @@ public class YrrpColorPickerDialogFragment extends InstrumentedDialogFragment {
         }
         // Opaque: opacity is not part of this choice. The stroke keeps the outline visible.
         if (mSwatchFill != null) {
-            mSwatchFill.setColor(OPAQUE | rgb);
+            mSwatchFill.setColor(YrrpSettingsStore.toOpaqueColor(rgb));
         }
     }
 

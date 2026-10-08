@@ -300,6 +300,12 @@ public class YrrpSettingsStoreTest {
         assertThat(mStore.setScreenOffAnimation(YrrpSettingsStore.SCREEN_OFF_CRT)).isTrue();
     }
 
+    @Test
+    public void toOpaqueColor_masksRgbAndSetsFullAlpha() {
+        assertThat(YrrpSettingsStore.toOpaqueColor(0x123456)).isEqualTo(0xFF123456);
+        assertThat(YrrpSettingsStore.toOpaqueColor(0x40ABCDEF)).isEqualTo(0xFFABCDEF);
+    }
+
     private void readAll() {
         mStore.isPulseEnabled();
         mStore.getPulseColor();

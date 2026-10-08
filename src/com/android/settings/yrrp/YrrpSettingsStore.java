@@ -164,6 +164,11 @@ public class YrrpSettingsStore {
         return Math.max(PULSE_ALPHA_MIN, Math.min(PULSE_ALPHA_MAX, raw));
     }
 
+    /** Returns the RGB bits of {@code rgb} with full alpha, for drawing the color opaque. */
+    static int toOpaqueColor(int rgb) {
+        return 0xFF000000 | normalizeColor(rgb);
+    }
+
     /** Formats the RGB bits of {@code rgb} as {@code #RRGGBB}, uppercase and locale independent. */
     @NonNull
     static String formatRgb(int rgb) {

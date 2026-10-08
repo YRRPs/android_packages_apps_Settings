@@ -44,7 +44,6 @@ public class YrrpPulseColorPreferenceController extends BasePreferenceController
         implements DefaultLifecycleObserver {
 
     private static final String TAG = "YrrpPulseColorPref";
-    private static final int OPAQUE = 0xFF000000;
 
     private final YrrpSettingsStore mStore;
     private final YrrpSecureSettingObserver mObserver;
@@ -144,7 +143,7 @@ public class YrrpPulseColorPreferenceController extends BasePreferenceController
      * preference is not persistent, so nothing is stored.
      */
     private static void showColor(@NonNull ColorPreference preference, int rgb) {
-        final int opaque = OPAQUE | rgb;
+        final int opaque = YrrpSettingsStore.toOpaqueColor(rgb);
         preference.setValues(new int[] {opaque});
         preference.setTitles(new CharSequence[] {YrrpSettingsStore.formatRgb(rgb)});
         preference.setValue(opaque);
