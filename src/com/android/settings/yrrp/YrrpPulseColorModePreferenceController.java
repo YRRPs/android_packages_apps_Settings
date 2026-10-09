@@ -20,7 +20,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.preference.Preference;
@@ -53,10 +52,9 @@ public class YrrpPulseColorModePreferenceController extends BasePreferenceContro
     }
 
     /**
-     * Injects the store, so tests can count writes and make them fail. The row also refreshes when
-     * any of {@code extraObservedKeys} changes.
+     * Injects the store, so tests can count writes and make them fail. Subclasses also pass
+     * {@code extraObservedKeys}, whose changes refresh the row too.
      */
-    @VisibleForTesting
     YrrpPulseColorModePreferenceController(
             @NonNull Context context,
             @NonNull String preferenceKey,

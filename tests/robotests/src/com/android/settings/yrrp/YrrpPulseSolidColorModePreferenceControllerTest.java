@@ -137,7 +137,7 @@ public class YrrpPulseSolidColorModePreferenceControllerTest {
     }
 
     @Test
-    public void updateState_pulseOff_disablesRowAndGear() {
+    public void updateState_pulseOff_disablesRow() {
         putSecure(YrrpSettingsStore.PULSE_ENABLED, 0);
 
         mController.updateState(mPreference);
