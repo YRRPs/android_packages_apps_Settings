@@ -68,6 +68,8 @@
     <string name="yrrp_pulse_color_mode_keywords">Pulse color mode, theme, dark theme, light theme, black, white, rainbow, gradient, cycle, animated</string>
     <!-- YRRPs settings: search keywords for the Solid Pulse color mode row, whose gear opens the Pulse color picker. [CHAR_LIMIT=NONE] -->
     <string name="yrrp_pulse_solid_keywords">Pulse color, color picker, RGB, hex, solid, Pulse color mode</string>
+    <!-- YRRPs settings: Pulse page category header above the opacity, height, bar and boost sliders, which apply in every color mode. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_appearance_title">Appearance</string>
     <!-- YRRPs settings: Pulse opacity slider title. [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_opacity_title">Pulse opacity</string>
     <!-- YRRPs settings: search keywords for the Pulse opacity slider. [CHAR_LIMIT=NONE] -->

@@ -19,15 +19,10 @@ package com.android.settings.yrrp;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
-import android.os.Bundle;
 
-import androidx.preference.PreferenceCategory;
-import androidx.preference.PreferenceManager;
-import androidx.preference.PreferenceScreen;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.android.settings.R;
-import com.android.settings.SettingsActivity;
 import com.android.settings.testutils.XmlTestUtils;
 
 import org.junit.Test;
@@ -70,11 +65,11 @@ public class YrrpPulseSettingsTest {
                                 + "#yrrp_pulse_color_mode_rainbow_gradient",
                         "    com.android.settingslib.widget.SelectorWithWidgetPreference"
                                 + "#yrrp_pulse_color_mode_rainbow_cycle",
-                        "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_opacity",
-                        "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_height",
-                        "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_bar_count",
-                        "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_bar_gap",
-                        "  PreferenceCategory#yrrp_pulse_advanced",
+                        "  PreferenceCategory#yrrp_pulse_appearance_category",
+                        "    com.android.settingslib.widget.SliderPreference#yrrp_pulse_opacity",
+                        "    com.android.settingslib.widget.SliderPreference#yrrp_pulse_height",
+                        "    com.android.settingslib.widget.SliderPreference#yrrp_pulse_bar_count",
+                        "    com.android.settingslib.widget.SliderPreference#yrrp_pulse_bar_gap",
                         "    com.android.settingslib.widget.SliderPreference#yrrp_pulse_boost",
                         "  com.android.settingslib.widget.FooterPreference#yrrp_pulse_privacy")
                 .inOrder();
@@ -89,11 +84,11 @@ public class YrrpPulseSettingsTest {
                         "yrrp_pulse_color_mode_match_theme",
                         "yrrp_pulse_color_mode_rainbow_gradient",
                         "yrrp_pulse_color_mode_rainbow_cycle",
+                        "yrrp_pulse_appearance_category",
                         "yrrp_pulse_opacity",
                         "yrrp_pulse_height",
                         "yrrp_pulse_bar_count",
                         "yrrp_pulse_bar_gap",
-                        "yrrp_pulse_advanced",
                         "yrrp_pulse_boost",
                         "yrrp_pulse_privacy")
                 .inOrder();
@@ -150,16 +145,17 @@ public class YrrpPulseSettingsTest {
     }
 
     @Test
-    public void advanced_isCollapsedUnsearchableCategory() throws Exception {
-        final YrrpXmlElements.Element advanced =
+    public void appearanceCategory_isTitledUnsearchableAndNotCollapsing() throws Exception {
+        final YrrpXmlElements.Element appearance =
                 YrrpXmlElements.find(
                         YrrpXmlElements.read(mContext, R.xml.yrrp_pulse_settings),
-                        "yrrp_pulse_advanced");
+                        "yrrp_pulse_appearance_category");
 
-        assertThat(advanced.value("initialExpandedChildrenCount")).isEqualTo("0");
-        assertThat(advanced.value("searchable")).isEqualTo("false");
+        assertThat(appearance.resourceId("title")).isEqualTo(R.string.yrrp_pulse_appearance_title);
+        assertThat(appearance.value("searchable")).isEqualTo("false");
+        assertThat(appearance.value("initialExpandedChildrenCount")).isNull();
         assertThat(YrrpPulseSettings.SEARCH_INDEX_DATA_PROVIDER.getNonIndexableKeys(mContext))
-                .contains("yrrp_pulse_advanced");
+                .contains("yrrp_pulse_appearance_category");
     }
 
     @Test
@@ -199,27 +195,6 @@ public class YrrpPulseSettingsTest {
     }
 
     @Test
-    public void highlightRequest_expandsAdvanced() {
-        final PreferenceCategory advanced = collapsedAdvancedOnScreen();
-        final Bundle arguments = new Bundle();
-        arguments.putString(SettingsActivity.EXTRA_FRAGMENT_ARG_KEY, "yrrp_pulse_boost");
-
-        YrrpPulseSettings.expandAdvancedForHighlight(advanced.getParent(), arguments);
-
-        assertThat(advanced.getInitialExpandedChildrenCount()).isEqualTo(Integer.MAX_VALUE);
-    }
-
-    @Test
-    public void noHighlightRequest_keepsAdvancedCollapsed() {
-        final PreferenceCategory advanced = collapsedAdvancedOnScreen();
-
-        YrrpPulseSettings.expandAdvancedForHighlight(advanced.getParent(), null);
-        YrrpPulseSettings.expandAdvancedForHighlight(advanced.getParent(), new Bundle());
-
-        assertThat(advanced.getInitialExpandedChildrenCount()).isEqualTo(0);
-    }
-
-    @Test
     public void introAndFooter_areNotSearchable() throws Exception {
         final List<YrrpXmlElements.Element> elements =
                 YrrpXmlElements.read(mContext, R.xml.yrrp_pulse_settings);
@@ -230,15 +205,5 @@ public class YrrpPulseSettingsTest {
                 .isEqualTo("false");
         assertThat(YrrpPulseSettings.SEARCH_INDEX_DATA_PROVIDER.getNonIndexableKeys(mContext))
                 .containsAtLeast("yrrp_pulse_intro", "yrrp_pulse_privacy");
-    }
-
-    private PreferenceCategory collapsedAdvancedOnScreen() {
-        final PreferenceScreen screen =
-                new PreferenceManager(mContext).createPreferenceScreen(mContext);
-        final PreferenceCategory advanced = new PreferenceCategory(mContext);
-        advanced.setKey("yrrp_pulse_advanced");
-        advanced.setInitialExpandedChildrenCount(0);
-        screen.addPreference(advanced);
-        return advanced;
     }
 }

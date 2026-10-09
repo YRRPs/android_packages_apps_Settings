@@ -69,38 +69,37 @@
 
     </PreferenceCategory>
 
-    <com.android.settingslib.widget.SliderPreference
-        android:key="yrrp_pulse_opacity"
-        android:title="@string/yrrp_pulse_opacity_title"
-        android:persistent="false"
-        settings:keywords="@string/yrrp_pulse_opacity_keywords"
-        settings:controller="com.android.settings.yrrp.YrrpPulseOpacityPreferenceController"/>
-
-    <com.android.settingslib.widget.SliderPreference
-        android:key="yrrp_pulse_height"
-        android:title="@string/yrrp_pulse_height_title"
-        android:persistent="false"
-        settings:controller="com.android.settings.yrrp.YrrpPulseHeightPreferenceController"/>
-
-    <com.android.settingslib.widget.SliderPreference
-        android:key="yrrp_pulse_bar_count"
-        android:title="@string/yrrp_pulse_bar_count_title"
-        android:persistent="false"
-        settings:keywords="@string/yrrp_pulse_bar_count_keywords"
-        settings:controller="com.android.settings.yrrp.YrrpPulseBarCountPreferenceController"/>
-
-    <com.android.settingslib.widget.SliderPreference
-        android:key="yrrp_pulse_bar_gap"
-        android:title="@string/yrrp_pulse_bar_gap_title"
-        android:persistent="false"
-        settings:keywords="@string/yrrp_pulse_bar_gap_keywords"
-        settings:controller="com.android.settings.yrrp.YrrpPulseBarGapPreferenceController"/>
-
-    <!-- Untitled on purpose: the collapsed group draws the "Advanced" expand row itself. -->
     <PreferenceCategory
-        android:key="yrrp_pulse_advanced"
-        settings:initialExpandedChildrenCount="0"
+        android:key="yrrp_pulse_appearance_category"
+        android:title="@string/yrrp_pulse_appearance_title"
         settings:searchable="false">
+
+        <com.android.settingslib.widget.SliderPreference
+            android:key="yrrp_pulse_opacity"
+            android:title="@string/yrrp_pulse_opacity_title"
+            android:persistent="false"
+            settings:keywords="@string/yrrp_pulse_opacity_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpPulseOpacityPreferenceController"/>
+
+        <com.android.settingslib.widget.SliderPreference
+            android:key="yrrp_pulse_height"
+            android:title="@string/yrrp_pulse_height_title"
+            android:persistent="false"
+            settings:controller="com.android.settings.yrrp.YrrpPulseHeightPreferenceController"/>
+
+        <com.android.settingslib.widget.SliderPreference
+            android:key="yrrp_pulse_bar_count"
+            android:title="@string/yrrp_pulse_bar_count_title"
+            android:persistent="false"
+            settings:keywords="@string/yrrp_pulse_bar_count_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpPulseBarCountPreferenceController"/>
+
+        <com.android.settingslib.widget.SliderPreference
+            android:key="yrrp_pulse_bar_gap"
+            android:title="@string/yrrp_pulse_bar_gap_title"
+            android:persistent="false"
+            settings:keywords="@string/yrrp_pulse_bar_gap_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpPulseBarGapPreferenceController"/>
 
         <com.android.settingslib.widget.SliderPreference
             android:key="yrrp_pulse_boost"
