@@ -105,4 +105,16 @@
     <string name="yrrp_screen_off_animation_stock">Stock</string>
     <!-- YRRPs settings: CRT screen-off animation choice and row summary. [CHAR LIMIT=30] -->
     <string name="yrrp_screen_off_animation_crt">CRT</string>
+    <!-- YRRPs settings: heading for the screen-off animation speed choices. [CHAR LIMIT=30] -->
+    <string name="yrrp_screen_off_animation_speed_title">Speed</string>
+    <!-- YRRPs settings: screen-off speed choice, half of normal speed. [CHAR LIMIT=10] -->
+    <string name="yrrp_screen_off_animation_speed_50">0.5×</string>
+    <!-- YRRPs settings: screen-off speed choice, three quarters of normal speed. [CHAR LIMIT=10] -->
+    <string name="yrrp_screen_off_animation_speed_75">0.75×</string>
+    <!-- YRRPs settings: screen-off speed choice, normal speed. [CHAR LIMIT=10] -->
+    <string name="yrrp_screen_off_animation_speed_100">1×</string>
+    <!-- YRRPs settings: screen-off speed choice, one and a half times normal speed. [CHAR LIMIT=10] -->
+    <string name="yrrp_screen_off_animation_speed_150">1.5×</string>
+    <!-- YRRPs settings: screen-off speed choice, twice normal speed. [CHAR LIMIT=10] -->
+    <string name="yrrp_screen_off_animation_speed_200">2×</string>
 </resources>

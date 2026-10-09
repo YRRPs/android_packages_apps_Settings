@@ -111,7 +111,7 @@ public class YrrpScreenOffAnimationPreferenceControllerTest {
         for (Bundle bundle : metadata) {
             final String controller =
                     bundle.getString(PreferenceXmlParserUtils.METADATA_CONTROLLER);
-            if (controller != null) {
+            if (YrrpScreenOffAnimationPreferenceController.class.getName().equals(controller)) {
                 controllerByKey.put(
                         bundle.getString(PreferenceXmlParserUtils.METADATA_KEY), controller);
             }
