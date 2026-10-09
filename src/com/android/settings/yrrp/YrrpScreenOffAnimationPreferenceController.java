@@ -30,8 +30,8 @@ import com.android.settings.core.BasePreferenceController;
 import com.android.settingslib.widget.SelectorWithWidgetPreference;
 
 /**
- * One screen-off animation choice (Stock or CRT) for the current user. Each radio row on the
- * screen-off animation page binds its own instance by key.
+ * One screen-off effect choice (Stock, CRT, Tear, Corrupt, or Signal loss) for the current user.
+ * Each radio row on the screen-off animation page binds its own instance by key.
  */
 public class YrrpScreenOffAnimationPreferenceController extends BasePreferenceController
         implements SelectorWithWidgetPreference.OnClickListener, DefaultLifecycleObserver {
@@ -39,6 +39,9 @@ public class YrrpScreenOffAnimationPreferenceController extends BasePreferenceCo
     // Must match the radio keys in R.xml.yrrp_screen_off_animation_settings.
     static final String KEY_STOCK = "yrrp_screen_off_animation_stock";
     static final String KEY_CRT = "yrrp_screen_off_animation_crt";
+    static final String KEY_TEAR = "yrrp_screen_off_animation_tear";
+    static final String KEY_CORRUPT = "yrrp_screen_off_animation_corrupt";
+    static final String KEY_SIGNAL_LOSS = "yrrp_screen_off_animation_signal_loss";
 
     private final int mMode;
     private final YrrpSettingsStore mStore;
@@ -112,6 +115,12 @@ public class YrrpScreenOffAnimationPreferenceController extends BasePreferenceCo
                 return YrrpSettingsStore.SCREEN_OFF_STOCK;
             case KEY_CRT:
                 return YrrpSettingsStore.SCREEN_OFF_CRT;
+            case KEY_TEAR:
+                return YrrpSettingsStore.SCREEN_OFF_TEAR;
+            case KEY_CORRUPT:
+                return YrrpSettingsStore.SCREEN_OFF_CORRUPT;
+            case KEY_SIGNAL_LOSS:
+                return YrrpSettingsStore.SCREEN_OFF_SIGNAL_LOSS;
             default:
                 throw new IllegalArgumentException("unknown screen-off animation key");
         }

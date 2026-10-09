@@ -19,6 +19,7 @@ package com.android.settings.yrrp;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.preference.PreferenceScreen;
@@ -66,9 +67,23 @@ public class YrrpScreenOffAnimationEntryPreferenceController extends BasePrefere
     /** Summarizes the normalized stored mode; an unknown stored value shows Stock. */
     @Override
     public CharSequence getSummary() {
-        return mContext.getText(
-                mStore.getScreenOffAnimation() == YrrpSettingsStore.SCREEN_OFF_CRT
-                        ? R.string.yrrp_screen_off_animation_crt
-                        : R.string.yrrp_screen_off_animation_stock);
+        return mContext.getText(labelFor(mStore.getScreenOffAnimation()));
+    }
+
+    /** The row label for a normalized effect value. */
+    @StringRes
+    static int labelFor(int mode) {
+        switch (mode) {
+            case YrrpSettingsStore.SCREEN_OFF_CRT:
+                return R.string.yrrp_screen_off_animation_crt;
+            case YrrpSettingsStore.SCREEN_OFF_TEAR:
+                return R.string.yrrp_screen_off_animation_tear;
+            case YrrpSettingsStore.SCREEN_OFF_CORRUPT:
+                return R.string.yrrp_screen_off_animation_corrupt;
+            case YrrpSettingsStore.SCREEN_OFF_SIGNAL_LOSS:
+                return R.string.yrrp_screen_off_animation_signal_loss;
+            default:
+                return R.string.yrrp_screen_off_animation_stock;
+        }
     }
 }

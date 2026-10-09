@@ -320,26 +320,28 @@ public class YrrpSettingsStoreTest {
     }
 
     @Test
-    public void getScreenOffAnimation_mapsOnlyOneToCrt() {
-        assertThat(readAnimation(1)).isEqualTo(YrrpSettingsStore.SCREEN_OFF_CRT);
+    public void getScreenOffAnimation_mapsKnownValues() {
         assertThat(readAnimation(0)).isEqualTo(YrrpSettingsStore.SCREEN_OFF_STOCK);
-        assertThat(readAnimation(2)).isEqualTo(YrrpSettingsStore.SCREEN_OFF_STOCK);
+        assertThat(readAnimation(1)).isEqualTo(YrrpSettingsStore.SCREEN_OFF_CRT);
+        assertThat(readAnimation(2)).isEqualTo(YrrpSettingsStore.SCREEN_OFF_TEAR);
+        assertThat(readAnimation(3)).isEqualTo(YrrpSettingsStore.SCREEN_OFF_CORRUPT);
+        assertThat(readAnimation(4)).isEqualTo(YrrpSettingsStore.SCREEN_OFF_SIGNAL_LOSS);
+        assertThat(readAnimation(5)).isEqualTo(YrrpSettingsStore.SCREEN_OFF_STOCK);
         assertThat(readAnimation(99)).isEqualTo(YrrpSettingsStore.SCREEN_OFF_STOCK);
         assertThat(readAnimation(-1)).isEqualTo(YrrpSettingsStore.SCREEN_OFF_STOCK);
     }
 
     @Test
-    public void setScreenOffAnimation_writesStockOrCrt() {
-        assertThat(mStore.setScreenOffAnimation(1)).isTrue();
-        assertThat(mBackend.get(KEY_ANIMATION, USER)).isEqualTo(1);
-
-        assertThat(mStore.setScreenOffAnimation(0)).isTrue();
-        assertThat(mBackend.get(KEY_ANIMATION, USER)).isEqualTo(0);
+    public void setScreenOffAnimation_writesEveryKnownEffect() {
+        for (int mode = 0; mode <= 4; mode++) {
+            assertThat(mStore.setScreenOffAnimation(mode)).isTrue();
+            assertThat(mBackend.get(KEY_ANIMATION, USER)).isEqualTo(mode);
+        }
     }
 
     @Test
     public void setScreenOffAnimation_rejectsOtherValuesWithoutWriting() {
-        assertThat(mStore.setScreenOffAnimation(2)).isFalse();
+        assertThat(mStore.setScreenOffAnimation(5)).isFalse();
         assertThat(mStore.setScreenOffAnimation(-1)).isFalse();
 
         assertThat(mBackend.mWrites).isEqualTo(0);

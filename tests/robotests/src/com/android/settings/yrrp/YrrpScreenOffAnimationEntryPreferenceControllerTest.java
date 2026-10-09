@@ -92,6 +92,19 @@ public class YrrpScreenOffAnimationEntryPreferenceControllerTest {
     }
 
     @Test
+    public void getSummary_glitchValues_nameTheEffect() {
+        putAnimation(2);
+        assertThat(mController.getSummary().toString())
+                .isEqualTo(mContext.getString(R.string.yrrp_screen_off_animation_tear));
+        putAnimation(3);
+        assertThat(mController.getSummary().toString())
+                .isEqualTo(mContext.getString(R.string.yrrp_screen_off_animation_corrupt));
+        putAnimation(4);
+        assertThat(mController.getSummary().toString())
+                .isEqualTo(mContext.getString(R.string.yrrp_screen_off_animation_signal_loss));
+    }
+
+    @Test
     public void getSummary_unknownValue_isStockWithoutWriting() {
         putAnimation(99);
 

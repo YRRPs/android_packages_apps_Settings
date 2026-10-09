@@ -31,9 +31,28 @@
         android:persistent="false"
         settings:controller="com.android.settings.yrrp.YrrpScreenOffAnimationPreferenceController"/>
 
+    <com.android.settingslib.widget.SelectorWithWidgetPreference
+        android:key="yrrp_screen_off_animation_tear"
+        android:title="@string/yrrp_screen_off_animation_tear"
+        android:persistent="false"
+        settings:controller="com.android.settings.yrrp.YrrpScreenOffAnimationPreferenceController"/>
+
+    <com.android.settingslib.widget.SelectorWithWidgetPreference
+        android:key="yrrp_screen_off_animation_corrupt"
+        android:title="@string/yrrp_screen_off_animation_corrupt"
+        android:persistent="false"
+        settings:controller="com.android.settings.yrrp.YrrpScreenOffAnimationPreferenceController"/>
+
+    <com.android.settingslib.widget.SelectorWithWidgetPreference
+        android:key="yrrp_screen_off_animation_signal_loss"
+        android:title="@string/yrrp_screen_off_animation_signal_loss"
+        android:persistent="false"
+        settings:controller="com.android.settings.yrrp.YrrpScreenOffAnimationPreferenceController"/>
+
     <PreferenceCategory
         android:key="yrrp_screen_off_animation_speed_category"
-        android:title="@string/yrrp_screen_off_animation_speed_title">
+        android:title="@string/yrrp_screen_off_animation_speed_title"
+        settings:searchable="false">
 
         <com.android.settingslib.widget.SelectorWithWidgetPreference
             android:key="yrrp_screen_off_animation_speed_50"
