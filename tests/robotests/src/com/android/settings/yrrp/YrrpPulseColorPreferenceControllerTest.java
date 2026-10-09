@@ -149,6 +149,23 @@ public class YrrpPulseColorPreferenceControllerTest {
     }
 
     @Test
+    public void updateState_pulseOnInRainbowModes_disablesVisibleRow() {
+        putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
+        for (int mode :
+                new int[] {
+                    YrrpSettingsStore.PULSE_COLOR_MODE_RAINBOW_GRADIENT,
+                    YrrpSettingsStore.PULSE_COLOR_MODE_RAINBOW_CYCLE
+                }) {
+            putSecure(YrrpSettingsStore.PULSE_COLOR_MODE, mode);
+
+            mController.updateState(mPreference);
+
+            assertThat(mPreference.isEnabled()).isFalse();
+            assertThat(mPreference.isVisible()).isTrue();
+        }
+    }
+
+    @Test
     public void updateState_unknownColorMode_treatsAsSolid() {
         putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
         putSecure(YrrpSettingsStore.PULSE_COLOR_MODE, 99);

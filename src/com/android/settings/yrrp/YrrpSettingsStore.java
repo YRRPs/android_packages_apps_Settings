@@ -59,6 +59,8 @@ public class YrrpSettingsStore {
     static final int PULSE_HEIGHT_STEP_DP = 4;
     static final int PULSE_COLOR_MODE_SOLID = 0;
     static final int PULSE_COLOR_MODE_MATCH_THEME = 1;
+    static final int PULSE_COLOR_MODE_RAINBOW_GRADIENT = 2;
+    static final int PULSE_COLOR_MODE_RAINBOW_CYCLE = 3;
     /** Strength k of SystemUI's PulseHeightCurve; 0 draws bar heights linearly. */
     static final int PULSE_BOOST_DEFAULT = 20;
     static final int PULSE_BOOST_MIN = 0;
@@ -138,17 +140,14 @@ public class YrrpSettingsStore {
         return putInt(PULSE_HEIGHT_DP, normalizeHeightForWrite(heightDp));
     }
 
-    /**
-     * Returns {@link #PULSE_COLOR_MODE_MATCH_THEME} only for an exact Match theme value, otherwise
-     * Solid, as SystemUI reads it.
-     */
+    /** Returns the stored mode when SystemUI knows it, otherwise Solid, as SystemUI reads it. */
     public int getPulseColorMode() {
         return normalizeColorMode(getInt(PULSE_COLOR_MODE, PULSE_COLOR_MODE_SOLID));
     }
 
-    /** Rejects anything other than Solid or Match theme instead of coercing it. */
+    /** Rejects any value SystemUI does not know instead of coercing it. */
     public boolean setPulseColorMode(int mode) {
-        if (mode != PULSE_COLOR_MODE_SOLID && mode != PULSE_COLOR_MODE_MATCH_THEME) {
+        if (!isKnownColorMode(mode)) {
             return false;
         }
         return putInt(PULSE_COLOR_MODE, mode);
@@ -261,9 +260,12 @@ public class YrrpSettingsStore {
     }
 
     static int normalizeColorMode(int raw) {
-        return raw == PULSE_COLOR_MODE_MATCH_THEME
-                ? PULSE_COLOR_MODE_MATCH_THEME
-                : PULSE_COLOR_MODE_SOLID;
+        return isKnownColorMode(raw) ? raw : PULSE_COLOR_MODE_SOLID;
+    }
+
+    /** Must match SystemUI's PulseColorMode values. */
+    private static boolean isKnownColorMode(int mode) {
+        return mode >= PULSE_COLOR_MODE_SOLID && mode <= PULSE_COLOR_MODE_RAINBOW_CYCLE;
     }
 
     static int normalizeBoost(int raw) {

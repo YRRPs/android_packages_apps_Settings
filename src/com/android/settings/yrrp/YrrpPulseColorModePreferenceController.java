@@ -30,8 +30,9 @@ import com.android.settings.core.BasePreferenceController;
 import com.android.settingslib.widget.SelectorWithWidgetPreference;
 
 /**
- * One Pulse color mode choice (Solid or Match theme) for the current user. Each radio row on the
- * Pulse page binds its own instance by key. The rows stay visible but disabled while Pulse is off.
+ * One Pulse color mode choice (Solid, Match theme, Rainbow gradient or Rainbow cycle) for the
+ * current user. Each radio row on the Pulse page binds its own instance by key. The rows stay
+ * visible but disabled while Pulse is off.
  */
 public class YrrpPulseColorModePreferenceController extends BasePreferenceController
         implements SelectorWithWidgetPreference.OnClickListener, DefaultLifecycleObserver {
@@ -39,6 +40,8 @@ public class YrrpPulseColorModePreferenceController extends BasePreferenceContro
     // Must match the radio keys in R.xml.yrrp_pulse_settings.
     static final String KEY_SOLID = "yrrp_pulse_color_mode_solid";
     static final String KEY_MATCH_THEME = "yrrp_pulse_color_mode_match_theme";
+    static final String KEY_RAINBOW_GRADIENT = "yrrp_pulse_color_mode_rainbow_gradient";
+    static final String KEY_RAINBOW_CYCLE = "yrrp_pulse_color_mode_rainbow_cycle";
 
     private final int mMode;
     private final YrrpSettingsStore mStore;
@@ -128,6 +131,10 @@ public class YrrpPulseColorModePreferenceController extends BasePreferenceContro
                 return YrrpSettingsStore.PULSE_COLOR_MODE_SOLID;
             case KEY_MATCH_THEME:
                 return YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME;
+            case KEY_RAINBOW_GRADIENT:
+                return YrrpSettingsStore.PULSE_COLOR_MODE_RAINBOW_GRADIENT;
+            case KEY_RAINBOW_CYCLE:
+                return YrrpSettingsStore.PULSE_COLOR_MODE_RAINBOW_CYCLE;
             default:
                 throw new IllegalArgumentException("unknown Pulse color mode key");
         }

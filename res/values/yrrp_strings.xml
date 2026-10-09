@@ -56,8 +56,16 @@
     <string name="yrrp_pulse_color_mode_match_theme">Match theme</string>
     <!-- YRRPs settings: summary of the Match theme Pulse color mode. [CHAR LIMIT=NONE] -->
     <string name="yrrp_pulse_color_mode_match_theme_summary">White bars with dark theme, black bars with light theme</string>
+    <!-- YRRPs settings: Pulse color mode giving each bar its own slowly shifting hue. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_color_mode_rainbow_gradient">Rainbow gradient</string>
+    <!-- YRRPs settings: summary of the Rainbow gradient Pulse color mode. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_pulse_color_mode_rainbow_gradient_summary">Each bar a different color, slowly shifting</string>
+    <!-- YRRPs settings: Pulse color mode cycling all bars through the hues together. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_color_mode_rainbow_cycle">Rainbow cycle</string>
+    <!-- YRRPs settings: summary of the Rainbow cycle Pulse color mode. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_pulse_color_mode_rainbow_cycle_summary">All bars share one color that cycles through the rainbow</string>
     <!-- YRRPs settings: search keywords for the Pulse color mode rows. [CHAR_LIMIT=NONE] -->
-    <string name="yrrp_pulse_color_mode_keywords">Pulse color mode, theme, dark theme, light theme, black, white</string>
+    <string name="yrrp_pulse_color_mode_keywords">Pulse color mode, theme, dark theme, light theme, black, white, rainbow, gradient, cycle, animated</string>
     <!-- YRRPs settings: Pulse opacity slider title. [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_opacity_title">Pulse opacity</string>
     <!-- YRRPs settings: search keywords for the Pulse opacity slider. [CHAR_LIMIT=NONE] -->

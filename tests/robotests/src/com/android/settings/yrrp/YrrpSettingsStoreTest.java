@@ -339,25 +339,31 @@ public class YrrpSettingsStoreTest {
     }
 
     @Test
-    public void getPulseColorMode_mapsOnlyOneToMatchTheme() {
-        assertThat(readColorMode(1)).isEqualTo(YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME);
+    public void getPulseColorMode_mapsEachKnownValue() {
         assertThat(readColorMode(0)).isEqualTo(YrrpSettingsStore.PULSE_COLOR_MODE_SOLID);
-        assertThat(readColorMode(2)).isEqualTo(YrrpSettingsStore.PULSE_COLOR_MODE_SOLID);
+        assertThat(readColorMode(1)).isEqualTo(YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME);
+        assertThat(readColorMode(2))
+                .isEqualTo(YrrpSettingsStore.PULSE_COLOR_MODE_RAINBOW_GRADIENT);
+        assertThat(readColorMode(3)).isEqualTo(YrrpSettingsStore.PULSE_COLOR_MODE_RAINBOW_CYCLE);
+    }
+
+    @Test
+    public void getPulseColorMode_unknownValuesAreSolid() {
+        assertThat(readColorMode(4)).isEqualTo(YrrpSettingsStore.PULSE_COLOR_MODE_SOLID);
         assertThat(readColorMode(-1)).isEqualTo(YrrpSettingsStore.PULSE_COLOR_MODE_SOLID);
     }
 
     @Test
-    public void setPulseColorMode_writesSolidOrMatchTheme() {
-        assertThat(mStore.setPulseColorMode(1)).isTrue();
-        assertThat(mBackend.get(KEY_COLOR_MODE, USER)).isEqualTo(1);
-
-        assertThat(mStore.setPulseColorMode(0)).isTrue();
-        assertThat(mBackend.get(KEY_COLOR_MODE, USER)).isEqualTo(0);
+    public void setPulseColorMode_writesEachKnownMode() {
+        for (int mode = 0; mode <= 3; mode++) {
+            assertThat(mStore.setPulseColorMode(mode)).isTrue();
+            assertThat(mBackend.get(KEY_COLOR_MODE, USER)).isEqualTo(mode);
+        }
     }
 
     @Test
     public void setPulseColorMode_rejectsOtherValuesWithoutWriting() {
-        assertThat(mStore.setPulseColorMode(2)).isFalse();
+        assertThat(mStore.setPulseColorMode(4)).isFalse();
         assertThat(mStore.setPulseColorMode(-1)).isFalse();
 
         assertThat(mBackend.mWrites).isEqualTo(0);
