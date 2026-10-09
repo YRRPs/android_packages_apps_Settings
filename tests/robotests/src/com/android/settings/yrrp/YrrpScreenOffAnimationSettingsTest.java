@@ -52,12 +52,18 @@ public class YrrpScreenOffAnimationSettingsTest {
     }
 
     @Test
-    public void screenOffAnimationXml_hasOnlyStockAndCrtSelectors() throws Exception {
+    public void screenOffAnimationXml_hasEffectAndSpeedSelectors() throws Exception {
         assertThat(YrrpXmlElements.outline(mContext, R.xml.yrrp_screen_off_animation_settings))
                 .containsExactly(
                         "PreferenceScreen#yrrp_screen_off_animation_settings_screen",
                         "  " + SELECTOR + "#yrrp_screen_off_animation_stock",
-                        "  " + SELECTOR + "#yrrp_screen_off_animation_crt")
+                        "  " + SELECTOR + "#yrrp_screen_off_animation_crt",
+                        "  PreferenceCategory#yrrp_screen_off_animation_speed_category",
+                        "    " + SELECTOR + "#yrrp_screen_off_animation_speed_50",
+                        "    " + SELECTOR + "#yrrp_screen_off_animation_speed_75",
+                        "    " + SELECTOR + "#yrrp_screen_off_animation_speed_100",
+                        "    " + SELECTOR + "#yrrp_screen_off_animation_speed_150",
+                        "    " + SELECTOR + "#yrrp_screen_off_animation_speed_200")
                 .inOrder();
         // Kept alongside the outline check on purpose: this one runs the production key parser.
         assertThat(
@@ -66,7 +72,13 @@ public class YrrpScreenOffAnimationSettingsTest {
                 .containsExactly(
                         "yrrp_screen_off_animation_settings_screen",
                         "yrrp_screen_off_animation_stock",
-                        "yrrp_screen_off_animation_crt")
+                        "yrrp_screen_off_animation_crt",
+                        "yrrp_screen_off_animation_speed_category",
+                        "yrrp_screen_off_animation_speed_50",
+                        "yrrp_screen_off_animation_speed_75",
+                        "yrrp_screen_off_animation_speed_100",
+                        "yrrp_screen_off_animation_speed_150",
+                        "yrrp_screen_off_animation_speed_200")
                 .inOrder();
     }
 }

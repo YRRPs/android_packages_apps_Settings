@@ -48,6 +48,7 @@ public class YrrpSettingsStore {
     static final String PULSE_BAR_COUNT = "lineage_pulse_bar_count";
     static final String PULSE_BAR_GAP_PERCENT = "lineage_pulse_bar_gap_percent";
     static final String SCREEN_OFF_ANIMATION = "lineage_screen_off_animation";
+    static final String SCREEN_OFF_ANIMATION_SPEED = "lineage_screen_off_animation_speed";
 
     static final int PULSE_COLOR_DEFAULT = 0xFFFFFF;
     static final int PULSE_ALPHA_DEFAULT = 217;
@@ -77,6 +78,13 @@ public class YrrpSettingsStore {
     static final int PULSE_BAR_GAP_PERCENT_STEP = 5;
     static final int SCREEN_OFF_STOCK = 0;
     static final int SCREEN_OFF_CRT = 1;
+
+    // Speed percent of custom screen-off effects: 200 plays twice as fast. The range must match
+    // ScreenOffAnimationSpeed in the display service, which clamps the same way.
+    static final int SCREEN_OFF_SPEED_DEFAULT = 100;
+    static final int SCREEN_OFF_SPEED_MIN = 50;
+    static final int SCREEN_OFF_SPEED_MAX = 200;
+    private static final int[] SCREEN_OFF_SPEEDS = {50, 75, 100, 150, 200};
 
     /** Per-user access to {@link Settings.Secure}, replaceable in tests. */
     interface Backend {
@@ -197,6 +205,22 @@ public class YrrpSettingsStore {
         return putInt(SCREEN_OFF_ANIMATION, mode);
     }
 
+    /** Returns the stored screen-off speed percent, clamped as the display service reads it. */
+    public int getScreenOffAnimationSpeed() {
+        return normalizeScreenOffSpeed(
+                getInt(SCREEN_OFF_ANIMATION_SPEED, SCREEN_OFF_SPEED_DEFAULT));
+    }
+
+    /** Writes one of the listed speed percents; rejects anything else without writing. */
+    public boolean setScreenOffAnimationSpeed(int percent) {
+        for (int speed : SCREEN_OFF_SPEEDS) {
+            if (speed == percent) {
+                return putInt(SCREEN_OFF_ANIMATION_SPEED, percent);
+            }
+        }
+        return false;
+    }
+
     /** Returns the secure settings URI to observe for {@code key}. */
     @NonNull
     public Uri getUriFor(@NonNull String key) {
@@ -274,6 +298,10 @@ public class YrrpSettingsStore {
 
     static int normalizeScreenOffAnimation(int raw) {
         return raw == SCREEN_OFF_CRT ? SCREEN_OFF_CRT : SCREEN_OFF_STOCK;
+    }
+
+    static int normalizeScreenOffSpeed(int raw) {
+        return Math.max(SCREEN_OFF_SPEED_MIN, Math.min(SCREEN_OFF_SPEED_MAX, raw));
     }
 
     private int getInt(String key, int defaultValue) {
