@@ -78,6 +78,9 @@ public class YrrpSettingsStore {
     static final int PULSE_BAR_GAP_PERCENT_STEP = 5;
     static final int SCREEN_OFF_STOCK = 0;
     static final int SCREEN_OFF_CRT = 1;
+    static final int SCREEN_OFF_TEAR = 2;
+    static final int SCREEN_OFF_CORRUPT = 3;
+    static final int SCREEN_OFF_SIGNAL_LOSS = 4;
 
     // Speed percent of custom screen-off effects: 200 plays twice as fast. The range must match
     // ScreenOffAnimationSpeed in the display service, which clamps the same way.
@@ -192,14 +195,14 @@ public class YrrpSettingsStore {
         return putInt(PULSE_BAR_GAP_PERCENT, normalizeBarGapForWrite(percent));
     }
 
-    /** Returns {@link #SCREEN_OFF_CRT} only for an exact CRT value, otherwise Stock. */
+    /** Returns the stored effect when it is a known one (0–4), otherwise Stock. */
     public int getScreenOffAnimation() {
         return normalizeScreenOffAnimation(getInt(SCREEN_OFF_ANIMATION, SCREEN_OFF_STOCK));
     }
 
-    /** Rejects anything other than Stock or CRT instead of coercing it. */
+    /** Rejects anything other than a known effect (0–4) instead of coercing it. */
     public boolean setScreenOffAnimation(int mode) {
-        if (mode != SCREEN_OFF_STOCK && mode != SCREEN_OFF_CRT) {
+        if (normalizeScreenOffAnimation(mode) != mode) {
             return false;
         }
         return putInt(SCREEN_OFF_ANIMATION, mode);
@@ -297,7 +300,7 @@ public class YrrpSettingsStore {
     }
 
     static int normalizeScreenOffAnimation(int raw) {
-        return raw == SCREEN_OFF_CRT ? SCREEN_OFF_CRT : SCREEN_OFF_STOCK;
+        return raw >= SCREEN_OFF_STOCK && raw <= SCREEN_OFF_SIGNAL_LOSS ? raw : SCREEN_OFF_STOCK;
     }
 
     static int normalizeScreenOffSpeed(int raw) {

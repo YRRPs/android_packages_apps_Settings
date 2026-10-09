@@ -93,11 +93,17 @@ public class YrrpScreenOffAnimationPreferenceControllerTest {
     }
 
     @Test
-    public void keys_areTheStockAndCrtRadioKeys() {
+    public void keys_areTheEffectRadioKeys() {
         assertThat(YrrpScreenOffAnimationPreferenceController.KEY_STOCK)
                 .isEqualTo("yrrp_screen_off_animation_stock");
         assertThat(YrrpScreenOffAnimationPreferenceController.KEY_CRT)
                 .isEqualTo("yrrp_screen_off_animation_crt");
+        assertThat(YrrpScreenOffAnimationPreferenceController.KEY_TEAR)
+                .isEqualTo("yrrp_screen_off_animation_tear");
+        assertThat(YrrpScreenOffAnimationPreferenceController.KEY_CORRUPT)
+                .isEqualTo("yrrp_screen_off_animation_corrupt");
+        assertThat(YrrpScreenOffAnimationPreferenceController.KEY_SIGNAL_LOSS)
+                .isEqualTo("yrrp_screen_off_animation_signal_loss");
     }
 
     @Test
@@ -121,7 +127,11 @@ public class YrrpScreenOffAnimationPreferenceControllerTest {
         assertThat(controllerByKey)
                 .containsExactly(
                         YrrpScreenOffAnimationPreferenceController.KEY_STOCK, controllerName,
-                        YrrpScreenOffAnimationPreferenceController.KEY_CRT, controllerName);
+                        YrrpScreenOffAnimationPreferenceController.KEY_CRT, controllerName,
+                        YrrpScreenOffAnimationPreferenceController.KEY_TEAR, controllerName,
+                        YrrpScreenOffAnimationPreferenceController.KEY_CORRUPT, controllerName,
+                        YrrpScreenOffAnimationPreferenceController.KEY_SIGNAL_LOSS,
+                        controllerName);
     }
 
     @Test
@@ -188,6 +198,28 @@ public class YrrpScreenOffAnimationPreferenceControllerTest {
 
         assertThat(mBackend.mWrites).containsExactly("lineage_screen_off_animation=1");
         assertThat(rawAnimation()).isEqualTo(1);
+    }
+
+    @Test
+    public void clickSignalLoss_writesFour_andChecksOnlyThatRow() {
+        final YrrpScreenOffAnimationPreferenceController controller =
+                new YrrpScreenOffAnimationPreferenceController(
+                        mContext,
+                        YrrpScreenOffAnimationPreferenceController.KEY_SIGNAL_LOSS,
+                        mBackend.newStore());
+        final SelectorWithWidgetPreference preference =
+                newRadio(YrrpScreenOffAnimationPreferenceController.KEY_SIGNAL_LOSS);
+        mScreen.addPreference(preference);
+        controller.displayPreference(mScreen);
+
+        preference.onClick();
+        controller.updateState(preference);
+        updateBothRows();
+
+        assertThat(mBackend.mWrites).containsExactly("lineage_screen_off_animation=4");
+        assertThat(preference.isChecked()).isTrue();
+        assertThat(mStockPreference.isChecked()).isFalse();
+        assertThat(mCrtPreference.isChecked()).isFalse();
     }
 
     @Test
