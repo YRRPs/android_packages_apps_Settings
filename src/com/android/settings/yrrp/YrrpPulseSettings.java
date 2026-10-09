@@ -50,10 +50,10 @@ public class YrrpPulseSettings extends DashboardFragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         // Runs on every attach, so the color result listener survives recreation.
-        final YrrpPulseColorPreferenceController colorController =
-                use(YrrpPulseColorPreferenceController.class);
-        if (colorController != null) {
-            colorController.init(this);
+        final YrrpPulseSolidColorModePreferenceController solidController =
+                use(YrrpPulseSolidColorModePreferenceController.class);
+        if (solidController != null) {
+            solidController.init(this);
         }
     }
 

@@ -40,8 +40,8 @@
             android:key="yrrp_pulse_color_mode_solid"
             android:title="@string/yrrp_pulse_color_mode_solid"
             android:persistent="false"
-            settings:keywords="@string/yrrp_pulse_color_mode_keywords"
-            settings:controller="com.android.settings.yrrp.YrrpPulseColorModePreferenceController"/>
+            settings:keywords="@string/yrrp_pulse_solid_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpPulseSolidColorModePreferenceController"/>
 
         <com.android.settingslib.widget.SelectorWithWidgetPreference
             android:key="yrrp_pulse_color_mode_match_theme"
@@ -68,12 +68,6 @@
             settings:controller="com.android.settings.yrrp.YrrpPulseColorModePreferenceController"/>
 
     </PreferenceCategory>
-
-    <com.android.settings.yrrp.YrrpColorPreference
-        android:key="yrrp_pulse_color"
-        android:title="@string/yrrp_pulse_color_title"
-        android:persistent="false"
-        settings:controller="com.android.settings.yrrp.YrrpPulseColorPreferenceController"/>
 
     <com.android.settingslib.widget.SliderPreference
         android:key="yrrp_pulse_opacity"

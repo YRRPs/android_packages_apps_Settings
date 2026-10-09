@@ -36,7 +36,7 @@
     <string name="yrrp_pulse_intro">Show a spectrum of playing audio in the navigation bar</string>
     <!-- YRRPs settings: Pulse page main switch title. [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_main_switch_title">Use Pulse</string>
-    <!-- YRRPs settings: Pulse color row and picker dialog title. [CHAR LIMIT=40] -->
+    <!-- YRRPs settings: Pulse color picker dialog title, also the description of the gear on the Solid color mode row. [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_color_title">Pulse color</string>
     <!-- YRRPs settings: label of the red channel slider in the Pulse color picker. [CHAR LIMIT=20] -->
     <string name="yrrp_pulse_color_red">Red</string>
@@ -66,6 +66,8 @@
     <string name="yrrp_pulse_color_mode_rainbow_cycle_summary">All bars share one color that cycles through the rainbow</string>
     <!-- YRRPs settings: search keywords for the Pulse color mode rows. [CHAR_LIMIT=NONE] -->
     <string name="yrrp_pulse_color_mode_keywords">Pulse color mode, theme, dark theme, light theme, black, white, rainbow, gradient, cycle, animated</string>
+    <!-- YRRPs settings: search keywords for the Solid Pulse color mode row, whose gear opens the Pulse color picker. [CHAR_LIMIT=NONE] -->
+    <string name="yrrp_pulse_solid_keywords">Pulse color, color picker, RGB, hex, solid, Pulse color mode</string>
     <!-- YRRPs settings: Pulse opacity slider title. [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_opacity_title">Pulse opacity</string>
     <!-- YRRPs settings: search keywords for the Pulse opacity slider. [CHAR_LIMIT=NONE] -->

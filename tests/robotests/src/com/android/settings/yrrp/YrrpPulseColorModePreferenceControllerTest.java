@@ -282,6 +282,17 @@ public class YrrpPulseColorModePreferenceControllerTest {
     }
 
     @Test
+    public void onStart_plainRows_doNotObserveColor() {
+        mLifecycle.handleLifecycleEvent(ON_START);
+
+        assertThat(
+                        shadowOf(mContentResolver)
+                                .getContentObservers(
+                                        Settings.Secure.getUriFor(YrrpSettingsStore.PULSE_COLOR)))
+                .isEmpty();
+    }
+
+    @Test
     public void onStop_unregistersObservers() {
         mLifecycle.handleLifecycleEvent(ON_START);
         mLifecycle.handleLifecycleEvent(ON_STOP);
