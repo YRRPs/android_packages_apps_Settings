@@ -66,6 +66,10 @@ public class YrrpPulseSettingsTest {
                                 + "#yrrp_pulse_color_mode_solid",
                         "    com.android.settingslib.widget.SelectorWithWidgetPreference"
                                 + "#yrrp_pulse_color_mode_match_theme",
+                        "    com.android.settingslib.widget.SelectorWithWidgetPreference"
+                                + "#yrrp_pulse_color_mode_rainbow_gradient",
+                        "    com.android.settingslib.widget.SelectorWithWidgetPreference"
+                                + "#yrrp_pulse_color_mode_rainbow_cycle",
                         "  com.android.settings.yrrp.YrrpColorPreference#yrrp_pulse_color",
                         "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_opacity",
                         "  com.android.settingslib.widget.SliderPreference#yrrp_pulse_height",
@@ -84,6 +88,8 @@ public class YrrpPulseSettingsTest {
                         "yrrp_pulse_color_mode_category",
                         "yrrp_pulse_color_mode_solid",
                         "yrrp_pulse_color_mode_match_theme",
+                        "yrrp_pulse_color_mode_rainbow_gradient",
+                        "yrrp_pulse_color_mode_rainbow_cycle",
                         "yrrp_pulse_color",
                         "yrrp_pulse_opacity",
                         "yrrp_pulse_height",
@@ -110,7 +116,12 @@ public class YrrpPulseSettingsTest {
         final List<YrrpXmlElements.Element> elements =
                 YrrpXmlElements.read(mContext, R.xml.yrrp_pulse_settings);
         for (String key :
-                new String[] {"yrrp_pulse_color_mode_solid", "yrrp_pulse_color_mode_match_theme"}) {
+                new String[] {
+                    "yrrp_pulse_color_mode_solid",
+                    "yrrp_pulse_color_mode_match_theme",
+                    "yrrp_pulse_color_mode_rainbow_gradient",
+                    "yrrp_pulse_color_mode_rainbow_cycle"
+                }) {
             assertThat(YrrpXmlElements.find(elements, key).resourceId("keywords"))
                     .isEqualTo(R.string.yrrp_pulse_color_mode_keywords);
         }

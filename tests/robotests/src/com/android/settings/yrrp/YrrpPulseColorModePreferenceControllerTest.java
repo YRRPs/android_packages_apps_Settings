@@ -93,11 +93,63 @@ public class YrrpPulseColorModePreferenceControllerTest {
     }
 
     @Test
-    public void keys_areTheSolidAndMatchThemeRadioKeys() {
+    public void keys_areTheFourRadioKeys() {
         assertThat(YrrpPulseColorModePreferenceController.KEY_SOLID)
                 .isEqualTo("yrrp_pulse_color_mode_solid");
         assertThat(YrrpPulseColorModePreferenceController.KEY_MATCH_THEME)
                 .isEqualTo("yrrp_pulse_color_mode_match_theme");
+        assertThat(YrrpPulseColorModePreferenceController.KEY_RAINBOW_GRADIENT)
+                .isEqualTo("yrrp_pulse_color_mode_rainbow_gradient");
+        assertThat(YrrpPulseColorModePreferenceController.KEY_RAINBOW_CYCLE)
+                .isEqualTo("yrrp_pulse_color_mode_rainbow_cycle");
+    }
+
+    @Test
+    public void updateState_twoAndThree_checkOnlyTheirRainbowRow() {
+        final SelectorWithWidgetPreference gradient =
+                newRadio(YrrpPulseColorModePreferenceController.KEY_RAINBOW_GRADIENT);
+        final SelectorWithWidgetPreference cycle =
+                newRadio(YrrpPulseColorModePreferenceController.KEY_RAINBOW_CYCLE);
+        final YrrpPulseColorModePreferenceController gradientController =
+                newController(YrrpPulseColorModePreferenceController.KEY_RAINBOW_GRADIENT);
+        final YrrpPulseColorModePreferenceController cycleController =
+                newController(YrrpPulseColorModePreferenceController.KEY_RAINBOW_CYCLE);
+
+        putColorMode(2);
+        gradientController.updateState(gradient);
+        cycleController.updateState(cycle);
+        updateBothRows();
+        assertThat(gradient.isChecked()).isTrue();
+        assertThat(cycle.isChecked()).isFalse();
+        assertThat(mSolidPreference.isChecked()).isFalse();
+
+        putColorMode(3);
+        gradientController.updateState(gradient);
+        cycleController.updateState(cycle);
+        assertThat(gradient.isChecked()).isFalse();
+        assertThat(cycle.isChecked()).isTrue();
+    }
+
+    @Test
+    public void clickRainbowRows_writeTwoAndThree() {
+        final SelectorWithWidgetPreference gradient =
+                newRadio(YrrpPulseColorModePreferenceController.KEY_RAINBOW_GRADIENT);
+        final SelectorWithWidgetPreference cycle =
+                newRadio(YrrpPulseColorModePreferenceController.KEY_RAINBOW_CYCLE);
+        mScreen.addPreference(gradient);
+        mScreen.addPreference(cycle);
+        newController(YrrpPulseColorModePreferenceController.KEY_RAINBOW_GRADIENT)
+                .displayPreference(mScreen);
+        newController(YrrpPulseColorModePreferenceController.KEY_RAINBOW_CYCLE)
+                .displayPreference(mScreen);
+
+        gradient.onClick();
+        cycle.onClick();
+
+        assertThat(mBackend.mWrites)
+                .containsExactly("lineage_pulse_color_mode=2", "lineage_pulse_color_mode=3")
+                .inOrder();
+        assertThat(rawColorMode()).isEqualTo(3);
     }
 
     @Test
@@ -121,7 +173,10 @@ public class YrrpPulseColorModePreferenceControllerTest {
         assertThat(controllerByKey)
                 .containsExactly(
                         YrrpPulseColorModePreferenceController.KEY_SOLID, controllerName,
-                        YrrpPulseColorModePreferenceController.KEY_MATCH_THEME, controllerName);
+                        YrrpPulseColorModePreferenceController.KEY_MATCH_THEME, controllerName,
+                        YrrpPulseColorModePreferenceController.KEY_RAINBOW_GRADIENT,
+                                controllerName,
+                        YrrpPulseColorModePreferenceController.KEY_RAINBOW_CYCLE, controllerName);
     }
 
     @Test
@@ -301,6 +356,10 @@ public class YrrpPulseColorModePreferenceControllerTest {
         final SelectorWithWidgetPreference preference = new SelectorWithWidgetPreference(mContext);
         preference.setKey(key);
         return preference;
+    }
+
+    private YrrpPulseColorModePreferenceController newController(String key) {
+        return new YrrpPulseColorModePreferenceController(mContext, key, mBackend.newStore());
     }
 
     private void displayBothRows() {

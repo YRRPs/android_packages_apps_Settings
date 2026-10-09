@@ -51,6 +51,22 @@
             settings:keywords="@string/yrrp_pulse_color_mode_keywords"
             settings:controller="com.android.settings.yrrp.YrrpPulseColorModePreferenceController"/>
 
+        <com.android.settingslib.widget.SelectorWithWidgetPreference
+            android:key="yrrp_pulse_color_mode_rainbow_gradient"
+            android:title="@string/yrrp_pulse_color_mode_rainbow_gradient"
+            android:summary="@string/yrrp_pulse_color_mode_rainbow_gradient_summary"
+            android:persistent="false"
+            settings:keywords="@string/yrrp_pulse_color_mode_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpPulseColorModePreferenceController"/>
+
+        <com.android.settingslib.widget.SelectorWithWidgetPreference
+            android:key="yrrp_pulse_color_mode_rainbow_cycle"
+            android:title="@string/yrrp_pulse_color_mode_rainbow_cycle"
+            android:summary="@string/yrrp_pulse_color_mode_rainbow_cycle_summary"
+            android:persistent="false"
+            settings:keywords="@string/yrrp_pulse_color_mode_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpPulseColorModePreferenceController"/>
+
     </PreferenceCategory>
 
     <com.android.settings.yrrp.YrrpColorPreference
