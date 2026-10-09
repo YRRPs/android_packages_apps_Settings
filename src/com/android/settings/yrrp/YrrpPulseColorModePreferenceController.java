@@ -30,8 +30,9 @@ import com.android.settings.core.BasePreferenceController;
 import com.android.settingslib.widget.SelectorWithWidgetPreference;
 
 /**
- * One Pulse color mode choice (Solid or Match theme) for the current user. Each radio row on the
- * Pulse page binds its own instance by key. The rows stay visible but disabled while Pulse is off.
+ * One Pulse color mode choice (Solid, Match theme, Rainbow gradient or Rainbow cycle) for the
+ * current user. Each radio row on the Pulse page binds its own instance by key. The rows stay
+ * visible but disabled while Pulse is off.
  */
 public class YrrpPulseColorModePreferenceController extends BasePreferenceController
         implements SelectorWithWidgetPreference.OnClickListener, DefaultLifecycleObserver {

@@ -122,6 +122,7 @@ public class YrrpPulseColorModePreferenceControllerTest {
         assertThat(gradient.isChecked()).isTrue();
         assertThat(cycle.isChecked()).isFalse();
         assertThat(mSolidPreference.isChecked()).isFalse();
+        assertThat(mMatchThemePreference.isChecked()).isFalse();
 
         putColorMode(3);
         gradientController.updateState(gradient);
