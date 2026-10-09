@@ -20,6 +20,9 @@ import static androidx.lifecycle.Lifecycle.Event.ON_START;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.ContentResolver;
@@ -33,13 +36,13 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.android.settings.R;
 import com.android.settingslib.core.lifecycle.Lifecycle;
+import com.android.settingslib.widget.SelectorWithWidgetPreference;
 
 import org.junit.After;
 import org.junit.Before;
@@ -48,17 +51,22 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
-public class YrrpPulseColorPreferenceControllerTest {
+public class YrrpPulseSolidColorModePreferenceControllerTest {
     /** Read back when a key was never written. */
     private static final int MISSING = Integer.MIN_VALUE;
 
-    private static final String PREF_KEY = "yrrp_pulse_color";
+    private static final int[] ALL_MODES = {
+        YrrpSettingsStore.PULSE_COLOR_MODE_SOLID,
+        YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME,
+        YrrpSettingsStore.PULSE_COLOR_MODE_RAINBOW_GRADIENT,
+        YrrpSettingsStore.PULSE_COLOR_MODE_RAINBOW_CYCLE
+    };
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private ContentResolver mContentResolver;
     private YrrpRecordingSecureBackend mBackend;
-    private YrrpPulseColorPreferenceController mController;
-    private YrrpColorPreference mPreference;
+    private YrrpPulseSolidColorModePreferenceController mController;
+    private SelectorWithWidgetPreference mPreference;
     private PreferenceScreen mScreen;
     private LifecycleOwner mLifecycleOwner;
     private Lifecycle mLifecycle;
@@ -69,9 +77,12 @@ public class YrrpPulseColorPreferenceControllerTest {
         mContentResolver = mContext.getContentResolver();
         mBackend = new YrrpRecordingSecureBackend(mContext);
         mController =
-                new YrrpPulseColorPreferenceController(mContext, PREF_KEY, mBackend.newStore());
-        mPreference = new YrrpColorPreference(mContext, /* attrs= */ null);
-        mPreference.setKey(PREF_KEY);
+                new YrrpPulseSolidColorModePreferenceController(
+                        mContext,
+                        YrrpPulseColorModePreferenceController.KEY_SOLID,
+                        mBackend.newStore());
+        mPreference = spy(new SelectorWithWidgetPreference(mContext));
+        mPreference.setKey(YrrpPulseColorModePreferenceController.KEY_SOLID);
         mScreen = new PreferenceManager(mContext).createPreferenceScreen(mContext);
         mScreen.addPreference(mPreference);
         mLifecycleOwner = () -> mLifecycle;
@@ -88,21 +99,17 @@ public class YrrpPulseColorPreferenceControllerTest {
     }
 
     @Test
-    public void updateState_missingSettings_showsDefaultRgbWithoutWriting() {
+    public void displayPreference_addsGearNamedPulseColor() {
+        verify(mPreference).setExtraWidgetOnClickListener(notNull());
+        verify(mPreference).setExtraWidgetContentDescription("Pulse color");
+    }
+
+    @Test
+    public void updateState_missingSettings_showsDefaultRgbSummaryWithoutWriting() {
         mController.updateState(mPreference);
 
         assertThat(summary()).isEqualTo("#FFFFFF");
         assertThat(mBackend.mWrites).isEmpty();
-    }
-
-    @Test
-    public void updateState_storedColor_showsRgbIgnoringAlpha() {
-        putSecure(YrrpSettingsStore.PULSE_COLOR, 0xFF00FF);
-        putSecure(YrrpSettingsStore.PULSE_ALPHA, 128);
-
-        mController.updateState(mPreference);
-
-        assertThat(summary()).isEqualTo("#FF00FF");
     }
 
     @Test
@@ -117,6 +124,19 @@ public class YrrpPulseColorPreferenceControllerTest {
     }
 
     @Test
+    public void updateState_checksRowOnlyInSolid() {
+        putSecure(YrrpSettingsStore.PULSE_COLOR_MODE, YrrpSettingsStore.PULSE_COLOR_MODE_SOLID);
+        mController.updateState(mPreference);
+        assertThat(mPreference.isChecked()).isTrue();
+
+        putSecure(
+                YrrpSettingsStore.PULSE_COLOR_MODE,
+                YrrpSettingsStore.PULSE_COLOR_MODE_RAINBOW_CYCLE);
+        mController.updateState(mPreference);
+        assertThat(mPreference.isChecked()).isFalse();
+    }
+
+    @Test
     public void updateState_pulseOff_disablesRow() {
         putSecure(YrrpSettingsStore.PULSE_ENABLED, 0);
 
@@ -126,147 +146,69 @@ public class YrrpPulseColorPreferenceControllerTest {
     }
 
     @Test
-    public void updateState_pulseOnInSolid_enablesRow() {
+    public void gear_inEveryMode_opensPickerAtStoredRgbWithoutWriting() {
         putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
-        putSecure(YrrpSettingsStore.PULSE_COLOR_MODE, YrrpSettingsStore.PULSE_COLOR_MODE_SOLID);
+        putSecure(YrrpSettingsStore.PULSE_COLOR, 0xFF00FF);
+        launchHost();
 
-        mController.updateState(mPreference);
-
-        assertThat(mPreference.isEnabled()).isTrue();
-    }
-
-    @Test
-    public void updateState_pulseOnInMatchTheme_disablesVisibleRow() {
-        putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
-        putSecure(
-                YrrpSettingsStore.PULSE_COLOR_MODE,
-                YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME);
-
-        mController.updateState(mPreference);
-
-        assertThat(mPreference.isEnabled()).isFalse();
-        assertThat(mPreference.isVisible()).isTrue();
-    }
-
-    @Test
-    public void updateState_pulseOnInRainbowModes_disablesVisibleRow() {
-        putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
-        for (int mode :
-                new int[] {
-                    YrrpSettingsStore.PULSE_COLOR_MODE_RAINBOW_GRADIENT,
-                    YrrpSettingsStore.PULSE_COLOR_MODE_RAINBOW_CYCLE
-                }) {
+        for (int mode : ALL_MODES) {
             putSecure(YrrpSettingsStore.PULSE_COLOR_MODE, mode);
-
-            mController.updateState(mPreference);
-
-            assertThat(mPreference.isEnabled()).isFalse();
-            assertThat(mPreference.isVisible()).isTrue();
+            mHostScenario.onFragment(
+                    host -> {
+                        mController.onGearClicked();
+                        final DialogFragment picker = picker(host);
+                        assertThat(picker).isNotNull();
+                        final TextView hex =
+                                picker.requireDialog().findViewById(R.id.yrrp_color_hex);
+                        assertThat(hex.getText().toString()).isEqualTo("#FF00FF");
+                        picker.dismissNow();
+                    });
         }
-    }
-
-    @Test
-    public void updateState_unknownColorMode_treatsAsSolid() {
-        putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
-        putSecure(YrrpSettingsStore.PULSE_COLOR_MODE, 99);
-
-        mController.updateState(mPreference);
-
-        assertThat(mPreference.isEnabled()).isTrue();
         assertThat(mBackend.mWrites).isEmpty();
     }
 
     @Test
-    public void externalEnableChange_whileStarted_enablesRow() {
-        mLifecycle.handleLifecycleEvent(ON_START);
-        mController.updateState(mPreference);
-        assertThat(mPreference.isEnabled()).isFalse();
-
-        putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
-        shadowOf(Looper.getMainLooper()).idle();
-
-        assertThat(mPreference.isEnabled()).isTrue();
-    }
-
-    @Test
-    public void externalColorModeChange_whileStarted_togglesRow() {
-        putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
-        mLifecycle.handleLifecycleEvent(ON_START);
-        mController.updateState(mPreference);
-        assertThat(mPreference.isEnabled()).isTrue();
-
-        putSecure(
-                YrrpSettingsStore.PULSE_COLOR_MODE,
-                YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME);
-        shadowOf(Looper.getMainLooper()).idle();
-        assertThat(mPreference.isEnabled()).isFalse();
-
-        putSecure(YrrpSettingsStore.PULSE_COLOR_MODE, YrrpSettingsStore.PULSE_COLOR_MODE_SOLID);
-        shadowOf(Looper.getMainLooper()).idle();
-        assertThat(mPreference.isEnabled()).isTrue();
-    }
-
-    @Test
-    public void externalColorChange_whileStarted_refreshesSummary() {
-        mLifecycle.handleLifecycleEvent(ON_START);
-        mController.updateState(mPreference);
-
-        putSecure(YrrpSettingsStore.PULSE_COLOR, 0x00FF00);
-        shadowOf(Looper.getMainLooper()).idle();
-
-        assertThat(summary()).isEqualTo("#00FF00");
-    }
-
-    @Test
-    public void onStart_observesColorEnabledAndColorMode() {
-        mLifecycle.handleLifecycleEvent(ON_START);
-
-        assertThat(observerCount(YrrpSettingsStore.PULSE_COLOR)).isEqualTo(1);
-        assertThat(observerCount(YrrpSettingsStore.PULSE_ENABLED)).isEqualTo(1);
-        assertThat(observerCount(YrrpSettingsStore.PULSE_COLOR_MODE)).isEqualTo(1);
-        assertThat(observerCount(YrrpSettingsStore.PULSE_ALPHA)).isEqualTo(0);
-    }
-
-    @Test
-    public void isSliceable_isFalse() {
-        assertThat(mController.isSliceable()).isFalse();
-    }
-
-    @Test
-    public void handlePreferenceTreeClick_otherKey_isNotHandled() {
-        final Preference other = new Preference(mContext);
-        other.setKey("other");
-
-        assertThat(mController.handlePreferenceTreeClick(other)).isFalse();
-    }
-
-    @Test
-    public void handlePreferenceTreeClick_opensPickerAtStoredRgbWithoutWriting() {
-        putSecure(YrrpSettingsStore.PULSE_COLOR, 0xFF00FF);
-        putSecure(YrrpSettingsStore.PULSE_ALPHA, 128);
+    public void gear_pulseOff_opensNothing() {
+        putSecure(YrrpSettingsStore.PULSE_ENABLED, 0);
         launchHost();
 
         mHostScenario.onFragment(
                 host -> {
-                    assertThat(mController.handlePreferenceTreeClick(mPreference)).isTrue();
-                    final DialogFragment picker =
-                            (DialogFragment)
-                                    host.getChildFragmentManager()
-                                            .findFragmentByTag(YrrpColorPickerDialogFragment.TAG);
-                    assertThat(picker).isNotNull();
-                    final TextView hex = picker.requireDialog().findViewById(R.id.yrrp_color_hex);
-                    assertThat(hex.getText().toString()).isEqualTo("#FF00FF");
+                    mController.onGearClicked();
+                    assertThat(picker(host)).isNull();
                 });
         assertThat(mBackend.mWrites).isEmpty();
     }
 
     @Test
-    public void colorConfirmed_writesOnlyColorAndShowsIt() {
+    public void gear_twice_opensOnePicker() {
+        putSecure(YrrpSettingsStore.PULSE_ENABLED, 1);
+        launchHost();
+
+        mHostScenario.onFragment(
+                host -> {
+                    mController.onGearClicked();
+                    mController.onGearClicked();
+                    assertThat(
+                                    host.getChildFragmentManager().getFragments().stream()
+                                            .filter(f -> f instanceof YrrpColorPickerDialogFragment)
+                                            .count())
+                            .isEqualTo(1);
+                });
+    }
+
+    @Test
+    public void colorConfirmed_writesOnlyColorAndKeepsMode() {
+        putSecure(
+                YrrpSettingsStore.PULSE_COLOR_MODE,
+                YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME);
         launchHost();
 
         confirm(result(0xFF00FF));
 
         assertThat(mBackend.mWrites).containsExactly("lineage_pulse_color=" + 0xFF00FF);
+        assertThat(raw(YrrpSettingsStore.PULSE_COLOR_MODE))
+                .isEqualTo(YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME);
         assertThat(summary()).isEqualTo("#FF00FF");
     }
 
@@ -300,6 +242,32 @@ public class YrrpPulseColorPreferenceControllerTest {
         assertThat(summary()).isEqualTo("#00FF00");
     }
 
+    @Test
+    public void externalColorChange_whileStarted_refreshesSummary() {
+        mLifecycle.handleLifecycleEvent(ON_START);
+        mController.updateState(mPreference);
+
+        putSecure(YrrpSettingsStore.PULSE_COLOR, 0x00FF00);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertThat(summary()).isEqualTo("#00FF00");
+    }
+
+    @Test
+    public void onStart_observesModeEnabledAndColor() {
+        mLifecycle.handleLifecycleEvent(ON_START);
+
+        assertThat(observerCount(YrrpSettingsStore.PULSE_COLOR_MODE)).isEqualTo(1);
+        assertThat(observerCount(YrrpSettingsStore.PULSE_ENABLED)).isEqualTo(1);
+        assertThat(observerCount(YrrpSettingsStore.PULSE_COLOR)).isEqualTo(1);
+        assertThat(observerCount(YrrpSettingsStore.PULSE_ALPHA)).isEqualTo(0);
+    }
+
+    @Test
+    public void isSliceable_isFalse() {
+        assertThat(mController.isSliceable()).isFalse();
+    }
+
     private void launchHost() {
         mHostScenario =
                 FragmentScenario.launch(
@@ -308,6 +276,12 @@ public class YrrpPulseColorPreferenceControllerTest {
                         androidx.appcompat.R.style.Theme_AppCompat,
                         androidx.lifecycle.Lifecycle.State.RESUMED);
         mHostScenario.onFragment(host -> mController.init(host));
+    }
+
+    private static DialogFragment picker(Fragment host) {
+        return (DialogFragment)
+                host.getChildFragmentManager()
+                        .findFragmentByTag(YrrpColorPickerDialogFragment.TAG);
     }
 
     /** Delivers {@code result} the way the picker does, to the host's child fragment manager. */

@@ -20,12 +20,17 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
+import androidx.preference.PreferenceScreen;
 
 import com.android.settings.R;
+import com.android.settingslib.widget.SliderPreference;
 
 /**
  * Sets the Pulse low-level boost: the strength k of SystemUI's logarithmic bar-height curve, 0 to
  * 100 in steps of 1. At 0 the curve is off and bars are drawn linearly.
+ *
+ * <p>The summary explains the effect before the value, and the slider ends read Linear and Lifted,
+ * because the setting name alone does not say what changes on screen.
  */
 public class YrrpPulseBoostPreferenceController extends YrrpPulseSliderPreferenceController {
 
@@ -41,6 +46,16 @@ public class YrrpPulseBoostPreferenceController extends YrrpPulseSliderPreferenc
             @NonNull String preferenceKey,
             @NonNull YrrpSettingsStore store) {
         super(context, preferenceKey, store, YrrpSettingsStore.PULSE_BOOST);
+    }
+
+    @Override
+    public void displayPreference(@NonNull PreferenceScreen screen) {
+        super.displayPreference(screen);
+        final SliderPreference preference = screen.findPreference(getPreferenceKey());
+        if (preference != null) {
+            preference.setTextStart(R.string.yrrp_pulse_boost_linear);
+            preference.setTextEnd(R.string.yrrp_pulse_boost_lifted);
+        }
     }
 
     @Override
@@ -74,5 +89,11 @@ public class YrrpPulseBoostPreferenceController extends YrrpPulseSliderPreferenc
         return boost == YrrpSettingsStore.PULSE_BOOST_MIN
                 ? mContext.getString(R.string.yrrp_pulse_boost_off)
                 : mContext.getString(R.string.yrrp_pulse_boost_value, boost);
+    }
+
+    @NonNull
+    @Override
+    protected String formatSummary(int boost) {
+        return mContext.getString(R.string.yrrp_pulse_boost_summary, formatValue(boost));
     }
 }

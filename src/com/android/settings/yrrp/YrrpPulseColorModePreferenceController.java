@@ -20,7 +20,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.preference.Preference;
@@ -44,7 +43,7 @@ public class YrrpPulseColorModePreferenceController extends BasePreferenceContro
     static final String KEY_RAINBOW_CYCLE = "yrrp_pulse_color_mode_rainbow_cycle";
 
     private final int mMode;
-    private final YrrpSettingsStore mStore;
+    protected final YrrpSettingsStore mStore;
     private final YrrpSecureSettingObserver mObserver;
 
     public YrrpPulseColorModePreferenceController(
@@ -52,22 +51,23 @@ public class YrrpPulseColorModePreferenceController extends BasePreferenceContro
         this(context, preferenceKey, new YrrpSettingsStore(context));
     }
 
-    /** Injects the store, so tests can count writes and make them fail. */
-    @VisibleForTesting
+    /**
+     * Injects the store, so tests can count writes and make them fail. Subclasses also pass
+     * {@code extraObservedKeys}, whose changes refresh the row too.
+     */
     YrrpPulseColorModePreferenceController(
             @NonNull Context context,
             @NonNull String preferenceKey,
-            @NonNull YrrpSettingsStore store) {
+            @NonNull YrrpSettingsStore store,
+            @NonNull String... extraObservedKeys) {
         super(context, preferenceKey);
         mMode = keyToMode(preferenceKey);
         mStore = store;
-        mObserver =
-                new YrrpSecureSettingObserver(
-                        context,
-                        this,
-                        mStore,
-                        YrrpSettingsStore.PULSE_COLOR_MODE,
-                        YrrpSettingsStore.PULSE_ENABLED);
+        final String[] keys = new String[2 + extraObservedKeys.length];
+        keys[0] = YrrpSettingsStore.PULSE_COLOR_MODE;
+        keys[1] = YrrpSettingsStore.PULSE_ENABLED;
+        System.arraycopy(extraObservedKeys, 0, keys, 2, extraObservedKeys.length);
+        mObserver = new YrrpSecureSettingObserver(context, this, mStore, keys);
     }
 
     @Override
@@ -117,6 +117,11 @@ public class YrrpPulseColorModePreferenceController extends BasePreferenceContro
     @Override
     public void onRadioButtonClicked(@NonNull SelectorWithWidgetPreference preference) {
         mStore.setPulseColorMode(mMode);
+    }
+
+    /** Re-reads the stored values into the bound row. */
+    protected void refresh() {
+        mObserver.refresh();
     }
 
     /** Not exposed as a slice, so the setting stays reachable only through this page. */

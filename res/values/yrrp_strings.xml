@@ -36,7 +36,7 @@
     <string name="yrrp_pulse_intro">Show a spectrum of playing audio in the navigation bar</string>
     <!-- YRRPs settings: Pulse page main switch title. [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_main_switch_title">Use Pulse</string>
-    <!-- YRRPs settings: Pulse color row and picker dialog title. [CHAR LIMIT=40] -->
+    <!-- YRRPs settings: Pulse color picker dialog title, also the description of the gear on the Solid color mode row. [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_color_title">Pulse color</string>
     <!-- YRRPs settings: label of the red channel slider in the Pulse color picker. [CHAR LIMIT=20] -->
     <string name="yrrp_pulse_color_red">Red</string>
@@ -66,6 +66,10 @@
     <string name="yrrp_pulse_color_mode_rainbow_cycle_summary">All bars share one color that cycles through the rainbow</string>
     <!-- YRRPs settings: search keywords for the Pulse color mode rows. [CHAR_LIMIT=NONE] -->
     <string name="yrrp_pulse_color_mode_keywords">Pulse color mode, theme, dark theme, light theme, black, white, rainbow, gradient, cycle, animated</string>
+    <!-- YRRPs settings: search keywords for the Solid Pulse color mode row, whose gear opens the Pulse color picker. [CHAR_LIMIT=NONE] -->
+    <string name="yrrp_pulse_solid_keywords">Pulse color, color picker, RGB, hex, solid, Pulse color mode</string>
+    <!-- YRRPs settings: Pulse page category header above the opacity, height, bar and boost sliders, which apply in every color mode. [CHAR LIMIT=40] -->
+    <string name="yrrp_pulse_appearance_title">Appearance</string>
     <!-- YRRPs settings: Pulse opacity slider title. [CHAR LIMIT=40] -->
     <string name="yrrp_pulse_opacity_title">Pulse opacity</string>
     <!-- YRRPs settings: search keywords for the Pulse opacity slider. [CHAR_LIMIT=NONE] -->
@@ -90,8 +94,14 @@
     <string name="yrrp_pulse_boost_value"><xliff:g id="boost" example="20">%d</xliff:g></string>
     <!-- YRRPs settings: Pulse low-level boost value at 0, where bar heights stay linear. [CHAR LIMIT=20] -->
     <string name="yrrp_pulse_boost_off">Off</string>
+    <!-- YRRPs settings: Pulse low-level boost row summary. Explains the effect, then shows the current value ("20" or "Off"). [CHAR LIMIT=60] -->
+    <string name="yrrp_pulse_boost_summary">Makes quiet sounds move the bars more · <xliff:g id="value" example="20">%1$s</xliff:g></string>
+    <!-- YRRPs settings: label at the start of the Pulse low-level boost slider, where bar heights follow loudness linearly. [CHAR LIMIT=12] -->
+    <string name="yrrp_pulse_boost_linear">Linear</string>
+    <!-- YRRPs settings: label at the end of the Pulse low-level boost slider, where quiet bars are lifted most. [CHAR LIMIT=12] -->
+    <string name="yrrp_pulse_boost_lifted">Lifted</string>
     <!-- YRRPs settings: search keywords for the Pulse low-level boost slider. [CHAR_LIMIT=NONE] -->
-    <string name="yrrp_pulse_boost_keywords">pulse, quiet, logarithmic, curve, bars, advanced</string>
+    <string name="yrrp_pulse_boost_keywords">pulse, quiet, logarithmic, curve, bars, linear, lifted</string>
     <!-- YRRPs settings: Pulse privacy footer. [CHAR LIMIT=NONE] -->
     <string name="yrrp_pulse_privacy">Pulse processes the local playback spectrum in memory. It does not store or transmit audio.</string>
 
