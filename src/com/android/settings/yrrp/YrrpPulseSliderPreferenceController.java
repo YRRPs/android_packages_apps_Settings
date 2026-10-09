@@ -64,9 +64,15 @@ public abstract class YrrpPulseSliderPreferenceController extends SliderPreferen
     /** Returns the distance between two slider positions. */
     protected abstract int getSliderStep();
 
-    /** Formats {@code value} for the summary, the slider label and the state description. */
+    /** Formats {@code value} for the slider label and the state description. */
     @NonNull
     protected abstract String formatValue(int value);
+
+    /** Formats {@code value} for the summary only; defaults to {@link #formatValue(int)}. */
+    @NonNull
+    protected String formatSummary(int value) {
+        return formatValue(value);
+    }
 
     @Override
     public int getAvailabilityStatus() {
@@ -147,10 +153,10 @@ public abstract class YrrpPulseSliderPreferenceController extends SliderPreferen
     }
 
     private void showValueText(@NonNull Preference preference) {
-        final String text = formatValue(getStoredValue());
-        preference.setSummary(text);
+        final int value = getStoredValue();
+        preference.setSummary(formatSummary(value));
         if (preference instanceof SliderPreference) {
-            ((SliderPreference) preference).setSliderStateDescription(text);
+            ((SliderPreference) preference).setSliderStateDescription(formatValue(value));
         }
     }
 }

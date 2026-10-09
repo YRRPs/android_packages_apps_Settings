@@ -92,8 +92,14 @@
     <string name="yrrp_pulse_boost_value"><xliff:g id="boost" example="20">%d</xliff:g></string>
     <!-- YRRPs settings: Pulse low-level boost value at 0, where bar heights stay linear. [CHAR LIMIT=20] -->
     <string name="yrrp_pulse_boost_off">Off</string>
+    <!-- YRRPs settings: Pulse low-level boost row summary. Explains the effect, then shows the current value ("20" or "Off"). [CHAR LIMIT=60] -->
+    <string name="yrrp_pulse_boost_summary">Makes quiet sounds move the bars more · <xliff:g id="value" example="20">%1$s</xliff:g></string>
+    <!-- YRRPs settings: label at the start of the Pulse low-level boost slider, where bar heights follow loudness linearly. [CHAR LIMIT=12] -->
+    <string name="yrrp_pulse_boost_linear">Linear</string>
+    <!-- YRRPs settings: label at the end of the Pulse low-level boost slider, where quiet bars are lifted most. [CHAR LIMIT=12] -->
+    <string name="yrrp_pulse_boost_lifted">Lifted</string>
     <!-- YRRPs settings: search keywords for the Pulse low-level boost slider. [CHAR_LIMIT=NONE] -->
-    <string name="yrrp_pulse_boost_keywords">pulse, quiet, logarithmic, curve, bars, advanced</string>
+    <string name="yrrp_pulse_boost_keywords">pulse, quiet, logarithmic, curve, bars, linear, lifted</string>
     <!-- YRRPs settings: Pulse privacy footer. [CHAR LIMIT=NONE] -->
     <string name="yrrp_pulse_privacy">Pulse processes the local playback spectrum in memory. It does not store or transmit audio.</string>
 

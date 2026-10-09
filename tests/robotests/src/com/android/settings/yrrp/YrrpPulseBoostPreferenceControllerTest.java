@@ -109,10 +109,27 @@ public class YrrpPulseBoostPreferenceControllerTest {
     }
 
     @Test
+    public void displayPreference_labelsSliderEndsLinearAndLifted() {
+        mController.displayPreference(mScreen);
+
+        verify(mPreference).setTextStart(R.string.yrrp_pulse_boost_linear);
+        verify(mPreference).setTextEnd(R.string.yrrp_pulse_boost_lifted);
+    }
+
+    @Test
+    public void updateState_summaryExplainsBoostAndStateDescriptionIsValueOnly() {
+        displayAndUpdate();
+
+        assertThat(String.valueOf(mPreference.getSummary()))
+                .isEqualTo("Makes quiet sounds move the bars more \u00b7 20");
+        assertThat(lastStateDescription()).isEqualTo("20");
+    }
+
+    @Test
     public void updateState_unset_showsDefaultTwenty() {
         displayAndUpdate();
 
-        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo("20");
+        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo(summary("20"));
         assertThat(lastStateDescription()).isEqualTo("20");
         assertThat(mController.getSliderPosition()).isEqualTo(20);
     }
@@ -123,7 +140,7 @@ public class YrrpPulseBoostPreferenceControllerTest {
 
         displayAndUpdate();
 
-        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo("Off");
+        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo(summary("Off"));
         assertThat(mController.getSliderPosition()).isEqualTo(0);
     }
 
@@ -133,7 +150,7 @@ public class YrrpPulseBoostPreferenceControllerTest {
 
         displayAndUpdate();
 
-        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo("Off");
+        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo(summary("Off"));
         assertThat(mController.getSliderPosition()).isEqualTo(0);
     }
 
@@ -143,7 +160,7 @@ public class YrrpPulseBoostPreferenceControllerTest {
 
         displayAndUpdate();
 
-        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo("100");
+        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo(summary("100"));
         assertThat(mController.getSliderPosition()).isEqualTo(100);
     }
 
@@ -165,7 +182,7 @@ public class YrrpPulseBoostPreferenceControllerTest {
         assertThat(mController.setSliderPosition(55)).isTrue();
 
         assertThat(mBackend.mWrites).containsExactly("lineage_pulse_log_boost=55");
-        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo("55");
+        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo(summary("55"));
     }
 
     @Test
@@ -190,7 +207,7 @@ public class YrrpPulseBoostPreferenceControllerTest {
 
         assertThat(mBackend.mWrites).containsExactly("lineage_pulse_log_boost=60");
         assertThat(raw(YrrpSettingsStore.PULSE_BOOST)).isEqualTo(40);
-        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo("40");
+        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo(summary("40"));
     }
 
     @Test
@@ -221,7 +238,7 @@ public class YrrpPulseBoostPreferenceControllerTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         assertThat(mPreference.isEnabled()).isTrue();
-        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo("70");
+        assertThat(String.valueOf(mPreference.getSummary())).isEqualTo(summary("70"));
         assertThat(mPreference.getValue()).isEqualTo(70);
         assertThat(mBackend.mWrites).isEmpty();
     }
@@ -254,5 +271,10 @@ public class YrrpPulseBoostPreferenceControllerTest {
 
     private int raw(String key) {
         return Settings.Secure.getInt(mContentResolver, key, MISSING);
+    }
+
+    /** The summary the row shows for a formatted value: the boost explanation, then the value. */
+    private String summary(String value) {
+        return mContext.getString(R.string.yrrp_pulse_boost_summary, value);
     }
 }
