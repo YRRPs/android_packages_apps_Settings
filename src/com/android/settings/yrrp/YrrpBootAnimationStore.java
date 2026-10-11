@@ -26,6 +26,7 @@ public final class YrrpBootAnimationStore {
 
     private final Backend mBackend;
 
+    // No @VisibleForTesting: androidx imports would break the plain-JUnit runner.
     YrrpBootAnimationStore(Backend backend) {
         mBackend = backend;
     }

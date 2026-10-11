@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 public class YrrpBootAnimationStoreTest {
@@ -68,7 +69,7 @@ public class YrrpBootAnimationStoreTest {
         assertFalse(mStore.setStyle("garbage"));
         assertFalse(mStore.setStyle(null));
         assertEquals(
-                java.util.Arrays.asList(
+                Arrays.asList(
                         "persist.yrrp.bootanim.style=lineage",
                         "persist.yrrp.bootanim.style=matrix"),
                 mBackend.writes);
@@ -79,7 +80,7 @@ public class YrrpBootAnimationStoreTest {
         assertTrue(mStore.setFullIntro(false));
         assertTrue(mStore.setFullIntro(true));
         assertEquals(
-                java.util.Arrays.asList(
+                Arrays.asList(
                         "persist.yrrp.bootanim.full_intro=false",
                         "persist.yrrp.bootanim.full_intro=true"),
                 mBackend.writes);

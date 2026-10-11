@@ -24,7 +24,7 @@ final class YrrpSystemPropertiesBackend implements YrrpBootAnimationStore.Backen
             return true;
         } catch (RuntimeException e) {
             // SELinux denial or a full property area; the class name carries no user data.
-            Log.w(TAG, "write failed key=" + key + " error=" + e.getClass().getSimpleName());
+            Log.e(TAG, "write failed key=" + key + " error=" + e.getClass().getSimpleName());
             return false;
         }
     }
