@@ -54,7 +54,8 @@ public class YrrpSettingsTest {
                         "  PreferenceCategory#yrrp_category_audio",
                         "    Preference#yrrp_pulse_entry",
                         "  PreferenceCategory#yrrp_category_animations",
-                        "    Preference#yrrp_screen_off_animation_entry")
+                        "    Preference#yrrp_screen_off_animation_entry",
+                        "    Preference#yrrp_boot_animation_entry")
                 .inOrder();
         // Kept alongside the outline check on purpose: this one runs the production key parser.
         assertThat(XmlTestUtils.getKeysFromPreferenceXml(mContext, R.xml.yrrp_settings))
@@ -63,7 +64,8 @@ public class YrrpSettingsTest {
                         "yrrp_category_audio",
                         "yrrp_pulse_entry",
                         "yrrp_category_animations",
-                        "yrrp_screen_off_animation_entry")
+                        "yrrp_screen_off_animation_entry",
+                        "yrrp_boot_animation_entry")
                 .inOrder();
     }
 
@@ -91,6 +93,17 @@ public class YrrpSettingsTest {
     }
 
     @Test
+    public void bootAnimationEntry_opensBootAnimationPageWithItsKeywords() throws Exception {
+        final YrrpXmlElements.Element entry =
+                YrrpXmlElements.find(
+                        YrrpXmlElements.read(mContext, R.xml.yrrp_settings),
+                        "yrrp_boot_animation_entry");
+
+        assertThat(entry.value("fragment")).isEqualTo(YrrpBootAnimationSettings.class.getName());
+        assertThat(entry.resourceId("keywords")).isEqualTo(R.string.yrrp_boot_animation_keywords);
+    }
+
+    @Test
     public void searchProvider_hidesCategoriesButIndexesEntriesAndScreen() {
         final List<String> nonIndexable =
                 YrrpSettings.SEARCH_INDEX_DATA_PROVIDER.getNonIndexableKeys(mContext);
@@ -100,6 +113,7 @@ public class YrrpSettingsTest {
                 .containsNoneOf(
                         "yrrp_pulse_entry",
                         "yrrp_screen_off_animation_entry",
+                        "yrrp_boot_animation_entry",
                         "yrrp_settings_screen");
     }
 }
