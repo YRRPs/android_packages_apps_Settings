@@ -45,6 +45,13 @@
             settings:keywords="@string/yrrp_screen_off_animation_keywords"
             settings:controller="com.android.settings.yrrp.YrrpScreenOffAnimationEntryPreferenceController"/>
 
+        <Preference
+            android:key="yrrp_boot_animation_entry"
+            android:title="@string/yrrp_boot_animation_title"
+            android:fragment="com.android.settings.yrrp.YrrpBootAnimationSettings"
+            settings:keywords="@string/yrrp_boot_animation_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpBootAnimationEntryPreferenceController"/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

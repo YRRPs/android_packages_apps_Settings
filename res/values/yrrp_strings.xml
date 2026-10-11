@@ -133,4 +133,34 @@
     <string name="yrrp_screen_off_animation_speed_150">1.5×</string>
     <!-- YRRPs settings: screen-off speed choice, twice normal speed. [CHAR LIMIT=10] -->
     <string name="yrrp_screen_off_animation_speed_200">2×</string>
+
+    <!-- YRRPs settings: boot animation row on the YRRPs page and title of the boot animation
+         page. Both must stay this one string: SettingsIntelligence's site-map lookup matches on
+         class name plus title. [CHAR LIMIT=40] -->
+    <string name="yrrp_boot_animation_title">Boot animation</string>
+    <!-- YRRPs settings: search keywords for the boot animation. [CHAR_LIMIT=NONE] -->
+    <string name="yrrp_boot_animation_keywords">boot, startup, reboot, shutdown, power on, matrix</string>
+    <!-- YRRPs settings: intro text at the top of the boot animation page. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_boot_animation_intro">Plays while the phone starts, restarts, and shuts down.</string>
+    <!-- YRRPs settings: boot animation page category header above the style choices.
+         [CHAR LIMIT=40] -->
+    <string name="yrrp_boot_animation_style_category">Style</string>
+    <!-- YRRPs settings: boot animation style choice that plays the Matrix rain.
+         [CHAR LIMIT=30] -->
+    <string name="yrrp_boot_animation_matrix">Matrix</string>
+    <!-- YRRPs settings: boot animation style choice that plays the stock LineageOS
+         animation. [CHAR LIMIT=30] -->
+    <string name="yrrp_boot_animation_lineage">LineageOS</string>
+    <!-- YRRPs settings: title of the Matrix Finish intro dialog and its gear's description.
+         [CHAR LIMIT=40] -->
+    <string name="yrrp_boot_animation_finish_intro_title">Finish intro</string>
+    <!-- YRRPs settings: checkbox in the Finish intro dialog. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_boot_animation_finish_intro_option">Always play the full intro before the phone opens</string>
+    <!-- YRRPs settings: Matrix row summary while Finish intro is on. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_boot_animation_finish_intro_on">Always plays the full intro</string>
+    <!-- YRRPs settings: Matrix row summary while Finish intro is off. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_boot_animation_finish_intro_off">Ends as soon as the phone is ready</string>
+    <!-- YRRPs settings: footer of the boot animation page, explaining when a change takes
+         effect. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_boot_animation_footer">Changes apply the next time the phone starts or shuts down.</string>
 </resources>
