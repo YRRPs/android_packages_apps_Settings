@@ -16,6 +16,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Looper;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.preference.PreferenceManager;
@@ -65,7 +67,9 @@ public class YrrpBootAnimationMatrixPreferenceControllerTest {
     @Test
     public void displayPreference_addsGearNamedFinishIntro() {
         verify(mPreference).setExtraWidgetOnClickListener(notNull());
-        verify(mPreference).setExtraWidgetContentDescription("Finish intro");
+        verify(mPreference)
+                .setExtraWidgetContentDescription(
+                        mContext.getString(R.string.yrrp_boot_animation_finish_intro_title));
     }
 
     @Test
@@ -85,6 +89,28 @@ public class YrrpBootAnimationMatrixPreferenceControllerTest {
                     mController.onGearClicked();
                     mController.onGearClicked();
                     assertThat(dialogCount(host)).isEqualTo(1);
+                });
+        assertThat(mBackend.writes).isEmpty();
+    }
+
+    @Test
+    public void gear_opensDialogAtStoredFullIntro() {
+        mBackend.values.put(YrrpBootAnimationStore.FULL_INTRO_PROPERTY, "false");
+        launchHost();
+
+        mHostScenario.onFragment(
+                host -> {
+                    mController.onGearClicked();
+                    final DialogFragment dialog =
+                            (DialogFragment)
+                                    host.getChildFragmentManager()
+                                            .findFragmentByTag(
+                                                    YrrpBootAnimationFinishIntroDialogFragment
+                                                            .TAG);
+                    assertThat(dialog).isNotNull();
+                    final AlertDialog alert = (AlertDialog) dialog.requireDialog();
+                    assertThat(alert.getListView().isItemChecked(0)).isFalse();
+                    dialog.dismissNow();
                 });
         assertThat(mBackend.writes).isEmpty();
     }
