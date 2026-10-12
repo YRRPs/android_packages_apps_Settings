@@ -192,6 +192,10 @@
     <!-- YRRPs settings: footer of the fold animation page, explaining when a change takes
          effect. [CHAR LIMIT=NONE] -->
     <string name="yrrp_fold_animation_footer">Applies the next time you fold or unfold</string>
+    <!-- YRRPs settings: summary of Settings > Display > Continue using apps on fold while the
+         Duo fold animation keeps it at Always. %1$s is the title of the Always choice.
+         [CHAR LIMIT=NONE] -->
+    <string name="yrrp_fold_lock_set_by_duo_summary"><xliff:g id="choice" example="Always">%1$s</xliff:g> · Set by Duo fold animation</string>
     <!-- YRRPs settings: hub category for network features. [CHAR LIMIT=40] -->
     <string name="yrrp_category_network">Network</string>
     <!-- YRRPs settings: title of the ad blocking hub row and page. [CHAR LIMIT=40] -->

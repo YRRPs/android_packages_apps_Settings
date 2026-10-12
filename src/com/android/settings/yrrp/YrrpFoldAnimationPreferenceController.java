@@ -45,6 +45,7 @@ public class YrrpFoldAnimationPreferenceController extends BasePreferenceControl
 
     private final int mMode;
     private final YrrpSettingsStore mStore;
+    private final YrrpFoldLockStore mFoldLock;
     private final YrrpSecureSettingObserver mObserver;
     private final BooleanSupplier mSupported;
 
@@ -54,19 +55,24 @@ public class YrrpFoldAnimationPreferenceController extends BasePreferenceControl
                 context,
                 preferenceKey,
                 new YrrpSettingsStore(context),
+                new YrrpFoldLockStore(context),
                 () -> YrrpFoldAnimationAvailability.isAvailable(context));
     }
 
-    /** Injects the store and the device check, so tests can count writes and flip availability. */
+    /**
+     * Injects the stores and the device check, so tests can count writes and flip availability.
+     */
     @VisibleForTesting
     YrrpFoldAnimationPreferenceController(
             @NonNull Context context,
             @NonNull String preferenceKey,
             @NonNull YrrpSettingsStore store,
+            @NonNull YrrpFoldLockStore foldLock,
             @NonNull BooleanSupplier supported) {
         super(context, preferenceKey);
         mMode = keyToMode(preferenceKey);
         mStore = store;
+        mFoldLock = foldLock;
         mSupported = supported;
         mObserver =
                 new YrrpSecureSettingObserver(
@@ -110,10 +116,23 @@ public class YrrpFoldAnimationPreferenceController extends BasePreferenceControl
     /**
      * Writes this row's style; every row, this one included, refreshes from its observer. A failed
      * write is logged by the store and leaves the selection unchanged.
+     *
+     * <p>Duo owns "Continue using apps on fold": selecting it first stores the fold-lock value and
+     * forces Always, and the style is written only if that succeeds. Leaving Duo writes the style
+     * first, so SystemUI no longer forces Always, then restores the stored fold-lock value.
      */
     @Override
     public void onRadioButtonClicked(@NonNull SelectorWithWidgetPreference preference) {
-        mStore.setFoldAnimation(mMode);
+        if (mMode == YrrpSettingsStore.FOLD_DUO) {
+            if (mFoldLock.enterDuo()) {
+                mStore.setFoldAnimation(mMode);
+            }
+            return;
+        }
+        final boolean wasDuo = mStore.getFoldAnimation() == YrrpSettingsStore.FOLD_DUO;
+        if (mStore.setFoldAnimation(mMode) && (wasDuo || mFoldLock.hasBackup())) {
+            mFoldLock.leaveDuo();
+        }
     }
 
     private static int keyToMode(@NonNull String key) {

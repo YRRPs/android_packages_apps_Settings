@@ -27,14 +27,17 @@ import android.content.Context;
 import android.os.UserHandle;
 import android.provider.Settings;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.preference.Preference;
 
 import com.android.internal.foldables.FoldLockSettingAvailabilityProvider;
 import com.android.settings.R;
 import com.android.settings.core.BasePreferenceController;
+import com.android.settings.yrrp.YrrpSettingsStore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 /**
  * A preference controller for the @link android.provider.Settings.System#FOLD_LOCK_BEHAVIOR
@@ -47,6 +50,8 @@ public class FoldLockBehaviorPreferenceController extends BasePreferenceControll
 
     private static final Map<String, String> KEY_TO_TEXT = new HashMap<>();
     private final FoldLockSettingAvailabilityProvider mFoldLockSettingAvailabilityProvider;
+    // YRRP: while the Duo fold animation is on, it owns this setting and keeps it at Always.
+    private final BooleanSupplier mDuoActive;
 
     public FoldLockBehaviorPreferenceController(Context context, String key) {
         this(context, key, new FoldLockSettingAvailabilityProvider(context.getResources()));
@@ -54,8 +59,17 @@ public class FoldLockBehaviorPreferenceController extends BasePreferenceControll
 
     public FoldLockBehaviorPreferenceController(Context context, String key,
             FoldLockSettingAvailabilityProvider foldLockSettingAvailabilityProvider) {
+        this(context, key, foldLockSettingAvailabilityProvider,
+                new YrrpSettingsStore(context)::isFoldAnimationDuo);
+    }
+
+    @VisibleForTesting
+    FoldLockBehaviorPreferenceController(Context context, String key,
+            FoldLockSettingAvailabilityProvider foldLockSettingAvailabilityProvider,
+            BooleanSupplier duoActive) {
         super(context, key);
         mFoldLockSettingAvailabilityProvider = foldLockSettingAvailabilityProvider;
+        mDuoActive = duoActive;
         KEY_TO_TEXT.put(SETTING_VALUE_STAY_AWAKE_ON_FOLD,
                 resourceToString(R.string.stay_awake_on_fold_title));
         KEY_TO_TEXT.put(SETTING_VALUE_SELECTIVE_STAY_AWAKE,
@@ -74,6 +88,13 @@ public class FoldLockBehaviorPreferenceController extends BasePreferenceControll
 
     @Override
     public void updateState(Preference preference) {
+        if (mDuoActive.getAsBoolean()) {
+            preference.setEnabled(false);
+            preference.setSummary(mContext.getString(R.string.yrrp_fold_lock_set_by_duo_summary,
+                    KEY_TO_TEXT.get(SETTING_VALUE_STAY_AWAKE_ON_FOLD)));
+            return;
+        }
+        preference.setEnabled(true);
         String summary = KEY_TO_TEXT.get(getFoldSettingValue());
         preference.setSummary(summary);
     }
