@@ -44,6 +44,7 @@ public class YrrpSettingsStoreTest {
     private static final String KEY_ANIMATION = "lineage_screen_off_animation";
     private static final String KEY_SPEED = "lineage_screen_off_animation_speed";
     private static final String KEY_COLOR_MODE = "lineage_pulse_color_mode";
+    private static final String KEY_FOLD = "lineage_fold_animation";
 
     private FakeBackend mBackend;
     private Deque<Integer> mUsers;
@@ -59,7 +60,7 @@ public class YrrpSettingsStoreTest {
     }
 
     @Test
-    public void setters_writeExactlyTheTenKeys() {
+    public void setters_writeExactlyTheElevenKeys() {
         mStore.setPulseEnabled(true);
         mStore.setPulseColor(0x123456);
         mStore.setPulseAlpha(128);
@@ -70,6 +71,7 @@ public class YrrpSettingsStoreTest {
         mStore.setPulseBarGapPercent(30);
         mStore.setScreenOffAnimation(YrrpSettingsStore.SCREEN_OFF_CRT);
         mStore.setScreenOffAnimationSpeed(150);
+        mStore.setFoldAnimation(YrrpSettingsStore.FOLD_DUO);
 
         assertThat(mBackend.keys(USER))
                 .containsExactly(
@@ -82,11 +84,12 @@ public class YrrpSettingsStoreTest {
                         KEY_BAR_COUNT,
                         KEY_BAR_GAP,
                         KEY_ANIMATION,
-                        KEY_SPEED);
+                        KEY_SPEED,
+                        KEY_FOLD);
     }
 
     @Test
-    public void getters_readTheTenKeys() {
+    public void getters_readTheElevenKeys() {
         mBackend.put(KEY_ENABLED, 1, USER);
         mBackend.put(KEY_COLOR, 0x123456, USER);
         mBackend.put(KEY_ALPHA, 100, USER);
@@ -97,6 +100,7 @@ public class YrrpSettingsStoreTest {
         mBackend.put(KEY_BAR_GAP, 50, USER);
         mBackend.put(KEY_ANIMATION, 1, USER);
         mBackend.put(KEY_SPEED, 150, USER);
+        mBackend.put(KEY_FOLD, 2, USER);
 
         assertThat(mStore.getPulseColorMode())
                 .isEqualTo(YrrpSettingsStore.PULSE_COLOR_MODE_MATCH_THEME);
@@ -109,6 +113,7 @@ public class YrrpSettingsStoreTest {
         assertThat(mStore.getPulseBarGapPercent()).isEqualTo(50);
         assertThat(mStore.getScreenOffAnimation()).isEqualTo(YrrpSettingsStore.SCREEN_OFF_CRT);
         assertThat(mStore.getScreenOffAnimationSpeed()).isEqualTo(150);
+        assertThat(mStore.getFoldAnimation()).isEqualTo(YrrpSettingsStore.FOLD_DUO);
     }
 
     @Test
@@ -160,9 +165,11 @@ public class YrrpSettingsStoreTest {
         mBackend.put(KEY_BOOST, 500, USER);
         mBackend.put(KEY_ANIMATION, 99, USER);
         mBackend.put(KEY_SPEED, 7, USER);
+        mBackend.put(KEY_FOLD, 9, USER);
         readAll();
 
         assertThat(mBackend.mWrites).isEqualTo(0);
+        assertThat(mBackend.get(KEY_FOLD, USER)).isEqualTo(9);
     }
 
     @Test
@@ -348,6 +355,35 @@ public class YrrpSettingsStoreTest {
     }
 
     @Test
+    public void getFoldAnimation_mapsKnownValues() {
+        assertThat(readFold(0)).isEqualTo(YrrpSettingsStore.FOLD_STOCK);
+        assertThat(readFold(1)).isEqualTo(YrrpSettingsStore.FOLD_PIXEL);
+        assertThat(readFold(2)).isEqualTo(YrrpSettingsStore.FOLD_DUO);
+        assertThat(readFold(3)).isEqualTo(YrrpSettingsStore.FOLD_STOCK);
+        assertThat(readFold(-1)).isEqualTo(YrrpSettingsStore.FOLD_STOCK);
+    }
+
+    @Test
+    public void getFoldAnimation_missingIsStock() {
+        assertThat(mStore.getFoldAnimation()).isEqualTo(YrrpSettingsStore.FOLD_STOCK);
+    }
+
+    @Test
+    public void setFoldAnimation_writesEveryKnownStyle() {
+        for (int style : new int[] {0, 1, 2}) {
+            assertThat(mStore.setFoldAnimation(style)).isTrue();
+            assertThat(mBackend.get(KEY_FOLD, USER)).isEqualTo(style);
+        }
+    }
+
+    @Test
+    public void setFoldAnimation_rejectsOtherValuesWithoutWriting() {
+        assertThat(mStore.setFoldAnimation(3)).isFalse();
+        assertThat(mStore.setFoldAnimation(-1)).isFalse();
+        assertThat(mBackend.keys(USER)).doesNotContain(KEY_FOLD);
+    }
+
+    @Test
     public void getScreenOffAnimationSpeed_clampsToTheDisplayServiceRange() {
         assertThat(readSpeed(50)).isEqualTo(50);
         assertThat(readSpeed(150)).isEqualTo(150);
@@ -455,6 +491,7 @@ public class YrrpSettingsStoreTest {
         mStore.getPulseBarGapPercent();
         mStore.getScreenOffAnimation();
         mStore.getScreenOffAnimationSpeed();
+        mStore.getFoldAnimation();
     }
 
     private int readAlpha(int raw) {
@@ -515,6 +552,11 @@ public class YrrpSettingsStoreTest {
     private int readSpeed(int raw) {
         mBackend.put(KEY_SPEED, raw, USER);
         return mStore.getScreenOffAnimationSpeed();
+    }
+
+    private int readFold(int raw) {
+        mBackend.put(KEY_FOLD, raw, USER);
+        return mStore.getFoldAnimation();
     }
 
     private int readAnimation(int raw) {
