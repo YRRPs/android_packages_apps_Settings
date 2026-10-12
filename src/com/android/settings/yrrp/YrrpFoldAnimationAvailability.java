@@ -18,16 +18,28 @@ package com.android.settings.yrrp;
 
 import android.content.res.Resources;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.util.function.BooleanSupplier;
 
 /** Whether the device runs SystemUI's unfold framework, which the fold animation needs. */
 final class YrrpFoldAnimationAvailability {
     private YrrpFoldAnimationAvailability() {}
 
+    /** Where {@link #SYSTEM} reads; tests replace it and must restore {@link #READ_RESOURCE}. */
+    @VisibleForTesting static BooleanSupplier sSource = YrrpFoldAnimationAvailability::readResource;
+
+    /** Follows {@link #sSource}, so controllers and the search provider share one answer. */
+    static final BooleanSupplier SYSTEM = () -> sSource.getAsBoolean();
+
+    /** The production source. */
+    @VisibleForTesting
+    static final BooleanSupplier READ_RESOURCE = YrrpFoldAnimationAvailability::readResource;
+
     /** Reads the same resource as SystemUI's ResourceUnfoldTransitionConfig. */
-    static final BooleanSupplier SYSTEM = () -> {
+    private static boolean readResource() {
         Resources res = Resources.getSystem();
         int id = res.getIdentifier("config_unfoldTransitionEnabled", "bool", "android");
         return id != 0 && res.getBoolean(id);
-    };
+    }
 }
