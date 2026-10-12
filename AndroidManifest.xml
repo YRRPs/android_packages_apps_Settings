@@ -5181,6 +5181,21 @@
                        android:value="true"/>
         </service>
 
+        <!-- Long-pressing a Settings Quick Settings tile lands here first. It outranks
+             Settings$DevelopmentSettingsActivity (priority 1), opens the Ad blocking page for
+             the Ad blocking tile, and sends every other tile on to Developer options. -->
+        <activity
+            android:name=".yrrp.YrrpQsTilePreferencesActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter android:priority="2">
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".yrrp.YrrpAdBlockUpdateJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
