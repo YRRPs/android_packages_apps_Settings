@@ -39,7 +39,7 @@ public class YrrpFoldAnimationSettingsTest {
 
     @After
     public void tearDown() {
-        YrrpFoldAnimationAvailability.sSource = YrrpFoldAnimationAvailability.READ_RESOURCE;
+        YrrpFoldAnimationAvailability.sSource = YrrpFoldAnimationAvailability.READ_DEVICE;
     }
 
     @Test
@@ -72,7 +72,7 @@ public class YrrpFoldAnimationSettingsTest {
 
     @Test
     public void searchProvider_unfoldAvailable_pageKeysAreIndexable() {
-        YrrpFoldAnimationAvailability.sSource = () -> true;
+        YrrpFoldAnimationAvailability.sSource = c -> true;
 
         assertThat(
                         YrrpFoldAnimationSettings.SEARCH_INDEX_DATA_PROVIDER
@@ -82,7 +82,7 @@ public class YrrpFoldAnimationSettingsTest {
 
     @Test
     public void searchProvider_unfoldUnavailable_pageKeysAreNonIndexable() {
-        YrrpFoldAnimationAvailability.sSource = () -> false;
+        YrrpFoldAnimationAvailability.sSource = c -> false;
 
         assertThat(
                         YrrpFoldAnimationSettings.SEARCH_INDEX_DATA_PROVIDER

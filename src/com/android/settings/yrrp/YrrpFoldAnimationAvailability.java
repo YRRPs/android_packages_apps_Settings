@@ -16,30 +16,51 @@
 
 package com.android.settings.yrrp;
 
+import android.content.Context;
 import android.content.res.Resources;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
-import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
-/** Whether the device runs SystemUI's unfold framework, which the fold animation needs. */
+/**
+ * Whether this device can play the fold animation: SystemUI's unfold framework is on, it is
+ * driven by the hinge angle, and the device reports a hinge-angle sensor. LineageOS device trees
+ * opt in through the {@code config_unfoldTransition*} overlays; the sensor check keeps the page
+ * hidden if an overlay is installed on hardware without a hinge.
+ */
 final class YrrpFoldAnimationAvailability {
     private YrrpFoldAnimationAvailability() {}
 
-    /** Where {@link #SYSTEM} reads; tests replace it and must restore {@link #READ_RESOURCE}. */
-    @VisibleForTesting static BooleanSupplier sSource = YrrpFoldAnimationAvailability::readResource;
-
-    /** Follows {@link #sSource}, so controllers and the search provider share one answer. */
-    static final BooleanSupplier SYSTEM = () -> sSource.getAsBoolean();
-
-    /** The production source. */
+    /** The production check. */
     @VisibleForTesting
-    static final BooleanSupplier READ_RESOURCE = YrrpFoldAnimationAvailability::readResource;
+    static final Predicate<Context> READ_DEVICE =
+            context -> isSupported(
+                    Resources.getSystem(), context.getSystemService(SensorManager.class));
 
-    /** Reads the same resource as SystemUI's ResourceUnfoldTransitionConfig. */
-    private static boolean readResource() {
-        Resources res = Resources.getSystem();
-        int id = res.getIdentifier("config_unfoldTransitionEnabled", "bool", "android");
+    /** Where {@link #isAvailable} reads; tests replace it and must restore {@link #READ_DEVICE}. */
+    @VisibleForTesting static Predicate<Context> sSource = READ_DEVICE;
+
+    /** One answer for the hub row, the page controllers and the search provider. */
+    static boolean isAvailable(@NonNull Context context) {
+        return sSource.test(context);
+    }
+
+    /** Reads the same resources as SystemUI's ResourceUnfoldTransitionConfig. */
+    @VisibleForTesting
+    static boolean isSupported(@NonNull Resources res, @Nullable SensorManager sensors) {
+        return readBool(res, "config_unfoldTransitionEnabled")
+                && readBool(res, "config_unfoldTransitionHingeAngle")
+                && sensors != null
+                && sensors.getDefaultSensor(Sensor.TYPE_HINGE_ANGLE) != null;
+    }
+
+    private static boolean readBool(Resources res, String name) {
+        int id = res.getIdentifier(name, "bool", "android");
         return id != 0 && res.getBoolean(id);
     }
 }

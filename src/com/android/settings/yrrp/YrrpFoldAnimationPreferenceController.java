@@ -46,7 +46,7 @@ public class YrrpFoldAnimationPreferenceController extends BasePreferenceControl
     private final int mMode;
     private final YrrpSettingsStore mStore;
     private final YrrpSecureSettingObserver mObserver;
-    private final BooleanSupplier mUnfoldEnabled;
+    private final BooleanSupplier mSupported;
 
     public YrrpFoldAnimationPreferenceController(
             @NonNull Context context, @NonNull String preferenceKey) {
@@ -54,20 +54,20 @@ public class YrrpFoldAnimationPreferenceController extends BasePreferenceControl
                 context,
                 preferenceKey,
                 new YrrpSettingsStore(context),
-                YrrpFoldAnimationAvailability.SYSTEM);
+                () -> YrrpFoldAnimationAvailability.isAvailable(context));
     }
 
-    /** Injects the store and the unfold check, so tests can count writes and flip availability. */
+    /** Injects the store and the device check, so tests can count writes and flip availability. */
     @VisibleForTesting
     YrrpFoldAnimationPreferenceController(
             @NonNull Context context,
             @NonNull String preferenceKey,
             @NonNull YrrpSettingsStore store,
-            @NonNull BooleanSupplier unfoldEnabled) {
+            @NonNull BooleanSupplier supported) {
         super(context, preferenceKey);
         mMode = keyToMode(preferenceKey);
         mStore = store;
-        mUnfoldEnabled = unfoldEnabled;
+        mSupported = supported;
         mObserver =
                 new YrrpSecureSettingObserver(
                         context, this, mStore, YrrpSettingsStore.FOLD_ANIMATION);
@@ -75,7 +75,7 @@ public class YrrpFoldAnimationPreferenceController extends BasePreferenceControl
 
     @Override
     public int getAvailabilityStatus() {
-        return mUnfoldEnabled.getAsBoolean() ? AVAILABLE : UNSUPPORTED_ON_DEVICE;
+        return mSupported.getAsBoolean() ? AVAILABLE : UNSUPPORTED_ON_DEVICE;
     }
 
     @Override

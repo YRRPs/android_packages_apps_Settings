@@ -31,29 +31,29 @@ import com.android.settings.core.BasePreferenceController;
 import java.util.function.BooleanSupplier;
 
 /**
- * Opens the fold animation page and summarizes the current user's style. Hidden without the unfold
- * framework.
+ * Opens the fold animation page and summarizes the current user's style. Hidden unless the
+ * device is a supported foldable, see {@link YrrpFoldAnimationAvailability}.
  */
 public class YrrpFoldAnimationEntryPreferenceController extends BasePreferenceController
         implements DefaultLifecycleObserver {
 
     private final YrrpSettingsStore mStore;
     private final YrrpSecureSettingObserver mObserver;
-    private final BooleanSupplier mUnfoldEnabled;
+    private final BooleanSupplier mSupported;
 
     public YrrpFoldAnimationEntryPreferenceController(
             @NonNull Context context, @NonNull String preferenceKey) {
-        this(context, preferenceKey, YrrpFoldAnimationAvailability.SYSTEM);
+        this(context, preferenceKey, () -> YrrpFoldAnimationAvailability.isAvailable(context));
     }
 
-    /** Injects the unfold check, so tests can flip availability. */
+    /** Injects the device check, so tests can flip availability. */
     @VisibleForTesting
     YrrpFoldAnimationEntryPreferenceController(
             @NonNull Context context,
             @NonNull String preferenceKey,
-            @NonNull BooleanSupplier unfoldEnabled) {
+            @NonNull BooleanSupplier supported) {
         super(context, preferenceKey);
-        mUnfoldEnabled = unfoldEnabled;
+        mSupported = supported;
         mStore = new YrrpSettingsStore(context);
         mObserver =
                 new YrrpSecureSettingObserver(
@@ -62,7 +62,7 @@ public class YrrpFoldAnimationEntryPreferenceController extends BasePreferenceCo
 
     @Override
     public int getAvailabilityStatus() {
-        return mUnfoldEnabled.getAsBoolean() ? AVAILABLE : UNSUPPORTED_ON_DEVICE;
+        return mSupported.getAsBoolean() ? AVAILABLE : UNSUPPORTED_ON_DEVICE;
     }
 
     @Override

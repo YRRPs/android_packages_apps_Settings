@@ -45,12 +45,12 @@ public class YrrpFoldAnimationSettings extends DashboardFragment {
         return TAG;
     }
 
-    /** For Search. Hidden when the device does not run the unfold framework. */
+    /** For Search. Hidden unless {@link YrrpFoldAnimationAvailability} supports the device. */
     public static final BaseSearchIndexProvider SEARCH_INDEX_DATA_PROVIDER =
             new BaseSearchIndexProvider(R.xml.yrrp_fold_animation_settings) {
                 @Override
                 protected boolean isPageSearchEnabled(Context context) {
-                    return YrrpFoldAnimationAvailability.SYSTEM.getAsBoolean();
+                    return YrrpFoldAnimationAvailability.isAvailable(context);
                 }
             };
 }

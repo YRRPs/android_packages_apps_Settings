@@ -38,7 +38,7 @@ public class YrrpSettingsTest {
 
     @After
     public void tearDown() {
-        YrrpFoldAnimationAvailability.sSource = YrrpFoldAnimationAvailability.READ_RESOURCE;
+        YrrpFoldAnimationAvailability.sSource = YrrpFoldAnimationAvailability.READ_DEVICE;
     }
 
     @Test
@@ -124,7 +124,7 @@ public class YrrpSettingsTest {
 
     @Test
     public void searchProvider_hidesCategoriesButIndexesEntriesAndScreen() {
-        YrrpFoldAnimationAvailability.sSource = () -> true;
+        YrrpFoldAnimationAvailability.sSource = c -> true;
         final List<String> nonIndexable =
                 YrrpSettings.SEARCH_INDEX_DATA_PROVIDER.getNonIndexableKeys(mContext);
 
