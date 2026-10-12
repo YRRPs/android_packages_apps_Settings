@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-FileCopyrightText: Yim's Riced ROM Project
+     SPDX-License-Identifier: Apache-2.0 -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:settings="http://schemas.android.com/apk/res-auto"
+        android:key="yrrp_ad_block_settings_screen"
+        android:title="@string/yrrp_ad_block_title">
+
+    <com.android.settingslib.widget.TopIntroPreference
+        android:key="yrrp_ad_block_intro"
+        android:title="@string/yrrp_ad_block_intro"
+        settings:searchable="false"/>
+
+    <com.android.settingslib.widget.MainSwitchPreference
+        android:key="yrrp_ad_block_enabled"
+        android:title="@string/yrrp_ad_block_main_switch_title"
+        android:persistent="false"
+        settings:keywords="@string/yrrp_ad_block_keywords"
+        settings:controller="com.android.settings.yrrp.YrrpAdBlockEnabledPreferenceController"/>
+
+    <Preference
+        android:key="yrrp_ad_block_update_now"
+        android:title="@string/yrrp_ad_block_update_now"
+        android:persistent="false"
+        settings:controller="com.android.settings.yrrp.YrrpAdBlockUpdateNowPreferenceController"/>
+
+    <SwitchPreferenceCompat
+        android:key="yrrp_ad_block_auto_update"
+        android:title="@string/yrrp_ad_block_auto_update"
+        android:summary="@string/yrrp_ad_block_auto_update_summary"
+        android:persistent="false"
+        settings:controller="com.android.settings.yrrp.YrrpAdBlockAutoUpdatePreferenceController"/>
+
+    <PreferenceCategory
+        android:key="yrrp_ad_block_sources"
+        android:title="@string/yrrp_ad_block_sources"
+        settings:searchable="false"
+        settings:controller="com.android.settings.yrrp.YrrpAdBlockSourcesPreferenceController"/>
+
+    <PreferenceCategory
+        android:key="yrrp_ad_block_allowlist"
+        android:title="@string/yrrp_ad_block_allowlist"
+        settings:searchable="false"
+        settings:controller="com.android.settings.yrrp.YrrpAdBlockAllowlistPreferenceController"/>
+
+    <com.android.settingslib.widget.FooterPreference
+        android:key="yrrp_ad_block_footer"
+        android:title="@string/yrrp_ad_block_footer"
+        settings:searchable="false"/>
+
+</PreferenceScreen>
