@@ -40,6 +40,7 @@ import com.android.settings.R;
 import com.android.settings.core.BasePreferenceController;
 import com.android.settings.core.PreferenceXmlParserUtils;
 import com.android.settings.core.PreferenceXmlParserUtils.MetadataFlag;
+import com.android.settings.display.FoldLockBehaviorSettings;
 import com.android.settingslib.core.lifecycle.Lifecycle;
 import com.android.settingslib.widget.SelectorWithWidgetPreference;
 
@@ -56,10 +57,15 @@ import java.util.Map;
 public class YrrpFoldAnimationPreferenceControllerTest {
     /** Read back when a key was never written. */
     private static final int MISSING = Integer.MIN_VALUE;
+    private static final String FOLD_LOCK = YrrpFoldLockStore.FOLD_LOCK;
+    private static final String ALWAYS = FoldLockBehaviorSettings.SETTING_VALUE_STAY_AWAKE_ON_FOLD;
+    private static final String SWIPE = FoldLockBehaviorSettings.SETTING_VALUE_SELECTIVE_STAY_AWAKE;
+    private static final String NEVER = FoldLockBehaviorSettings.SETTING_VALUE_SLEEP_ON_FOLD;
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private ContentResolver mContentResolver;
     private YrrpRecordingSecureBackend mBackend;
+    private YrrpFakeFoldLockBackend mFoldLock;
     private YrrpFoldAnimationPreferenceController mStockController;
     private YrrpFoldAnimationPreferenceController mPixelController;
     private YrrpFoldAnimationPreferenceController mDuoController;
@@ -74,6 +80,7 @@ public class YrrpFoldAnimationPreferenceControllerTest {
     public void setUp() {
         mContentResolver = mContext.getContentResolver();
         mBackend = new YrrpRecordingSecureBackend(mContext);
+        mFoldLock = new YrrpFakeFoldLockBackend();
         mStockController = controller(YrrpFoldAnimationPreferenceController.KEY_STOCK, true);
         mPixelController = controller(YrrpFoldAnimationPreferenceController.KEY_PIXEL, true);
         mDuoController = controller(YrrpFoldAnimationPreferenceController.KEY_DUO, true);
@@ -233,6 +240,80 @@ public class YrrpFoldAnimationPreferenceControllerTest {
     }
 
     @Test
+    public void clickDuo_storesTheFoldLockValueAndForcesAlways() {
+        mFoldLock.mSystem.put(FOLD_LOCK, NEVER);
+        displayAllRows();
+
+        mDuoPreference.onClick();
+
+        assertThat(mFoldLock.mSecure.get(YrrpFoldLockStore.BACKUP_BEFORE_DUO)).isEqualTo(NEVER);
+        assertThat(mFoldLock.mSystem.get(FOLD_LOCK)).isEqualTo(ALWAYS);
+        assertThat(rawStyle()).isEqualTo(YrrpSettingsStore.FOLD_DUO);
+    }
+
+    @Test
+    public void clickDuo_foldLockBackupFails_leavesTheStyleUnchanged() {
+        putStyle(1);
+        mFoldLock.mFailingKeys.add(YrrpFoldLockStore.BACKUP_BEFORE_DUO);
+        displayAllRows();
+
+        mDuoPreference.onClick();
+
+        assertThat(mBackend.mWrites).isEmpty();
+        assertThat(rawStyle()).isEqualTo(1);
+    }
+
+    @Test
+    public void clickStock_fromDuo_restoresTheStoredFoldLockValue() {
+        putStyle(2);
+        mFoldLock.mSecure.put(YrrpFoldLockStore.BACKUP_BEFORE_DUO, NEVER);
+        mFoldLock.mSystem.put(FOLD_LOCK, ALWAYS);
+        displayAllRows();
+
+        mStockPreference.onClick();
+
+        assertThat(rawStyle()).isEqualTo(YrrpSettingsStore.FOLD_STOCK);
+        assertThat(mFoldLock.mSystem.get(FOLD_LOCK)).isEqualTo(NEVER);
+        assertThat(mFoldLock.mSecure).doesNotContainKey(YrrpFoldLockStore.BACKUP_BEFORE_DUO);
+    }
+
+    @Test
+    public void clickPixel_fromDuoWithoutBackup_writesSwipeUp() {
+        putStyle(2);
+        mFoldLock.mSystem.put(FOLD_LOCK, ALWAYS);
+        displayAllRows();
+
+        mPixelPreference.onClick();
+
+        assertThat(mFoldLock.mSystem.get(FOLD_LOCK)).isEqualTo(SWIPE);
+    }
+
+    @Test
+    public void clickPixel_fromStock_leavesTheFoldLockAlone() {
+        mFoldLock.mSystem.put(FOLD_LOCK, ALWAYS);
+        displayAllRows();
+
+        mPixelPreference.onClick();
+
+        assertThat(mFoldLock.mWrites).isEmpty();
+        assertThat(mFoldLock.mSystem.get(FOLD_LOCK)).isEqualTo(ALWAYS);
+    }
+
+    @Test
+    public void clickStock_fromDuo_styleWriteFails_keepsAlways() {
+        putStyle(2);
+        mFoldLock.mSecure.put(YrrpFoldLockStore.BACKUP_BEFORE_DUO, NEVER);
+        mFoldLock.mSystem.put(FOLD_LOCK, ALWAYS);
+        mBackend.mFailingKeys.add(YrrpSettingsStore.FOLD_ANIMATION);
+        displayAllRows();
+
+        mStockPreference.onClick();
+
+        assertThat(mFoldLock.mWrites).isEmpty();
+        assertThat(mFoldLock.mSystem.get(FOLD_LOCK)).isEqualTo(ALWAYS);
+    }
+
+    @Test
     public void onStart_eachRowRegistersObserverForFoldKey() {
         mLifecycle.handleLifecycleEvent(ON_START);
 
@@ -278,7 +359,7 @@ public class YrrpFoldAnimationPreferenceControllerTest {
     private YrrpFoldAnimationPreferenceController controller(
             String key, boolean unfoldEnabled) {
         return new YrrpFoldAnimationPreferenceController(
-                mContext, key, mBackend.newStore(), () -> unfoldEnabled);
+                mContext, key, mBackend.newStore(), mFoldLock.newStore(), () -> unfoldEnabled);
     }
 
     private static Uri foldUri() {
