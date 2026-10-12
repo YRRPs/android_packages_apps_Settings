@@ -192,4 +192,72 @@
     <!-- YRRPs settings: footer of the fold animation page, explaining when a change takes
          effect. [CHAR LIMIT=NONE] -->
     <string name="yrrp_fold_animation_footer">Applies the next time you fold or unfold</string>
+    <!-- YRRPs settings: hub category for network features. [CHAR LIMIT=40] -->
+    <string name="yrrp_category_network">Network</string>
+    <!-- YRRPs settings: title of the ad blocking hub row and page. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_title">Ad blocking</string>
+    <!-- YRRPs settings: search keywords for ad blocking. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_keywords">ads, adblock, ad blocker, hosts, trackers, adaway</string>
+    <!-- YRRPs settings: intro at the top of the ad blocking page. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_intro">Blocks ad and tracker servers for every app with a hosts file. Uses no VPN and needs no root.</string>
+    <!-- YRRPs settings: main switch on the ad blocking page. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_main_switch_title">Use ad blocking</string>
+    <!-- YRRPs settings: hub row summary and tile subtitle while ad blocking is on. [CHAR LIMIT=20] -->
+    <string name="yrrp_ad_block_on">On</string>
+    <!-- YRRPs settings: hub row summary while ad blocking is off. [CHAR LIMIT=20] -->
+    <string name="yrrp_ad_block_off">Off</string>
+    <!-- YRRPs settings: row that downloads every enabled list now. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_update_now">Update lists now</string>
+    <!-- YRRPs settings: update row summary while an update runs. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_updating">Updating…</string>
+    <!-- YRRPs settings: update row summary before the first update. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_never_updated">Not updated yet</string>
+    <!-- YRRPs settings: update row summary after an update. %1$s is a relative time such as
+         "5 minutes ago", %2$d the number of blocked hosts. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_updated">Updated %1$s · %2$d blocked hosts</string>
+    <!-- YRRPs settings: update row summary when some lists failed. %1$d failed lists, %2$d
+         enabled lists. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_some_failed">%1$d of %2$d lists failed to update; the last good copies are still in use</string>
+    <!-- YRRPs settings: update row summary when no list could be read. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_no_data">No list could be downloaded. Check the connection and try again.</string>
+    <!-- YRRPs settings: update row summary when building the hosts file failed. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_failed">Update failed; the previous blocklist is still in use</string>
+    <!-- YRRPs settings: switch for the weekly automatic update. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_auto_update">Update automatically</string>
+    <!-- YRRPs settings: summary of the automatic update switch. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_auto_update_summary">Once a week on Wi‑Fi while the phone is idle</string>
+    <!-- YRRPs settings: category holding the hosts lists. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_sources">Lists</string>
+    <!-- YRRPs settings: list row summary. %1$s is a status such as "OK", %2$d entries.
+         [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_source_summary">%1$s · %2$d hosts</string>
+    <!-- YRRPs settings: row that adds a hosts list. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_add_source">Add list</string>
+    <!-- YRRPs settings: hint in the add list dialog. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_add_source_hint">https://example.com/hosts.txt</string>
+    <!-- YRRPs settings: category holding the hosts never blocked. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_allowlist">Allowed hosts</string>
+    <!-- YRRPs settings: row that adds an allowed host. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_add_allowed">Add allowed host</string>
+    <!-- YRRPs settings: hint in the add allowed host dialog. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_add_allowed_hint">example.com</string>
+    <!-- YRRPs settings: confirm dialog title for removing a list or host. %1$s is its name.
+         [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_remove_title">Remove %1$s?</string>
+    <!-- YRRPs settings: confirm button that removes a list or host. [CHAR LIMIT=20] -->
+    <string name="yrrp_ad_block_remove">Remove</string>
+    <!-- YRRPs settings: error when a list address is not https. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_error_not_https">Use an https:// address</string>
+    <!-- YRRPs settings: error when a list address or host name cannot be read. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_error_malformed">Not a valid address</string>
+    <!-- YRRPs settings: error when a list or host is already present. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_error_duplicate">Already in the list</string>
+    <!-- YRRPs settings: error when no more entries fit. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_error_limit">The list is full</string>
+    <!-- YRRPs settings: error when an allowed host is not a valid name. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_error_invalid_host">Not a valid host name</string>
+    <!-- YRRPs settings: error when the settings could not be saved. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_error_save">Could not save the change</string>
+    <!-- YRRPs settings: footer of the ad blocking page about its limits. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_footer">Browsers with secure DNS, apps with their own DNS, and apps that connect straight to an IP address skip the hosts file. Apps may keep a cached answer for a short while after a change.</string>
 </resources>

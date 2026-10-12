@@ -8,9 +8,9 @@ package com.android.settings.yrrp;
 import android.os.SystemProperties;
 import android.util.Log;
 
-/** Reads and writes the boot animation properties; a refused write is logged and reported. */
+/** Reads and writes YRRP system properties; a refused write is logged and reported. */
 final class YrrpSystemPropertiesBackend implements YrrpBootAnimationStore.Backend {
-    private static final String TAG = "YrrpBootAnimationStore";
+    private static final String TAG = "YrrpSystemProperties";
 
     @Override
     public String get(String key) {

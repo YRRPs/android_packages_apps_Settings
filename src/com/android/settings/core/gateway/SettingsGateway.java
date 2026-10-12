@@ -221,6 +221,7 @@ import com.android.settings.wifi.details.WifiNetworkDetailsFragment;
 import com.android.settings.wifi.p2p.WifiP2pSettings;
 import com.android.settings.wifi.savedaccesspoints2.SavedAccessPointsWifiSettings2;
 import com.android.settings.wifi.tether.WifiTetherSettings;
+import com.android.settings.yrrp.YrrpAdBlockSettings;
 import com.android.settings.yrrp.YrrpBootAnimationSettings;
 import com.android.settings.yrrp.YrrpFoldAnimationSettings;
 import com.android.settings.yrrp.YrrpPulseSettings;
@@ -442,6 +443,7 @@ public class SettingsGateway {
             YrrpScreenOffAnimationSettings.class.getName(),
             YrrpBootAnimationSettings.class.getName(),
             YrrpFoldAnimationSettings.class.getName(),
+            YrrpAdBlockSettings.class.getName(),
     };
 
     public static final String[] SETTINGS_FOR_RESTRICTED = {

@@ -61,4 +61,18 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:key="yrrp_category_network"
+        android:title="@string/yrrp_category_network"
+        settings:searchable="false">
+
+        <Preference
+            android:key="yrrp_ad_block_entry"
+            android:title="@string/yrrp_ad_block_title"
+            android:fragment="com.android.settings.yrrp.YrrpAdBlockSettings"
+            settings:keywords="@string/yrrp_ad_block_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpAdBlockEntryPreferenceController"/>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

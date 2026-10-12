@@ -17,12 +17,8 @@ public final class YrrpBootAnimationStore {
     static final String STYLE_MATRIX = "matrix";
     static final String STYLE_LINEAGE = "lineage";
 
-    /** System property access, replaceable in tests. {@code get} returns "" when unset. */
-    interface Backend {
-        String get(String key);
-
-        boolean set(String key, String value);
-    }
+    /** System property access for this store; see {@link YrrpPropertyBackend}. */
+    interface Backend extends YrrpPropertyBackend {}
 
     private final Backend mBackend;
 
