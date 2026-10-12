@@ -48,6 +48,8 @@ final class YrrpAdBlockStore {
         boolean autoUpdate = true;
         long lastUpdateMillis;
         String lastResult = "";
+        /** Block lines in the last hosts.blocked built. */
+        int lastEntries;
 
         /** Adds an enabled source; only an https URL with a host and no user info. */
         AddResult addSource(String rawUrl) {
@@ -175,6 +177,7 @@ final class YrrpAdBlockStore {
                     state.autoUpdate = "1".equals(f[1]);
                     state.lastUpdateMillis = Long.parseLong(f[2]);
                     state.lastResult = f[3];
+                    state.lastEntries = f.length > 4 ? Integer.parseInt(f[4]) : 0;
                 }
                 case "S" -> readSource(f, state);
                 case "H" -> state.addAllowed(f[1]);
@@ -203,7 +206,8 @@ final class YrrpAdBlockStore {
     private static void writeState(Writer out, State state) throws IOException {
         out.write("V\t1\n");
         out.write(String.join("\t", "A", state.autoUpdate ? "1" : "0",
-                Long.toString(state.lastUpdateMillis), clean(state.lastResult)) + "\n");
+                Long.toString(state.lastUpdateMillis), clean(state.lastResult),
+                Integer.toString(state.lastEntries)) + "\n");
         for (YrrpAdBlockSource s : state.sources) {
             out.write(String.join("\t", "S", s.url, s.enabled ? "1" : "0", clean(s.etag),
                     clean(s.lastModified), clean(s.status), Integer.toString(s.entries),

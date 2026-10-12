@@ -94,6 +94,7 @@ public class YrrpAdBlockUpdaterTest {
         final YrrpAdBlockStore.State saved = mStore.load();
         assertEquals(5000, saved.lastUpdateMillis);
         assertEquals("UPDATED", saved.lastResult);
+        assertEquals(3, saved.lastEntries);
         final YrrpAdBlockSource b = saved.findSource(B);
         assertEquals("OK", b.status);
         assertEquals(2, b.entries);

@@ -1,0 +1,139 @@
+/*
+ * SPDX-FileCopyrightText: Yim's Riced ROM Project
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+package com.android.settings.yrrp;
+
+import android.content.Context;
+import android.os.UserManager;
+
+import com.android.settingslib.utils.ThreadUtils;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.function.Consumer;
+
+/**
+ * Production wiring for ad blocking, shared by the page, the tile, the job, and the status
+ * service, so they all act through one updater and one switch path. Ad blocking is device-wide,
+ * so only the primary (system) user controls it.
+ */
+final class YrrpAdBlockAndroid {
+    static final File BLOCKED_FILE = new File("/data/misc/yrrp/hosts.blocked");
+    static final File LIVE_HOSTS = new File("/system/etc/hosts");
+    private static final File MOUNTINFO = new File("/proc/self/mountinfo");
+    private static final String DIR_NAME = "yrrp_adblock";
+
+    private static YrrpAdBlockUpdater sUpdater;
+
+    private YrrpAdBlockAndroid() {}
+
+    static boolean isPrimaryUser(Context context) {
+        return context.getSystemService(UserManager.class).isSystemUser();
+    }
+
+    static YrrpAdBlockState state() {
+        return YrrpAdBlockState.create();
+    }
+
+    static synchronized YrrpAdBlockUpdater updater(Context context) {
+        if (sUpdater == null) {
+            final File dir = dir(context);
+            sUpdater = new YrrpAdBlockUpdater(new YrrpAdBlockStore(dir),
+                    YrrpAdBlockFetcher.create(), state(), log(context), BLOCKED_FILE,
+                    System::currentTimeMillis);
+        }
+        return sUpdater;
+    }
+
+    /**
+     * The saved state without taking the update lock, so the main thread never waits for a
+     * download. state.tsv is replaced by rename, so a reader sees a whole file.
+     */
+    static YrrpAdBlockStore.State readState(Context context) {
+        return new YrrpAdBlockStore(dir(context)).load();
+    }
+
+    static YrrpAdBlockEventLog log(Context context) {
+        return new YrrpAdBlockEventLog(new File(dir(context), "events.log"),
+                System::currentTimeMillis);
+    }
+
+    /**
+     * The one switch path for the page and the tile. Turning on with no hosts.blocked yet
+     * starts a download, because init has nothing to copy until one finishes.
+     */
+    static boolean setEnabled(Context context, boolean enabled) {
+        final Context app = context.getApplicationContext();
+        final boolean written = state().setEnabled(enabled);
+        log(app).record("toggle enabled=" + enabled + " written=" + written);
+        if (written && enabled && !BLOCKED_FILE.exists()) {
+            runUpdate(app, true, null);
+        }
+        YrrpAdBlockUpdateJobService.sync(app);
+        return written;
+    }
+
+    /** Runs an update off the main thread; {@code onDone} runs on the main thread. */
+    static void runUpdate(Context context, boolean download,
+            Consumer<YrrpAdBlockUpdater.Outcome> onDone) {
+        final Context app = context.getApplicationContext();
+        ThreadUtils.postOnBackgroundThread(() -> {
+            final YrrpAdBlockUpdater.Outcome outcome = updater(app).update(download);
+            if (onDone != null) {
+                ThreadUtils.postOnMainThread(() -> onDone.accept(outcome));
+            }
+        });
+    }
+
+    /** Gathers the dump inputs. Reads files, so call it off the main thread or from dump(). */
+    static YrrpAdBlockDump.Snapshot snapshot(Context context) {
+        final YrrpAdBlockDump.Snapshot s = new YrrpAdBlockDump.Snapshot();
+        s.enabled = state().isEnabled();
+        s.state = readState(context);
+        s.autoUpdate = s.state.autoUpdate;
+        s.primaryUser = isPrimaryUser(context);
+        s.jobScheduled = YrrpAdBlockUpdateJobService.isScheduled(context);
+        s.blockedBytes = BLOCKED_FILE.exists() ? BLOCKED_FILE.length() : -1;
+        s.blockedEntries = countBlockLines(BLOCKED_FILE);
+        s.liveHostsBytes = LIVE_HOSTS.length();
+        s.bindMountPresent = YrrpAdBlockDump.bindMountPresent(readLines(MOUNTINFO));
+        s.events = log(context).lines();
+        return s;
+    }
+
+    private static File dir(Context context) {
+        return new File(context.createDeviceProtectedStorageContext().getFilesDir(), DIR_NAME);
+    }
+
+    private static long countBlockLines(File file) {
+        if (!file.exists()) {
+            return -1;
+        }
+        long count = 0;
+        try (BufferedReader in = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
+            for (String line = in.readLine(); line != null; line = in.readLine()) {
+                if (line.startsWith("0.0.0.0 ")) {
+                    count++;
+                }
+            }
+        } catch (IOException e) {
+            return -1;
+        }
+        return count;
+    }
+
+    private static List<String> readLines(File file) {
+        try {
+            return Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            return List.of();
+        }
+    }
+}

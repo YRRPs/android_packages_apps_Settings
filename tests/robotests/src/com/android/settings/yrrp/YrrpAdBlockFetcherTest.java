@@ -186,7 +186,8 @@ public class YrrpAdBlockFetcherTest {
         final Reply first = reply("https://lists.example/h");
         first.code = 301;
         first.headers.put("Location", "https://cdn.example/h");
-        reply("https://cdn.example/h").body = "0.0.0.0 b.example\n".getBytes(StandardCharsets.UTF_8);
+        reply("https://cdn.example/h").body =
+                "0.0.0.0 b.example\n".getBytes(StandardCharsets.UTF_8);
 
         assertEquals(YrrpAdBlockFetcher.Status.OK,
                 mFetcher.fetch("https://lists.example/h", "", "", mDest).status);

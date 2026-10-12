@@ -63,6 +63,7 @@ public class YrrpAdBlockStoreTest {
         state.autoUpdate = false;
         state.lastUpdateMillis = 99;
         state.lastResult = "UPDATED";
+        state.lastEntries = 321;
         mStore.save(state);
 
         final YrrpAdBlockStore.State read = new YrrpAdBlockStore(mDir).load();
@@ -78,6 +79,7 @@ public class YrrpAdBlockStoreTest {
         assertFalse(read.autoUpdate);
         assertEquals(99, read.lastUpdateMillis);
         assertEquals("UPDATED", read.lastResult);
+        assertEquals(321, read.lastEntries);
         assertFalse(new File(mDir, "state.tsv.tmp").exists());
     }
 

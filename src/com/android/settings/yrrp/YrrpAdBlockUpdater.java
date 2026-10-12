@@ -69,6 +69,9 @@ final class YrrpAdBlockUpdater {
                 : build(parsed, state.allowlist, failed);
         state.lastUpdateMillis = mClock.getAsLong();
         state.lastResult = outcome.result.name();
+        if (outcome.result == Result.UPDATED) {
+            state.lastEntries = outcome.entries;
+        }
         save(state);
         mLog.record("update end result=" + outcome.result + " entries=" + outcome.entries
                 + " failedSources=" + failed);
@@ -151,7 +154,8 @@ final class YrrpAdBlockUpdater {
         final int[] entries = new int[1];
         try {
             YrrpAdBlockFiles.writeAtomically(mBlockedFile, out ->
-                    entries[0] = YrrpAdBlockHostsBuilder.write(out, parsed, allowlist, mMaxEntries));
+                    entries[0] = YrrpAdBlockHostsBuilder.write(
+                            out, parsed, allowlist, mMaxEntries));
         } catch (IOException | IllegalStateException e) {
             mLog.record("build failed error=" + e.getClass().getSimpleName());
             return new Outcome(Result.FAILED, 0, failed);

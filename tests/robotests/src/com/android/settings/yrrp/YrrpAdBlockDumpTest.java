@@ -53,7 +53,8 @@ public class YrrpAdBlockDumpTest {
     public void printsEveryField() {
         final String text = dump(sample());
         for (String field : new String[] {"enabled=true", "autoUpdate=true", "isPrimaryUser=true",
-                "jobScheduled=true", "hostsBlockedBytes=2048", "blockedEntries=6", "sourceEntries=7",
+                "jobScheduled=true", "hostsBlockedBytes=2048", "blockedEntries=6",
+                "sourceEntries=7",
                 "liveHostsBytes=2048", "bindMountPresent=true", "lastUpdate=1234",
                 "lastResult=UPDATED", "allowlistSize=1", "source[0]", "host=lists.example",
                 "status=OK", "droppedRedirects=0", "etagPresent=true", "lastSuccess=0",

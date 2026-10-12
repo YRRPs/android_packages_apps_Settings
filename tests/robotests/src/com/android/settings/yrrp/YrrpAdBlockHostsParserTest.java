@@ -51,7 +51,8 @@ public class YrrpAdBlockHostsParserTest {
     @Test
     public void ignoresBlanksAndCommentsAndCollapsesDuplicates() throws IOException {
         final YrrpAdBlockHostsParser.Result r = parse(
-                "# header\n\n   \n0.0.0.0 ADS.Example\n0.0.0.0 ads.example\n#0.0.0.0 off.example\n");
+                "# header\n\n   \n0.0.0.0 ADS.Example\n0.0.0.0 ads.example\n"
+                        + "#0.0.0.0 off.example\n");
         assertEquals(Set.of("ads.example"), r.hosts);
         assertEquals(0, r.invalidDropped);
     }
