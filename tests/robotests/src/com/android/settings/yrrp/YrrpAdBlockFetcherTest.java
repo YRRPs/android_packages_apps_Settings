@@ -41,7 +41,7 @@ public class YrrpAdBlockFetcherTest {
     }
 
     /** Records what the fetcher did to it. */
-    static final class FakeConnection extends HttpURLConnection {
+    static class FakeConnection extends HttpURLConnection {
         private final Reply mReply;
         boolean disconnected;
 
@@ -239,6 +239,36 @@ public class YrrpAdBlockFetcherTest {
         assertEquals(YrrpAdBlockFetcher.Status.OK,
                 mFetcher.fetch("https://lists.example/h", "", "", mDest).status);
         assertEquals(CAP, mDest.length());
+    }
+
+    @Test
+    public void stopsASlowBodyAtTheTotalDeadline() throws IOException {
+        YrrpAdBlockTestFiles.write(mDest, "old\n");
+        final long[] now = {0};
+        final YrrpAdBlockFetcher fetcher = new YrrpAdBlockFetcher(url -> {
+            final Reply reply = new Reply();
+            reply.bodyLength = 1024 * 1024;
+            return new FakeConnection(url, reply) {
+                @Override public InputStream getInputStream() {
+                    final InputStream body = super.getInputStream();
+                    return new InputStream() {
+                        @Override public int read() throws IOException {
+                            return body.read();
+                        }
+
+                        @Override public int read(byte[] b, int off, int len) throws IOException {
+                            now[0] += 10_000_000_000L;
+                            return body.read(b, off, Math.min(len, 1024));
+                        }
+                    };
+                }
+            };
+        }, () -> now[0]);
+
+        assertEquals(YrrpAdBlockFetcher.Status.TIMEOUT,
+                fetcher.fetch("https://lists.example/h", "", "", mDest).status);
+        assertEquals("old\n", YrrpAdBlockTestFiles.read(mDest));
+        assertFalse(new File(mDest.getPath() + ".tmp").exists());
     }
 
     @Test

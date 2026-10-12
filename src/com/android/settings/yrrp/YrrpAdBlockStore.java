@@ -124,8 +124,11 @@ final class YrrpAdBlockStore {
         return AddResult.OK;
     }
 
-    /** The saved state, or the defaults when nothing is saved or the file cannot be read. */
-    State load() {
+    /**
+     * The saved state, or the defaults when nothing is saved yet. Throws when a saved file
+     * cannot be read, so a caller never saves defaults over the user's lists.
+     */
+    State load() throws IOException {
         final File file = new File(mDir, STATE_FILE);
         if (!file.exists()) {
             return defaults();
@@ -136,10 +139,17 @@ final class YrrpAdBlockStore {
             for (String line = in.readLine(); line != null; line = in.readLine()) {
                 readRecord(line.split("\t", -1), state);
             }
+        }
+        return state;
+    }
+
+    /** For display only: the saved state, or the defaults when it cannot be read. */
+    State loadOrDefaults() {
+        try {
+            return load();
         } catch (IOException e) {
             return defaults();
         }
-        return state;
     }
 
     void save(State state) throws IOException {

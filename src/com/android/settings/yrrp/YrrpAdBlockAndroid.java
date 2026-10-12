@@ -31,6 +31,7 @@ final class YrrpAdBlockAndroid {
     private static final String DIR_NAME = "yrrp_adblock";
 
     private static YrrpAdBlockUpdater sUpdater;
+    private static YrrpAdBlockEventLog sLog;
 
     private YrrpAdBlockAndroid() {}
 
@@ -57,12 +58,22 @@ final class YrrpAdBlockAndroid {
      * download. state.tsv is replaced by rename, so a reader sees a whole file.
      */
     static YrrpAdBlockStore.State readState(Context context) {
-        return new YrrpAdBlockStore(dir(context)).load();
+        return new YrrpAdBlockStore(dir(context)).loadOrDefaults();
     }
 
-    static YrrpAdBlockEventLog log(Context context) {
-        return new YrrpAdBlockEventLog(new File(dir(context), "events.log"),
-                System::currentTimeMillis);
+    /** One shared log, so its lock serializes every writer. Record off the main thread. */
+    static synchronized YrrpAdBlockEventLog log(Context context) {
+        if (sLog == null) {
+            sLog = new YrrpAdBlockEventLog(new File(dir(context), "events.log"),
+                    System::currentTimeMillis);
+        }
+        return sLog;
+    }
+
+    /** Records an event on a background thread; safe to call from the main thread. */
+    static void record(Context context, String event) {
+        final Context app = context.getApplicationContext();
+        ThreadUtils.postOnBackgroundThread(() -> log(app).record(event));
     }
 
     /**
@@ -72,7 +83,7 @@ final class YrrpAdBlockAndroid {
     static boolean setEnabled(Context context, boolean enabled) {
         final Context app = context.getApplicationContext();
         final boolean written = state().setEnabled(enabled);
-        log(app).record("toggle enabled=" + enabled + " written=" + written);
+        record(app, "toggle enabled=" + enabled + " written=" + written);
         if (written && enabled && !BLOCKED_FILE.exists()) {
             runUpdate(app, true, null);
         }
@@ -80,14 +91,23 @@ final class YrrpAdBlockAndroid {
         return written;
     }
 
-    /** Runs an update off the main thread; {@code onDone} runs on the main thread. */
+    /**
+     * Runs an update off the main thread. {@code onDone} always runs on the main thread, even
+     * if the update throws, so a waiting row or job is never left hanging.
+     */
     static void runUpdate(Context context, boolean download,
             Consumer<YrrpAdBlockUpdater.Outcome> onDone) {
         final Context app = context.getApplicationContext();
         ThreadUtils.postOnBackgroundThread(() -> {
-            final YrrpAdBlockUpdater.Outcome outcome = updater(app).update(download);
-            if (onDone != null) {
-                ThreadUtils.postOnMainThread(() -> onDone.accept(outcome));
+            YrrpAdBlockUpdater.Outcome outcome =
+                    new YrrpAdBlockUpdater.Outcome(YrrpAdBlockUpdater.Result.FAILED, 0, 0);
+            try {
+                outcome = updater(app).update(download);
+            } finally {
+                if (onDone != null) {
+                    final YrrpAdBlockUpdater.Outcome done = outcome;
+                    ThreadUtils.postOnMainThread(() -> onDone.accept(done));
+                }
             }
         });
     }

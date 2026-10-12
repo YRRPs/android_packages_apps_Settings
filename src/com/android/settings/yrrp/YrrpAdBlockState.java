@@ -24,10 +24,9 @@ final class YrrpAdBlockState {
         return new YrrpAdBlockState(new YrrpSystemPropertiesBackend());
     }
 
-    /** Only "1" and "true" read as on, matching init's bool property. */
+    /** Only "1" reads as on, because init's rc triggers act only on 1 and 0. */
     boolean isEnabled() {
-        final String value = mBackend.get(ENABLED_PROPERTY);
-        return "1".equals(value) || "true".equals(value);
+        return "1".equals(mBackend.get(ENABLED_PROPERTY));
     }
 
     /** Returns false if the write was refused. */

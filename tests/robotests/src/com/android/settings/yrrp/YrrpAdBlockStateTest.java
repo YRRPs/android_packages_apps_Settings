@@ -19,13 +19,12 @@ public class YrrpAdBlockStateTest {
     private final YrrpAdBlockState mState = new YrrpAdBlockState(mBackend);
 
     @Test
-    public void onlyOneOrTrueReadsAsEnabled() {
+    public void onlyOneReadsAsEnabled() {
         assertFalse(mState.isEnabled());
-        for (String on : new String[] {"1", "true"}) {
-            mBackend.values.put(YrrpAdBlockState.ENABLED_PROPERTY, on);
-            assertTrue(on, mState.isEnabled());
-        }
-        for (String off : new String[] {"0", "false", "yes", "2", ""}) {
+        mBackend.values.put(YrrpAdBlockState.ENABLED_PROPERTY, "1");
+        assertTrue(mState.isEnabled());
+        // init's rc triggers react only to 1 and 0, so "true" must not read as on.
+        for (String off : new String[] {"0", "true", "false", "yes", "2", ""}) {
             mBackend.values.put(YrrpAdBlockState.ENABLED_PROPERTY, off);
             assertFalse(off, mState.isEnabled());
         }

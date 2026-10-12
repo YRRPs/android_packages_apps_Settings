@@ -50,7 +50,7 @@ public class YrrpAdBlockUpdateJobService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        YrrpAdBlockAndroid.log(this).record("job run");
+        YrrpAdBlockAndroid.record(this, "job run");
         YrrpAdBlockAndroid.runUpdate(this, true, outcome -> jobFinished(params, false));
         return true;
     }

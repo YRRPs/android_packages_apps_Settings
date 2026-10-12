@@ -22,6 +22,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /** Plain JUnit; no Robolectric. Scripted connections stand in for the network. */
 public class YrrpAdBlockUpdaterTest {
@@ -37,6 +42,9 @@ public class YrrpAdBlockUpdaterTest {
     private YrrpAdBlockStore mStore;
     private YrrpAdBlockEventLog mLog;
     private YrrpAdBlockUpdater mUpdater;
+    private long mNow = 5000;
+    /** Runs inside every connection open, to block or fail a download. */
+    private Runnable mOnOpen = () -> { };
 
     @Before
     public void setUp() throws IOException {
@@ -47,16 +55,17 @@ public class YrrpAdBlockUpdaterTest {
         mLog = new YrrpAdBlockEventLog(new File(mDir, "store/events.log"), () -> 77);
         final YrrpAdBlockFetcher fetcher = new YrrpAdBlockFetcher(this::open);
         mUpdater = new YrrpAdBlockUpdater(mStore, fetcher, new YrrpAdBlockState(mProps), mLog,
-                mBlocked, () -> 5000);
+                mBlocked, () -> mNow);
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         YrrpAdBlockTestFiles.delete(mDir);
     }
 
     private HttpURLConnection open(URL url) throws IOException {
         mOpened.add(url.toString());
+        mOnOpen.run();
         final YrrpAdBlockFetcherTest.Reply reply = mReplies.get(url.toString());
         if (reply == null) {
             throw new IOException("offline");
@@ -110,6 +119,7 @@ public class YrrpAdBlockUpdaterTest {
         serve(C, "0.0.0.0 c.example\n");
         mUpdater.update(true);
         mReplies.remove(B);
+        mNow = 6000;
 
         final YrrpAdBlockUpdater.Outcome outcome = mUpdater.update(true);
 
@@ -121,7 +131,7 @@ public class YrrpAdBlockUpdaterTest {
     }
 
     @Test
-    public void nothingCachedAndAllFailingLeavesFileAbsentAndDoesNotBump() {
+    public void nothingCachedAndAllFailingLeavesFileAbsentAndDoesNotBump() throws IOException {
         final YrrpAdBlockUpdater.Outcome outcome = mUpdater.update(true);
 
         assertEquals(YrrpAdBlockUpdater.Result.NO_DATA, outcome.result);
@@ -213,6 +223,107 @@ public class YrrpAdBlockUpdaterTest {
 
         assertFalse(cache.exists());
         assertEquals(null, mStore.load().findSource(A));
+    }
+
+    @Test
+    public void everyListOffWritesOnlyLocalhostAndBumps() throws IOException {
+        serve(A, "0.0.0.0 a.example\n");
+        mUpdater.update(true);
+        mUpdater.edit(state -> {
+            state.sources.forEach(source -> source.enabled = false);
+            return null;
+        });
+
+        final YrrpAdBlockUpdater.Outcome outcome = mUpdater.update(false);
+
+        assertEquals(YrrpAdBlockUpdater.Result.UPDATED, outcome.result);
+        assertEquals(YrrpAdBlockHostsBuilder.STOCK_HEADER, blocked());
+        assertEquals(List.of("sys.yrrp.adblock.apply=1", "sys.yrrp.adblock.apply=2"),
+                mProps.writes);
+    }
+
+    @Test
+    public void emptyReplyKeepsTheLastGoodCache() throws IOException {
+        serve(A, "0.0.0.0 a.example\n");
+        mUpdater.update(true);
+        serve(A, "<html>maintenance</html>\n");
+
+        final YrrpAdBlockUpdater.Outcome outcome = mUpdater.update(true);
+
+        // A, plus B and C, which are offline in this test.
+        assertEquals(3, outcome.failedSources);
+        assertTrue(blocked().contains("0.0.0.0 a.example\n"));
+        final YrrpAdBlockSource a = mStore.load().findSource(A);
+        assertEquals(YrrpAdBlockUpdater.STATUS_EMPTY, a.status);
+        assertEquals(1, a.entries);
+        assertEquals("0.0.0.0 a.example\n", YrrpAdBlockTestFiles.read(mStore.cacheFile(a)));
+    }
+
+    @Test
+    public void unexpectedErrorsBecomeFailedAndKeepTheFile() throws IOException {
+        YrrpAdBlockTestFiles.write(mBlocked, "last good\n");
+        mOnOpen = () -> {
+            throw new IllegalStateException("boom");
+        };
+
+        final YrrpAdBlockUpdater.Outcome outcome = mUpdater.update(true);
+
+        assertEquals(YrrpAdBlockUpdater.Result.FAILED, outcome.result);
+        assertEquals("last good\n", blocked());
+        assertTrue(mProps.writes.isEmpty());
+    }
+
+    @Test
+    public void editsDoNotWaitForDownloadsAndSurviveTheUpdate() throws Exception {
+        serve(A, "0.0.0.0 a.example\n");
+        final CountDownLatch entered = new CountDownLatch(1);
+        final CountDownLatch release = new CountDownLatch(1);
+        mOnOpen = () -> {
+            entered.countDown();
+            try {
+                release.await(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        };
+        final ExecutorService pool = Executors.newFixedThreadPool(2);
+        try {
+            final Future<YrrpAdBlockUpdater.Outcome> update =
+                    pool.submit(() -> mUpdater.update(true));
+            assertTrue(entered.await(5, TimeUnit.SECONDS));
+
+            final Future<YrrpAdBlockStore.AddResult> edit =
+                    pool.submit(() -> mUpdater.edit(state -> state.addAllowed("kept.example")));
+            assertEquals(YrrpAdBlockStore.AddResult.OK, edit.get(2, TimeUnit.SECONDS));
+
+            release.countDown();
+            assertEquals(YrrpAdBlockUpdater.Result.UPDATED,
+                    update.get(5, TimeUnit.SECONDS).result);
+        } finally {
+            release.countDown();
+            pool.shutdownNow();
+        }
+        assertTrue(mStore.load().allowlist.contains("kept.example"));
+    }
+
+    @Test
+    public void listRemovedDuringDownloadIsDroppedWithItsCache() throws Exception {
+        serve(A, "0.0.0.0 a.example\n");
+        mOnOpen = () -> {
+            try {
+                mUpdater.removeSource(A);
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        };
+
+        final YrrpAdBlockUpdater.Outcome outcome = mUpdater.update(true);
+
+        // B and C are offline and have no cache, so nothing is written.
+        assertEquals(YrrpAdBlockUpdater.Result.NO_DATA, outcome.result);
+        assertEquals(null, mStore.load().findSource(A));
+        assertFalse(mBlocked.exists());
+        assertFalse(mStore.cacheFile(new YrrpAdBlockSource(A)).exists());
     }
 
     @Test

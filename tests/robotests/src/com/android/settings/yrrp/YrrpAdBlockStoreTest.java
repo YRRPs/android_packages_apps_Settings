@@ -31,12 +31,12 @@ public class YrrpAdBlockStoreTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         YrrpAdBlockTestFiles.delete(mDir);
     }
 
     @Test
-    public void emptyDirectoryLoadsDefaults() {
+    public void emptyDirectoryLoadsDefaults() throws IOException {
         final YrrpAdBlockStore.State state = mStore.load();
         assertEquals(YrrpAdBlockStore.DEFAULT_URLS, urls(state));
         for (YrrpAdBlockSource source : state.sources) {
@@ -96,7 +96,7 @@ public class YrrpAdBlockStoreTest {
     }
 
     @Test
-    public void addSourceAcceptsOnlyHttpsUrls() {
+    public void addSourceAcceptsOnlyHttpsUrls() throws IOException {
         final YrrpAdBlockStore.State state = mStore.load();
         assertEquals(YrrpAdBlockStore.AddResult.NOT_HTTPS,
                 state.addSource("http://lists.example/hosts"));
@@ -116,7 +116,7 @@ public class YrrpAdBlockStoreTest {
     }
 
     @Test
-    public void addSourceStopsAtTheLimit() {
+    public void addSourceStopsAtTheLimit() throws IOException {
         final YrrpAdBlockStore.State state = mStore.load();
         for (int i = state.sources.size(); i < YrrpAdBlockStore.MAX_SOURCES; i++) {
             assertEquals(YrrpAdBlockStore.AddResult.OK,
@@ -139,7 +139,7 @@ public class YrrpAdBlockStoreTest {
     }
 
     @Test
-    public void cacheNamesAreStableAndDistinct() {
+    public void cacheNamesAreStableAndDistinct() throws IOException {
         final List<YrrpAdBlockSource> sources = mStore.load().sources;
         assertEquals(mStore.cacheFile(sources.get(0)), mStore.cacheFile(sources.get(0)));
         assertNotEquals(mStore.cacheFile(sources.get(0)), mStore.cacheFile(sources.get(1)));
@@ -148,7 +148,7 @@ public class YrrpAdBlockStoreTest {
     }
 
     @Test
-    public void allowlistNormalizesAndRejects() {
+    public void allowlistNormalizesAndRejects() throws IOException {
         final YrrpAdBlockStore.State state = mStore.load();
         assertEquals(YrrpAdBlockStore.AddResult.OK, state.addAllowed(" Good.Example "));
         assertEquals(YrrpAdBlockStore.AddResult.DUPLICATE, state.addAllowed("good.example"));
@@ -171,6 +171,18 @@ public class YrrpAdBlockStoreTest {
         assertEquals(Set.of("ok.example"), state.allowlist);
         assertFalse(state.autoUpdate);
         assertEquals(7, state.lastUpdateMillis);
+    }
+
+    @Test
+    public void unreadableStateFailsInsteadOfResettingToDefaults() throws IOException {
+        new File(mDir, "state.tsv").mkdirs();
+        try {
+            mStore.load();
+            throw new AssertionError("load must fail");
+        } catch (IOException expected) {
+            // A save after a silent reset would replace the user's lists.
+        }
+        assertEquals(YrrpAdBlockStore.DEFAULT_URLS, urls(mStore.loadOrDefaults()));
     }
 
     private static List<String> urls(YrrpAdBlockStore.State state) {
