@@ -49,6 +49,7 @@ public class YrrpSettingsStore {
     static final String PULSE_BAR_GAP_PERCENT = "lineage_pulse_bar_gap_percent";
     static final String SCREEN_OFF_ANIMATION = "lineage_screen_off_animation";
     static final String SCREEN_OFF_ANIMATION_SPEED = "lineage_screen_off_animation_speed";
+    static final String FOLD_ANIMATION = "lineage_fold_animation";
 
     static final int PULSE_COLOR_DEFAULT = 0xFFFFFF;
     static final int PULSE_ALPHA_DEFAULT = 217;
@@ -88,6 +89,11 @@ public class YrrpSettingsStore {
     static final int SCREEN_OFF_SPEED_MIN = 50;
     static final int SCREEN_OFF_SPEED_MAX = 200;
     private static final int[] SCREEN_OFF_SPEEDS = {50, 75, 100, 150, 200};
+
+    // Fold animation, read by SystemUI FoldAnimationStyle.fromRaw with the same mapping.
+    static final int FOLD_STOCK = 0;
+    static final int FOLD_PIXEL = 1;
+    static final int FOLD_DUO = 2;
 
     /** Per-user access to {@link Settings.Secure}, replaceable in tests. */
     interface Backend {
@@ -224,6 +230,19 @@ public class YrrpSettingsStore {
         return false;
     }
 
+    /** Returns the stored fold style when it is a known one (0–2), otherwise Stock. */
+    public int getFoldAnimation() {
+        return normalizeFoldAnimation(getInt(FOLD_ANIMATION, FOLD_STOCK));
+    }
+
+    /** Rejects anything other than a known style (0–2) instead of coercing it. */
+    public boolean setFoldAnimation(int style) {
+        if (normalizeFoldAnimation(style) != style) {
+            return false;
+        }
+        return putInt(FOLD_ANIMATION, style);
+    }
+
     /** Returns the secure settings URI to observe for {@code key}. */
     @NonNull
     public Uri getUriFor(@NonNull String key) {
@@ -305,6 +324,10 @@ public class YrrpSettingsStore {
 
     static int normalizeScreenOffSpeed(int raw) {
         return Math.max(SCREEN_OFF_SPEED_MIN, Math.min(SCREEN_OFF_SPEED_MAX, raw));
+    }
+
+    static int normalizeFoldAnimation(int raw) {
+        return raw >= FOLD_STOCK && raw <= FOLD_DUO ? raw : FOLD_STOCK;
     }
 
     private int getInt(String key, int defaultValue) {

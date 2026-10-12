@@ -52,6 +52,13 @@
             settings:keywords="@string/yrrp_boot_animation_keywords"
             settings:controller="com.android.settings.yrrp.YrrpBootAnimationEntryPreferenceController"/>
 
+        <Preference
+            android:key="yrrp_fold_animation_entry"
+            android:title="@string/yrrp_fold_animation_title"
+            android:fragment="com.android.settings.yrrp.YrrpFoldAnimationSettings"
+            settings:keywords="@string/yrrp_fold_animation_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpFoldAnimationEntryPreferenceController"/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>
