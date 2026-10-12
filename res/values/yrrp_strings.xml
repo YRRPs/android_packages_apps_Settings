@@ -163,4 +163,33 @@
     <!-- YRRPs settings: footer of the boot animation page, explaining when a change takes
          effect. [CHAR LIMIT=NONE] -->
     <string name="yrrp_boot_animation_footer">Changes apply the next time the phone starts or shuts down.</string>
+    <!-- YRRPs settings: fold animation row on the YRRPs page and title of the fold animation
+         page. Both must stay this one string: SettingsIntelligence's site-map lookup matches on
+         class name plus title. [CHAR LIMIT=40] -->
+    <string name="yrrp_fold_animation_title">Fold animation</string>
+    <!-- YRRPs settings: search keywords for the fold animation. [CHAR_LIMIT=NONE] -->
+    <string name="yrrp_fold_animation_keywords">fold, unfold, foldable, hinge, Duo, Pixel</string>
+    <!-- YRRPs settings: intro text at the top of the fold animation page. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_fold_animation_intro">Plays when you open or close the phone</string>
+    <!-- YRRPs settings: fold animation page category header above the style choices.
+         [CHAR LIMIT=40] -->
+    <string name="yrrp_fold_animation_style_category">Style</string>
+    <!-- YRRPs settings: fold animation style choice that switches screens without an effect.
+         [CHAR LIMIT=30] -->
+    <string name="yrrp_fold_animation_stock">Stock</string>
+    <!-- YRRPs settings: summary of the Stock fold animation choice. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_fold_animation_stock_summary">Switches screens instantly</string>
+    <!-- YRRPs settings: fold animation style choice that reveals the inner screen from the hinge.
+         [CHAR LIMIT=30] -->
+    <string name="yrrp_fold_animation_pixel">Pixel</string>
+    <!-- YRRPs settings: summary of the Pixel fold animation choice. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_fold_animation_pixel_summary">Reveals the inner screen from the hinge</string>
+    <!-- YRRPs settings: fold animation style choice that blurs and stretches content across the
+         fold. [CHAR LIMIT=30] -->
+    <string name="yrrp_fold_animation_duo">Duo</string>
+    <!-- YRRPs settings: summary of the Duo fold animation choice. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_fold_animation_duo_summary">Blurs and stretches content across the fold</string>
+    <!-- YRRPs settings: footer of the fold animation page, explaining when a change takes
+         effect. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_fold_animation_footer">Applies the next time you fold or unfold</string>
 </resources>
