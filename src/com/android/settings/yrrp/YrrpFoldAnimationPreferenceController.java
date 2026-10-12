@@ -118,19 +118,21 @@ public class YrrpFoldAnimationPreferenceController extends BasePreferenceControl
      * write is logged by the store and leaves the selection unchanged.
      *
      * <p>Duo owns "Continue using apps on fold": selecting it first stores the fold-lock value and
-     * forces Always, and the style is written only if that succeeds. Leaving Duo writes the style
-     * first, so SystemUI no longer forces Always, then restores the stored fold-lock value.
+     * forces Always, and the style is written only if that succeeds; a failed style write undoes
+     * it. Selecting Duo again changes nothing, so SystemUI's Always is never stored as the user's
+     * value. Leaving Duo writes the style first, so SystemUI no longer forces Always, then restores
+     * the stored fold-lock value.
      */
     @Override
     public void onRadioButtonClicked(@NonNull SelectorWithWidgetPreference preference) {
+        final boolean wasDuo = mStore.isFoldAnimationDuo();
         if (mMode == YrrpSettingsStore.FOLD_DUO) {
-            if (mFoldLock.enterDuo()) {
-                mStore.setFoldAnimation(mMode);
+            if (!wasDuo && mFoldLock.enterDuo() && !mStore.setFoldAnimation(mMode)) {
+                mFoldLock.leaveDuo();
             }
             return;
         }
-        final boolean wasDuo = mStore.getFoldAnimation() == YrrpSettingsStore.FOLD_DUO;
-        if (mStore.setFoldAnimation(mMode) && (wasDuo || mFoldLock.hasBackup())) {
+        if (mStore.setFoldAnimation(mMode) && wasDuo) {
             mFoldLock.leaveDuo();
         }
     }
