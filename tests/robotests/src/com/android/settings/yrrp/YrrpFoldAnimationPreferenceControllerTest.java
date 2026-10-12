@@ -264,6 +264,45 @@ public class YrrpFoldAnimationPreferenceControllerTest {
     }
 
     @Test
+    public void clickDuo_styleWriteFails_restoresTheFoldLockValue() {
+        putStyle(1);
+        mFoldLock.mSystem.put(FOLD_LOCK, NEVER);
+        mBackend.mFailingKeys.add(YrrpSettingsStore.FOLD_ANIMATION);
+        displayAllRows();
+
+        mDuoPreference.onClick();
+
+        assertThat(rawStyle()).isEqualTo(1);
+        assertThat(mFoldLock.mSystem.get(FOLD_LOCK)).isEqualTo(NEVER);
+        assertThat(mFoldLock.mSecure).doesNotContainKey(YrrpFoldLockStore.BACKUP_BEFORE_DUO);
+    }
+
+    @Test
+    public void clickDuo_whenAlreadyDuo_storesNoBackup() {
+        // Duo set from adb: SystemUI already forced Always and nothing was stored.
+        putStyle(2);
+        mFoldLock.mSystem.put(FOLD_LOCK, ALWAYS);
+        displayAllRows();
+
+        mDuoPreference.onClick();
+
+        assertThat(mFoldLock.mWrites).isEmpty();
+        assertThat(rawStyle()).isEqualTo(YrrpSettingsStore.FOLD_DUO);
+    }
+
+    @Test
+    public void clickPixel_fromStockWithLeftoverBackup_leavesTheFoldLockAlone() {
+        mFoldLock.mSecure.put(YrrpFoldLockStore.BACKUP_BEFORE_DUO, ALWAYS);
+        mFoldLock.mSystem.put(FOLD_LOCK, NEVER);
+        displayAllRows();
+
+        mPixelPreference.onClick();
+
+        assertThat(mFoldLock.mWrites).isEmpty();
+        assertThat(mFoldLock.mSystem.get(FOLD_LOCK)).isEqualTo(NEVER);
+    }
+
+    @Test
     public void clickStock_fromDuo_restoresTheStoredFoldLockValue() {
         putStyle(2);
         mFoldLock.mSecure.put(YrrpFoldLockStore.BACKUP_BEFORE_DUO, NEVER);
