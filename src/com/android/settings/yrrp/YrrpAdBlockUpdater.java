@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.LongSupplier;
 
 /**
@@ -72,6 +73,30 @@ final class YrrpAdBlockUpdater {
         mLog.record("update end result=" + outcome.result + " entries=" + outcome.entries
                 + " failedSources=" + failed);
         return outcome;
+    }
+
+    /**
+     * Loads, changes, and saves the state under the update lock, so an edit made while an
+     * update runs is not overwritten when that update saves.
+     */
+    synchronized <T> T edit(Function<YrrpAdBlockStore.State, T> change) throws IOException {
+        final YrrpAdBlockStore.State state = mStore.load();
+        final T result = change.apply(state);
+        mStore.save(state);
+        return result;
+    }
+
+    /** Removes a source and its cache under the update lock. */
+    synchronized boolean removeSource(String url) throws IOException {
+        final YrrpAdBlockStore.State state = mStore.load();
+        final boolean removed = mStore.removeSource(state, url);
+        mStore.save(state);
+        return removed;
+    }
+
+    /** The saved state, read under the update lock. */
+    synchronized YrrpAdBlockStore.State load() {
+        return mStore.load();
     }
 
     private int downloadAll(YrrpAdBlockStore.State state) {

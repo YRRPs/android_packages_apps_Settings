@@ -193,6 +193,28 @@ public class YrrpAdBlockUpdaterTest {
     }
 
     @Test
+    public void editSavesTheChangeAndReturnsItsResult() throws IOException {
+        final YrrpAdBlockStore.AddResult result =
+                mUpdater.edit(state -> state.addAllowed("ok.example"));
+
+        assertEquals(YrrpAdBlockStore.AddResult.OK, result);
+        assertTrue(mStore.load().allowlist.contains("ok.example"));
+    }
+
+    @Test
+    public void removeSourceThroughEditDeletesItsCache() throws IOException {
+        serve(A, "0.0.0.0 a.example\n");
+        mUpdater.update(true);
+        final File cache = mStore.cacheFile(mStore.load().findSource(A));
+        assertTrue(cache.exists());
+
+        assertTrue(mUpdater.removeSource(A));
+
+        assertFalse(cache.exists());
+        assertEquals(null, mStore.load().findSource(A));
+    }
+
+    @Test
     public void redirectEntriesAreCountedAndNeverWritten() throws IOException {
         serve(A, "0.0.0.0 a.example\n6.6.6.6 bank.example\n");
 
