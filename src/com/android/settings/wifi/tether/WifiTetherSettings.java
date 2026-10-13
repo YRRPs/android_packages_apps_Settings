@@ -48,6 +48,7 @@ import com.android.settings.wifi.repository.SharedConnectivityRepository;
 import com.android.settings.yrrp.YrrpHotspotBlockedEntryPreferenceController;
 import com.android.settings.yrrp.YrrpHotspotClientsPreferenceController;
 import com.android.settings.yrrp.YrrpHotspotControls;
+import com.android.settings.yrrp.YrrpHotspotControlsCategoryPreferenceController;
 import com.android.settings.yrrp.YrrpHotspotMaxClientsPreferenceController;
 import com.android.settingslib.TetherUtil;
 import com.android.settingslib.core.AbstractPreferenceController;
@@ -224,7 +225,8 @@ public class WifiTetherSettings extends RestrictedDashboardFragment
         mYrrpHotspotControls.bind(this,
                 use(YrrpHotspotClientsPreferenceController.class),
                 use(YrrpHotspotMaxClientsPreferenceController.class),
-                use(YrrpHotspotBlockedEntryPreferenceController.class));
+                use(YrrpHotspotBlockedEntryPreferenceController.class),
+                use(YrrpHotspotControlsCategoryPreferenceController.class));
     }
 
     /** Adds the YRRPs client-control gates; read with {@code dumpsys activity top}. */

@@ -61,6 +61,16 @@ final class YrrpHotspotDump {
         return NONE.equals(limitBlockedBy(s));
     }
 
+    /** Blocked devices stays reachable while a restored list can still be cleared. */
+    static boolean blockedEntryVisible(Snapshot s) {
+        return s.forceDisconnectSupported || s.blocked > 0;
+    }
+
+    /** The Client controls category shows while either of its rows does. */
+    static boolean controlsVisible(Snapshot s) {
+        return limitAllowed(s) || blockedEntryVisible(s);
+    }
+
     static void format(PrintWriter pw, Snapshot s) {
         pw.println("YrrpHotspot:");
         pw.println("apEnabled=" + s.apEnabled + " capabilityKnown=" + s.capabilityKnown
@@ -72,6 +82,7 @@ final class YrrpHotspotDump {
                 + " limitSource=" + s.limit.source());
         pw.println("blockAllowed=" + blockAllowed(s) + " blockBlockedBy=" + blockBlockedBy(s));
         pw.println("limitAllowed=" + limitAllowed(s) + " limitBlockedBy=" + limitBlockedBy(s));
+        pw.println("controlsVisible=" + controlsVisible(s));
         pw.println("events:");
         for (String event : s.events) {
             pw.println("  " + event);

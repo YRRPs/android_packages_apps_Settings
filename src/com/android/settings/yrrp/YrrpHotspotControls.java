@@ -36,7 +36,8 @@ public final class YrrpHotspotControls {
     public void bind(@NonNull Fragment host,
             @Nullable YrrpHotspotClientsPreferenceController clients,
             @Nullable YrrpHotspotMaxClientsPreferenceController maxClients,
-            @Nullable YrrpHotspotBlockedEntryPreferenceController blockedEntry) {
+            @Nullable YrrpHotspotBlockedEntryPreferenceController blockedEntry,
+            @Nullable YrrpHotspotControlsCategoryPreferenceController controlsCategory) {
         if (clients != null) {
             clients.init(host, mMonitor);
         }
@@ -45,6 +46,9 @@ public final class YrrpHotspotControls {
         }
         if (blockedEntry != null) {
             blockedEntry.init(mMonitor);
+        }
+        if (controlsCategory != null) {
+            controlsCategory.init(mMonitor);
         }
     }
 

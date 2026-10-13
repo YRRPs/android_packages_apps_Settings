@@ -20,21 +20,19 @@ import androidx.preference.PreferenceScreen;
 import com.android.settings.R;
 import com.android.settings.core.BasePreferenceController;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The blocked MACs on {@link YrrpHotspotBlockedSettings}. Tapping one asks to unblock it; the
- * client can then reconnect at once. Row keys are indexes, never MACs, because Settings logs the
- * key of every clicked preference.
+ * client can then reconnect at once. Row keys come from {@link YrrpHotspotRowKeys}: indexes, never
+ * MACs, resolved by key on tap, and rebuilt only when the list changes.
  */
 public class YrrpHotspotBlockedListPreferenceController extends BasePreferenceController
         implements YrrpHotspotMonitor.Listener, DefaultLifecycleObserver {
     private static final String ROW_PREFIX = "yrrp_hotspot_blocked_mac_";
     private static final String EMPTY_KEY = "yrrp_hotspot_blocked_empty";
 
-    private final Map<String, String> mMacs = new HashMap<>();
+    private final YrrpHotspotRowKeys<String> mKeys = new YrrpHotspotRowKeys<>(ROW_PREFIX);
     private Fragment mHost;
     private YrrpHotspotMonitor mMonitor;
     private PreferenceCategory mCategory;
@@ -61,6 +59,7 @@ public class YrrpHotspotBlockedListPreferenceController extends BasePreferenceCo
     public void displayPreference(@NonNull PreferenceScreen screen) {
         super.displayPreference(screen);
         mCategory = screen.findPreference(getPreferenceKey());
+        mKeys.reset();
         onHotspotChanged();
     }
 
@@ -78,14 +77,14 @@ public class YrrpHotspotBlockedListPreferenceController extends BasePreferenceCo
         if (mCategory == null || mMonitor == null) {
             return;
         }
-        mCategory.removeAll();
-        mMacs.clear();
         final List<String> blocked = mMonitor.blocked();
+        if (!mKeys.update(blocked)) {
+            return;
+        }
+        mCategory.removeAll();
         for (int i = 0; i < blocked.size(); i++) {
-            final String key = ROW_PREFIX + i;
-            mMacs.put(key, blocked.get(i));
             final Preference row = new Preference(mContext);
-            row.setKey(key);
+            row.setKey(mKeys.key(i));
             row.setTitle(blocked.get(i));
             mCategory.addPreference(row);
         }
@@ -100,9 +99,9 @@ public class YrrpHotspotBlockedListPreferenceController extends BasePreferenceCo
 
     @Override
     public boolean handlePreferenceTreeClick(@NonNull Preference preference) {
-        final String key = preference.getKey();
-        final String mac = key == null ? null : mMacs.get(key);
-        if (mac == null || mCategory == null || mCategory.findPreference(key) != preference) {
+        // By key only: the tapped object can be a detached row whose view was never rebound.
+        final String mac = mKeys.get(preference.getKey());
+        if (mac == null) {
             return false;
         }
         confirmUnblock(mac);

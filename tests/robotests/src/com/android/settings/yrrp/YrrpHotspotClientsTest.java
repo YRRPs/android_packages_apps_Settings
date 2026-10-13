@@ -64,4 +64,24 @@ public class YrrpHotspotClientsTest {
         assertEquals(List.of(C, B, A), List.of(rows.get(0).mac, rows.get(1).mac, rows.get(2).mac));
         assertEquals(3, rows.size());
     }
+
+    /** Equal rows let the page skip a rebuild that would strand the visible rows. */
+    @Test
+    public void rowsWithSameMacNameAndAddressAreEqual() {
+        final List<Row> first = YrrpHotspotClients.merge(List.of(A),
+                List.of(new Detail(A, "pixel", "192.168.43.12/24")));
+        final List<Row> second = YrrpHotspotClients.merge(List.of(A),
+                List.of(new Detail(A, "pixel", "192.168.43.12/24")));
+        assertEquals(first, second);
+        assertEquals(first.get(0).hashCode(), second.get(0).hashCode());
+    }
+
+    @Test
+    public void rowsDifferWhenAddressChanges() {
+        final List<Row> first = YrrpHotspotClients.merge(List.of(A),
+                List.of(new Detail(A, "pixel", "192.168.43.12/24")));
+        final List<Row> second = YrrpHotspotClients.merge(List.of(A),
+                List.of(new Detail(A, "pixel", "192.168.43.13/24")));
+        org.junit.Assert.assertNotEquals(first, second);
+    }
 }

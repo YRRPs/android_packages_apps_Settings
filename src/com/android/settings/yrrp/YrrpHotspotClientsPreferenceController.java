@@ -20,24 +20,23 @@ import androidx.preference.PreferenceScreen;
 import com.android.settings.R;
 import com.android.settings.core.BasePreferenceController;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The Connected devices category on the Wi-Fi hotspot page: one row per client while the hotspot
  * is on, hidden while it is off. Tapping a row shows its details and, when the module can
  * force-disconnect, a Block button.
  *
- * <p>Row keys are indexes, never MACs: Settings logs the key of every clicked preference to the
- * events buffer and statsd.
+ * <p>Row keys come from {@link YrrpHotspotRowKeys}: indexes, never MACs, resolved by key on tap,
+ * and rebuilt only when the rows change.
  */
 public class YrrpHotspotClientsPreferenceController extends BasePreferenceController
         implements YrrpHotspotMonitor.Listener, DefaultLifecycleObserver {
     private static final String ROW_PREFIX = "yrrp_hotspot_client_";
     private static final String EMPTY_KEY = "yrrp_hotspot_clients_empty";
 
-    private final Map<String, YrrpHotspotClients.Row> mRows = new HashMap<>();
+    private final YrrpHotspotRowKeys<YrrpHotspotClients.Row> mKeys =
+            new YrrpHotspotRowKeys<>(ROW_PREFIX);
     private Fragment mHost;
     private YrrpHotspotMonitor mMonitor;
     private PreferenceCategory mCategory;
@@ -63,6 +62,7 @@ public class YrrpHotspotClientsPreferenceController extends BasePreferenceContro
     public void displayPreference(@NonNull PreferenceScreen screen) {
         super.displayPreference(screen);
         mCategory = screen.findPreference(getPreferenceKey());
+        mKeys.reset();
         onHotspotChanged();
     }
 
@@ -82,16 +82,18 @@ public class YrrpHotspotClientsPreferenceController extends BasePreferenceContro
         }
         final boolean apEnabled = mMonitor != null && mMonitor.apEnabled();
         mCategory.setVisible(apEnabled);
-        mCategory.removeAll();
-        mRows.clear();
         if (!apEnabled) {
+            mCategory.removeAll();
+            mKeys.reset();
             return;
         }
         final List<YrrpHotspotClients.Row> rows = mMonitor.rows();
+        if (!mKeys.update(rows)) {
+            return;
+        }
+        mCategory.removeAll();
         for (int i = 0; i < rows.size(); i++) {
-            final String key = ROW_PREFIX + i;
-            mRows.put(key, rows.get(i));
-            mCategory.addPreference(rowPreference(key, rows.get(i)));
+            mCategory.addPreference(rowPreference(mKeys.key(i), rows.get(i)));
         }
         if (rows.isEmpty()) {
             final Preference empty = new Preference(mContext);
@@ -104,27 +106,26 @@ public class YrrpHotspotClientsPreferenceController extends BasePreferenceContro
 
     @Override
     public boolean handlePreferenceTreeClick(@NonNull Preference preference) {
-        final String key = preference.getKey();
-        final YrrpHotspotClients.Row row = key == null ? null : mRows.get(key);
-        if (row == null || mCategory == null || mCategory.findPreference(key) != preference) {
+        // By key only: the tapped object can be a detached row whose view was never rebound.
+        final YrrpHotspotClients.Row row = mKeys.get(preference.getKey());
+        if (row == null) {
             return false;
         }
-        showDetails(row, preference.getTitle());
+        showDetails(row);
         return true;
     }
 
     private Preference rowPreference(String key, YrrpHotspotClients.Row row) {
         final Preference preference = new Preference(mContext);
         preference.setKey(key);
-        preference.setTitle(row.hostname != null
-                ? row.hostname : mContext.getString(R.string.yrrp_hotspot_client_unknown));
+        preference.setTitle(title(row));
         preference.setSummary(row.ipv4 != null
                 ? mContext.getString(R.string.yrrp_hotspot_client_summary, row.ipv4, row.mac)
                 : row.mac);
         return preference;
     }
 
-    private void showDetails(YrrpHotspotClients.Row row, CharSequence title) {
+    private void showDetails(YrrpHotspotClients.Row row) {
         if (mHost == null || !mHost.isAdded() || mMonitor == null || mDialog != null) {
             return;
         }
@@ -136,7 +137,7 @@ public class YrrpHotspotClientsPreferenceController extends BasePreferenceContro
             message += "\n\n" + mContext.getString(R.string.yrrp_hotspot_block_note);
         }
         final AlertDialog.Builder builder = new AlertDialog.Builder(mHost.requireContext())
-                .setTitle(title)
+                .setTitle(title(row))
                 .setMessage(message)
                 .setNegativeButton(R.string.yrrp_hotspot_close, /* listener= */ null)
                 .setOnDismissListener(dialog -> mDialog = null);
@@ -145,6 +146,11 @@ public class YrrpHotspotClientsPreferenceController extends BasePreferenceContro
                     (dialog, which) -> block(row.mac));
         }
         mDialog = builder.show();
+    }
+
+    private String title(YrrpHotspotClients.Row row) {
+        return row.hostname != null
+                ? row.hostname : mContext.getString(R.string.yrrp_hotspot_client_unknown);
     }
 
     private void block(String mac) {

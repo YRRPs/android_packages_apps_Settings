@@ -293,6 +293,8 @@
 
     <!-- Wi-Fi hotspot: category listing the devices connected to the hotspot. [CHAR LIMIT=40] -->
     <string name="yrrp_hotspot_clients_title">Connected devices</string>
+    <!-- Wi-Fi hotspot: title of the group holding the client limit and the blocked-devices entry. [CHAR LIMIT=40] -->
+    <string name="yrrp_hotspot_controls_title">Client controls</string>
     <!-- Wi-Fi hotspot: row shown while no device is connected. [CHAR LIMIT=NONE] -->
     <string name="yrrp_hotspot_clients_empty">No devices connected</string>
     <!-- Wi-Fi hotspot: title of a connected device that sent no name. [CHAR LIMIT=40] -->

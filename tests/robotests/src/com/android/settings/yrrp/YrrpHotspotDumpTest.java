@@ -42,7 +42,7 @@ public class YrrpHotspotDumpTest {
                 "forceDisconnectSupported=true", "connected=2", "withDetails=1", "blocked=1",
                 "maxSupported=32", "userMax=2", "carrierMax=0", "effectiveMax=2",
                 "limitSource=USER", "blockAllowed=true", "blockBlockedBy=none",
-                "limitAllowed=true", "limitBlockedBy=none", "events:")) {
+                "limitAllowed=true", "limitBlockedBy=none", "controlsVisible=true", "events:")) {
             assertTrue(field + " missing from\n" + dump, dump.contains(field));
         }
     }
@@ -86,5 +86,35 @@ public class YrrpHotspotDumpTest {
         final YrrpHotspotDump.Snapshot s = ready();
         s.events = List.of("1 apEnabled=true");
         assertTrue(format(s).endsWith("events:\n  1 apEnabled=true\n"));
+    }
+
+    @Test
+    public void blockedEntryStaysWhileListCanBeCleared() {
+        final YrrpHotspotDump.Snapshot s = ready();
+        s.forceDisconnectSupported = false;
+        assertTrue(YrrpHotspotDump.blockedEntryVisible(s));
+        s.blocked = 0;
+        assertFalse(YrrpHotspotDump.blockedEntryVisible(s));
+    }
+
+    /** The Client controls header hides when neither of its rows is shown. */
+    @Test
+    public void controlsHideWhenBothRowsHide() {
+        final YrrpHotspotDump.Snapshot s = ready();
+        s.capabilityKnown = false;
+        s.forceDisconnectSupported = false;
+        s.blocked = 0;
+        assertFalse(YrrpHotspotDump.controlsVisible(s));
+        assertTrue(format(s).contains("controlsVisible=false"));
+    }
+
+    @Test
+    public void controlsShowWithEitherRow() {
+        final YrrpHotspotDump.Snapshot limitOnly = ready();
+        limitOnly.blocked = 0;
+        assertTrue(YrrpHotspotDump.controlsVisible(limitOnly));
+        final YrrpHotspotDump.Snapshot entryOnly = ready();
+        entryOnly.capabilityKnown = false;
+        assertTrue(YrrpHotspotDump.controlsVisible(entryOnly));
     }
 }
