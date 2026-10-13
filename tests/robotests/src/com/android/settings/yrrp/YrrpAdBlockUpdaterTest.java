@@ -128,6 +128,25 @@ public class YrrpAdBlockUpdaterTest {
         assertTrue(blocked().contains("0.0.0.0 b.example\n"));
         assertEquals("IO_ERROR", mStore.load().findSource(B).status);
         assertEquals(5000, mStore.load().findSource(B).lastSuccessMillis);
+        assertEquals(1, mStore.load().failedSources());
+    }
+
+    @Test
+    public void everyListFailingWithCachesSavesTheFailureCountForTheNextVisit()
+            throws IOException {
+        serve(A, "0.0.0.0 a.example\n");
+        serve(B, "0.0.0.0 b.example\n");
+        serve(C, "0.0.0.0 c.example\n");
+        mUpdater.update(true);
+        mReplies.clear();
+
+        final YrrpAdBlockUpdater.Outcome outcome = mUpdater.update(true);
+
+        // The last good copies still build a list, so the result alone reads as success.
+        assertEquals(YrrpAdBlockUpdater.Result.UPDATED, outcome.result);
+        final YrrpAdBlockStore.State saved = mStore.load();
+        assertEquals(outcome.failedSources, saved.failedSources());
+        assertEquals(3, saved.enabledSources());
     }
 
     @Test
@@ -255,6 +274,7 @@ public class YrrpAdBlockUpdaterTest {
         assertTrue(blocked().contains("0.0.0.0 a.example\n"));
         final YrrpAdBlockSource a = mStore.load().findSource(A);
         assertEquals(YrrpAdBlockUpdater.STATUS_EMPTY, a.status);
+        assertEquals(outcome.failedSources, mStore.load().failedSources());
         assertEquals(1, a.entries);
         assertEquals("0.0.0.0 a.example\n", YrrpAdBlockTestFiles.read(mStore.cacheFile(a)));
     }

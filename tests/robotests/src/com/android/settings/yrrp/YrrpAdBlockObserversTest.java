@@ -12,8 +12,8 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** Plain JUnit; no Robolectric. */
-public class YrrpAdBlockEnabledObserversTest {
-    private final YrrpAdBlockEnabledObservers mObservers = new YrrpAdBlockEnabledObservers();
+public class YrrpAdBlockObserversTest {
+    private final YrrpAdBlockObservers mObservers = new YrrpAdBlockObservers();
 
     @Test
     public void notifiesEveryAddedObserver() {

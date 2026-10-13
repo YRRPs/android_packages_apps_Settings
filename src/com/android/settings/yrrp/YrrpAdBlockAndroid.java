@@ -30,8 +30,8 @@ final class YrrpAdBlockAndroid {
     private static final File MOUNTINFO = new File("/proc/self/mountinfo");
     private static final String DIR_NAME = "yrrp_adblock";
 
-    private static final YrrpAdBlockEnabledObservers sEnabledObservers =
-            new YrrpAdBlockEnabledObservers();
+    private static final YrrpAdBlockObservers sEnabledObservers = new YrrpAdBlockObservers();
+    private static final YrrpAdBlockObservers sUpdateObservers = new YrrpAdBlockObservers();
 
     private static YrrpAdBlockUpdater sUpdater;
     private static YrrpAdBlockEventLog sLog;
@@ -80,8 +80,16 @@ final class YrrpAdBlockAndroid {
     }
 
     /** Run on the main thread after every switch write, from the page or the tile. */
-    static YrrpAdBlockEnabledObservers enabledObservers() {
+    static YrrpAdBlockObservers enabledObservers() {
         return sEnabledObservers;
+    }
+
+    /**
+     * Run on the main thread after every {@link #runUpdate}, from the page, the job, or init,
+     * and after a list edit rebuilds the blocklist.
+     */
+    static YrrpAdBlockObservers updateObservers() {
+        return sUpdateObservers;
     }
 
     /**
@@ -102,8 +110,9 @@ final class YrrpAdBlockAndroid {
     }
 
     /**
-     * Runs an update off the main thread. {@code onDone} always runs on the main thread, even
-     * if the update throws, so a waiting row or job is never left hanging.
+     * Runs an update off the main thread. {@code onDone}, then the update observers, always
+     * run on the main thread, even if the update throws, so a waiting row or job is never left
+     * hanging and an open page redraws its list statuses.
      */
     static void runUpdate(Context context, boolean download,
             Consumer<YrrpAdBlockUpdater.Outcome> onDone) {
@@ -114,10 +123,13 @@ final class YrrpAdBlockAndroid {
             try {
                 outcome = updater(app).update(download);
             } finally {
-                if (onDone != null) {
-                    final YrrpAdBlockUpdater.Outcome done = outcome;
-                    ThreadUtils.postOnMainThread(() -> onDone.accept(done));
-                }
+                final YrrpAdBlockUpdater.Outcome done = outcome;
+                ThreadUtils.postOnMainThread(() -> {
+                    if (onDone != null) {
+                        onDone.accept(done);
+                    }
+                    sUpdateObservers.notifyChanged();
+                });
             }
         });
     }

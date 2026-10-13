@@ -51,6 +51,31 @@ final class YrrpAdBlockStore {
         /** Block lines in the last hosts.blocked built. */
         int lastEntries;
 
+        /** How many lists are switched on. */
+        int enabledSources() {
+            int count = 0;
+            for (YrrpAdBlockSource source : sources) {
+                if (source.enabled) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        /**
+         * How many switched-on lists failed their last download. Read from the saved statuses,
+         * so the page shows it after a reopen.
+         */
+        int failedSources() {
+            int count = 0;
+            for (YrrpAdBlockSource source : sources) {
+                if (source.enabled && YrrpAdBlockStatusLabel.of(source.status).isFailure()) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
         /** Adds an enabled source; only an https URL with a host and no user info. */
         AddResult addSource(String rawUrl) {
             final String url = rawUrl.trim();
