@@ -233,7 +233,7 @@ public class WifiTetherSettings extends RestrictedDashboardFragment
             @NonNull PrintWriter writer, @Nullable String[] args) {
         super.dump(prefix, fd, writer, args);
         if (mYrrpHotspotControls != null) {
-            mYrrpHotspotControls.dump(writer);
+            mYrrpHotspotControls.dump(prefix, writer);
         }
     }
 

@@ -20,12 +20,15 @@ import com.android.settingslib.widget.SliderPreference;
 /**
  * Maximum connected devices: a slider from 1 to the capability cap, whose top position is
  * "No limit" and stores 0. Writes on release only, because each write can deauthenticate clients.
- * Hidden until the capability arrives, and when the module cannot force-disconnect.
+ * Hidden until the capability arrives, and when the module cannot force-disconnect. The limit is
+ * cached in {@link #updateState}, so the label formatter never reads Wi-Fi config while dragging.
  */
 public class YrrpHotspotMaxClientsPreferenceController extends SliderPreferenceController
         implements YrrpHotspotMonitor.Listener {
     private YrrpHotspotMonitor mMonitor;
     private @Nullable SliderPreference mPreference;
+    private YrrpHotspotLimit mLimit = new YrrpHotspotLimit(0, 0, 0, false);
+    private boolean mAllowed;
 
     public YrrpHotspotMaxClientsPreferenceController(
             @NonNull Context context, @NonNull String key) {
@@ -72,12 +75,13 @@ public class YrrpHotspotMaxClientsPreferenceController extends SliderPreferenceC
         }
         final SliderPreference slider = (SliderPreference) preference;
         final YrrpHotspotDump.Snapshot snapshot = mMonitor.snapshot();
-        final boolean allowed = YrrpHotspotDump.limitAllowed(snapshot);
-        slider.setVisible(allowed);
-        if (!allowed) {
+        mLimit = snapshot.limit;
+        mAllowed = YrrpHotspotDump.limitAllowed(snapshot);
+        slider.setVisible(mAllowed);
+        if (!mAllowed) {
             return;
         }
-        final YrrpHotspotLimit limit = snapshot.limit;
+        final YrrpHotspotLimit limit = mLimit;
         // Max before min: the defaults are 0..100 and the cap may exceed neither bound.
         slider.setMax(limit.maxSupported());
         slider.setMin(1);
@@ -88,15 +92,15 @@ public class YrrpHotspotMaxClientsPreferenceController extends SliderPreferenceC
 
     @Override
     public int getSliderPosition() {
-        return mMonitor == null ? getMax() : limit().sliderPosition();
+        return mAllowed ? mLimit.sliderPosition() : getMax();
     }
 
     @Override
     public boolean setSliderPosition(int position) {
-        if (mMonitor == null || !YrrpHotspotDump.limitAllowed(mMonitor.snapshot())) {
+        if (mMonitor == null || !mAllowed) {
             return false;
         }
-        final boolean written = mMonitor.writer().setMaxClients(limit().storedValueFor(position));
+        final boolean written = mMonitor.writer().setMaxClients(mLimit.storedValueFor(position));
         if (!written) {
             Toast.makeText(mContext, R.string.yrrp_hotspot_write_failed, Toast.LENGTH_SHORT)
                     .show();
@@ -106,7 +110,7 @@ public class YrrpHotspotMaxClientsPreferenceController extends SliderPreferenceC
 
     @Override
     public int getMax() {
-        return mMonitor == null ? 1 : Math.max(1, limit().maxSupported());
+        return Math.max(1, mLimit.maxSupported());
     }
 
     @Override
@@ -118,10 +122,6 @@ public class YrrpHotspotMaxClientsPreferenceController extends SliderPreferenceC
     @Override
     public boolean isSliceable() {
         return false;
-    }
-
-    private YrrpHotspotLimit limit() {
-        return mMonitor.snapshot().limit;
     }
 
     private String formatValue(int position) {

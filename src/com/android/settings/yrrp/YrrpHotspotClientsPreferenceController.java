@@ -11,6 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceScreen;
@@ -18,21 +20,28 @@ import androidx.preference.PreferenceScreen;
 import com.android.settings.R;
 import com.android.settings.core.BasePreferenceController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The Connected devices category on the Wi-Fi hotspot page: one row per client while the hotspot
  * is on, hidden while it is off. Tapping a row shows its details and, when the module can
  * force-disconnect, a Block button.
+ *
+ * <p>Row keys are indexes, never MACs: Settings logs the key of every clicked preference to the
+ * events buffer and statsd.
  */
 public class YrrpHotspotClientsPreferenceController extends BasePreferenceController
-        implements YrrpHotspotMonitor.Listener {
+        implements YrrpHotspotMonitor.Listener, DefaultLifecycleObserver {
     private static final String ROW_PREFIX = "yrrp_hotspot_client_";
     private static final String EMPTY_KEY = "yrrp_hotspot_clients_empty";
 
+    private final Map<String, YrrpHotspotClients.Row> mRows = new HashMap<>();
     private Fragment mHost;
     private YrrpHotspotMonitor mMonitor;
     private PreferenceCategory mCategory;
+    private AlertDialog mDialog;
 
     public YrrpHotspotClientsPreferenceController(@NonNull Context context, @NonNull String key) {
         super(context, key);
@@ -57,20 +66,32 @@ public class YrrpHotspotClientsPreferenceController extends BasePreferenceContro
         onHotspotChanged();
     }
 
+    /** Closes the details dialog, so it neither leaks nor acts on a stopped page. */
+    @Override
+    public void onStop(@NonNull LifecycleOwner owner) {
+        if (mDialog != null) {
+            mDialog.dismiss();
+            mDialog = null;
+        }
+    }
+
     @Override
     public void onHotspotChanged() {
         if (mCategory == null) {
             return;
         }
-        final boolean apEnabled = mMonitor != null && mMonitor.snapshot().apEnabled;
+        final boolean apEnabled = mMonitor != null && mMonitor.apEnabled();
         mCategory.setVisible(apEnabled);
         mCategory.removeAll();
+        mRows.clear();
         if (!apEnabled) {
             return;
         }
         final List<YrrpHotspotClients.Row> rows = mMonitor.rows();
-        for (YrrpHotspotClients.Row row : rows) {
-            mCategory.addPreference(rowPreference(row));
+        for (int i = 0; i < rows.size(); i++) {
+            final String key = ROW_PREFIX + i;
+            mRows.put(key, rows.get(i));
+            mCategory.addPreference(rowPreference(key, rows.get(i)));
         }
         if (rows.isEmpty()) {
             final Preference empty = new Preference(mContext);
@@ -84,17 +105,17 @@ public class YrrpHotspotClientsPreferenceController extends BasePreferenceContro
     @Override
     public boolean handlePreferenceTreeClick(@NonNull Preference preference) {
         final String key = preference.getKey();
-        if (key == null || !key.startsWith(ROW_PREFIX) || mCategory == null
-                || mCategory.findPreference(key) != preference) {
+        final YrrpHotspotClients.Row row = key == null ? null : mRows.get(key);
+        if (row == null || mCategory == null || mCategory.findPreference(key) != preference) {
             return false;
         }
-        showDetails(key.substring(ROW_PREFIX.length()), preference.getTitle());
+        showDetails(row, preference.getTitle());
         return true;
     }
 
-    private Preference rowPreference(YrrpHotspotClients.Row row) {
+    private Preference rowPreference(String key, YrrpHotspotClients.Row row) {
         final Preference preference = new Preference(mContext);
-        preference.setKey(ROW_PREFIX + row.mac);
+        preference.setKey(key);
         preference.setTitle(row.hostname != null
                 ? row.hostname : mContext.getString(R.string.yrrp_hotspot_client_unknown));
         preference.setSummary(row.ipv4 != null
@@ -103,35 +124,27 @@ public class YrrpHotspotClientsPreferenceController extends BasePreferenceContro
         return preference;
     }
 
-    private void showDetails(String mac, CharSequence title) {
-        if (mHost == null || !mHost.isAdded() || mMonitor == null) {
+    private void showDetails(YrrpHotspotClients.Row row, CharSequence title) {
+        if (mHost == null || !mHost.isAdded() || mMonitor == null || mDialog != null) {
             return;
         }
-        final String ipv4 = ipv4Of(mac);
         final boolean blockAllowed = YrrpHotspotDump.blockAllowed(mMonitor.snapshot());
-        String message = ipv4 != null
-                ? mContext.getString(R.string.yrrp_hotspot_client_details_ip, ipv4, mac)
-                : mContext.getString(R.string.yrrp_hotspot_client_details, mac);
+        String message = row.ipv4 != null
+                ? mContext.getString(R.string.yrrp_hotspot_client_details_ip, row.ipv4, row.mac)
+                : mContext.getString(R.string.yrrp_hotspot_client_details, row.mac);
         if (blockAllowed) {
             message += "\n\n" + mContext.getString(R.string.yrrp_hotspot_block_note);
         }
         final AlertDialog.Builder builder = new AlertDialog.Builder(mHost.requireContext())
                 .setTitle(title)
                 .setMessage(message)
-                .setNegativeButton(R.string.yrrp_hotspot_close, /* listener= */ null);
+                .setNegativeButton(R.string.yrrp_hotspot_close, /* listener= */ null)
+                .setOnDismissListener(dialog -> mDialog = null);
         if (blockAllowed) {
-            builder.setPositiveButton(R.string.yrrp_hotspot_block, (dialog, which) -> block(mac));
+            builder.setPositiveButton(R.string.yrrp_hotspot_block,
+                    (dialog, which) -> block(row.mac));
         }
-        builder.show();
-    }
-
-    private String ipv4Of(String mac) {
-        for (YrrpHotspotClients.Row row : mMonitor.rows()) {
-            if (row.mac.equals(mac)) {
-                return row.ipv4;
-            }
-        }
-        return null;
+        mDialog = builder.show();
     }
 
     private void block(String mac) {

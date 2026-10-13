@@ -6,8 +6,6 @@
 package com.android.settings.yrrp;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,11 +50,5 @@ public class YrrpHotspotBlockListTest {
     public void normalizeLowercasesDedupesAndDropsMalformed() {
         assertEquals(List.of(A, B), YrrpHotspotBlockList.normalize(
                 List.of("AA:AA:AA:AA:AA:AA", "junk", B, A)));
-    }
-
-    @Test
-    public void containsMatchesCaseInsensitively() {
-        assertTrue(YrrpHotspotBlockList.contains(List.of(A), "AA:AA:AA:AA:AA:AA"));
-        assertFalse(YrrpHotspotBlockList.contains(List.of(A), B));
     }
 }

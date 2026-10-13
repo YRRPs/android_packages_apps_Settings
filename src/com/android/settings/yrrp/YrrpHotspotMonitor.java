@@ -98,6 +98,10 @@ final class YrrpHotspotMonitor implements DefaultLifecycleObserver {
         mLog.record("monitor stopped");
     }
 
+    boolean apEnabled() {
+        return mApEnabled;
+    }
+
     YrrpHotspotConfigWriter writer() {
         return mWriter;
     }
@@ -207,6 +211,8 @@ final class YrrpHotspotMonitor implements DefaultLifecycleObserver {
         @Override
         public void onCapabilityChanged(@NonNull SoftApCapability capability) {
             mCapability = capability;
+            // The module lowers the cap when carrier config changes, so re-read the carrier value.
+            mCarrierMax = readCarrierMax();
             mLog.record("capability maxSupported=" + capability.getMaxSupportedClients()
                     + " forceDisconnect=" + forceDisconnectSupported());
             notifyListeners();

@@ -11,6 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceScreen;
@@ -18,20 +20,25 @@ import androidx.preference.PreferenceScreen;
 import com.android.settings.R;
 import com.android.settings.core.BasePreferenceController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The blocked MACs on {@link YrrpHotspotBlockedSettings}. Tapping one asks to unblock it; the
- * client can then reconnect at once.
+ * client can then reconnect at once. Row keys are indexes, never MACs, because Settings logs the
+ * key of every clicked preference.
  */
 public class YrrpHotspotBlockedListPreferenceController extends BasePreferenceController
-        implements YrrpHotspotMonitor.Listener {
+        implements YrrpHotspotMonitor.Listener, DefaultLifecycleObserver {
     private static final String ROW_PREFIX = "yrrp_hotspot_blocked_mac_";
     private static final String EMPTY_KEY = "yrrp_hotspot_blocked_empty";
 
+    private final Map<String, String> mMacs = new HashMap<>();
     private Fragment mHost;
     private YrrpHotspotMonitor mMonitor;
     private PreferenceCategory mCategory;
+    private AlertDialog mDialog;
 
     public YrrpHotspotBlockedListPreferenceController(
             @NonNull Context context, @NonNull String key) {
@@ -57,17 +64,29 @@ public class YrrpHotspotBlockedListPreferenceController extends BasePreferenceCo
         onHotspotChanged();
     }
 
+    /** Closes the unblock dialog, so it neither leaks nor acts on a stopped page. */
+    @Override
+    public void onStop(@NonNull LifecycleOwner owner) {
+        if (mDialog != null) {
+            mDialog.dismiss();
+            mDialog = null;
+        }
+    }
+
     @Override
     public void onHotspotChanged() {
         if (mCategory == null || mMonitor == null) {
             return;
         }
         mCategory.removeAll();
+        mMacs.clear();
         final List<String> blocked = mMonitor.blocked();
-        for (String mac : blocked) {
+        for (int i = 0; i < blocked.size(); i++) {
+            final String key = ROW_PREFIX + i;
+            mMacs.put(key, blocked.get(i));
             final Preference row = new Preference(mContext);
-            row.setKey(ROW_PREFIX + mac);
-            row.setTitle(mac);
+            row.setKey(key);
+            row.setTitle(blocked.get(i));
             mCategory.addPreference(row);
         }
         if (blocked.isEmpty()) {
@@ -82,19 +101,19 @@ public class YrrpHotspotBlockedListPreferenceController extends BasePreferenceCo
     @Override
     public boolean handlePreferenceTreeClick(@NonNull Preference preference) {
         final String key = preference.getKey();
-        if (key == null || !key.startsWith(ROW_PREFIX) || mCategory == null
-                || mCategory.findPreference(key) != preference) {
+        final String mac = key == null ? null : mMacs.get(key);
+        if (mac == null || mCategory == null || mCategory.findPreference(key) != preference) {
             return false;
         }
-        confirmUnblock(key.substring(ROW_PREFIX.length()));
+        confirmUnblock(mac);
         return true;
     }
 
     private void confirmUnblock(String mac) {
-        if (mHost == null || !mHost.isAdded() || mMonitor == null) {
+        if (mHost == null || !mHost.isAdded() || mMonitor == null || mDialog != null) {
             return;
         }
-        new AlertDialog.Builder(mHost.requireContext())
+        mDialog = new AlertDialog.Builder(mHost.requireContext())
                 .setTitle(mContext.getString(R.string.yrrp_hotspot_unblock_title, mac))
                 .setPositiveButton(R.string.yrrp_hotspot_unblock, (dialog, which) -> {
                     if (!mMonitor.writer().unblock(mac)) {
@@ -103,6 +122,7 @@ public class YrrpHotspotBlockedListPreferenceController extends BasePreferenceCo
                     }
                 })
                 .setNegativeButton(R.string.cancel, /* listener= */ null)
+                .setOnDismissListener(dialog -> mDialog = null)
                 .show();
     }
 }

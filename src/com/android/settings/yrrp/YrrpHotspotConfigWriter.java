@@ -45,35 +45,35 @@ final class YrrpHotspotConfigWriter {
 
     /** Stores {@code value}; 0 means no user limit. */
     boolean setMaxClients(int value) {
-        return write("maxClients value=" + value,
-                builder -> builder.setMaxNumberOfClients(Math.max(0, value)));
+        return write("setMaxClients",
+                (current, builder) -> builder.setMaxNumberOfClients(Math.max(0, value)));
     }
 
     private boolean writeBlocked(String action, UnaryOperator<List<String>> edit) {
-        final SoftApConfiguration current = read();
-        if (current == null) {
-            return false;
-        }
-        final List<String> before = new ArrayList<>();
-        for (MacAddress mac : current.getBlockedClientList()) {
-            before.add(mac.toString());
-        }
-        final List<String> after = edit.apply(before);
-        final List<MacAddress> macs = new ArrayList<>(after.size());
-        for (String mac : after) {
-            macs.add(MacAddress.fromString(mac));
-        }
-        return write(action + " blocked=" + after.size(),
-                builder -> builder.setBlockedClientList(macs));
+        return write(action, (current, builder) -> {
+            final List<String> before = new ArrayList<>();
+            for (MacAddress mac : current.getBlockedClientList()) {
+                before.add(mac.toString());
+            }
+            final List<MacAddress> after = new ArrayList<>();
+            for (String mac : edit.apply(before)) {
+                after.add(MacAddress.fromString(mac));
+            }
+            return builder.setBlockedClientList(after);
+        });
     }
 
-    private boolean write(String what, UnaryOperator<SoftApConfiguration.Builder> edit) {
+    /** One read, one edit of that read, one write; every outcome is logged and announced. */
+    private boolean write(String what, Edit edit) {
         boolean ok = false;
         try {
             final SoftApConfiguration current = read();
             if (current != null) {
-                ok = mWifiManager.setSoftApConfiguration(
-                        edit.apply(new SoftApConfiguration.Builder(current)).build());
+                final SoftApConfiguration next =
+                        edit.apply(current, new SoftApConfiguration.Builder(current)).build();
+                ok = mWifiManager.setSoftApConfiguration(next);
+                what += " blocked=" + next.getBlockedClientList().size()
+                        + " maxClients=" + next.getMaxNumberOfClients();
             }
             mLog.record("write " + what + " ok=" + ok);
         } catch (RuntimeException e) {
@@ -82,6 +82,11 @@ final class YrrpHotspotConfigWriter {
         }
         mOnWritten.run();
         return ok;
+    }
+
+    private interface Edit {
+        SoftApConfiguration.Builder apply(
+                SoftApConfiguration current, SoftApConfiguration.Builder builder);
     }
 
     private SoftApConfiguration read() {

@@ -49,7 +49,8 @@ public final class YrrpHotspotControls {
     }
 
     /** Prints gates, counts, and recent transitions; never a MAC, hostname, or address. */
-    public void dump(@NonNull PrintWriter writer) {
+    public void dump(@NonNull String prefix, @NonNull PrintWriter writer) {
+        writer.print(prefix);
         YrrpHotspotDump.format(writer, mMonitor.snapshot());
     }
 }

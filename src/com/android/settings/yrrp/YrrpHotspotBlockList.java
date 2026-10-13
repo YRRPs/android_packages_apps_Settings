@@ -32,11 +32,6 @@ final class YrrpHotspotBlockList {
         return result;
     }
 
-    static boolean contains(List<String> blocked, String mac) {
-        final String normalized = YrrpHotspotMac.normalize(mac);
-        return normalized != null && normalize(blocked).contains(normalized);
-    }
-
     /** Lowercase MACs in first-seen order, without duplicates or malformed entries. */
     static List<String> normalize(List<String> blocked) {
         final List<String> result = new ArrayList<>(blocked.size());
