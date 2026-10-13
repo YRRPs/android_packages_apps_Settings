@@ -364,6 +364,17 @@ public class YrrpSettingsStoreTest {
     }
 
     @Test
+    public void isFoldAnimationDuo_isTrueOnlyForDuo() {
+        assertThat(mStore.isFoldAnimationDuo()).isFalse();
+        readFold(1);
+        assertThat(mStore.isFoldAnimationDuo()).isFalse();
+        readFold(2);
+        assertThat(mStore.isFoldAnimationDuo()).isTrue();
+        readFold(7);
+        assertThat(mStore.isFoldAnimationDuo()).isFalse();
+    }
+
+    @Test
     public void getFoldAnimation_missingIsStock() {
         assertThat(mStore.getFoldAnimation()).isEqualTo(YrrpSettingsStore.FOLD_STOCK);
     }

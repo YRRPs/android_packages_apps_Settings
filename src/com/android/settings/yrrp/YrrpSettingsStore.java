@@ -235,6 +235,11 @@ public class YrrpSettingsStore {
         return normalizeFoldAnimation(getInt(FOLD_ANIMATION, FOLD_STOCK));
     }
 
+    /** Whether the Duo fold animation is on; Duo then owns "Continue using apps on fold". */
+    public boolean isFoldAnimationDuo() {
+        return getFoldAnimation() == FOLD_DUO;
+    }
+
     /** Rejects anything other than a known style (0–2) instead of coercing it. */
     public boolean setFoldAnimation(int style) {
         if (normalizeFoldAnimation(style) != style) {

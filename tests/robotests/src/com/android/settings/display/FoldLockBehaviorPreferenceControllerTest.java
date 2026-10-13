@@ -25,6 +25,11 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.provider.Settings;
+
+import androidx.preference.Preference;
+
+import com.android.settings.R;
 
 import com.android.internal.foldables.FoldLockSettingAvailabilityProvider;
 
@@ -43,6 +48,7 @@ public class FoldLockBehaviorPreferenceControllerTest {
     private FoldLockSettingAvailabilityProvider mFoldLockSettingAvailabilityProvider;
     private Context mContext;
     private FoldLockBehaviorPreferenceController mController;
+    private boolean mDuoActive;
 
     @Before
     public void setUp() {
@@ -51,6 +57,42 @@ public class FoldLockBehaviorPreferenceControllerTest {
                 FoldLockSettingAvailabilityProvider.class);
         mController = new FoldLockBehaviorPreferenceController(mContext, "key",
                 mFoldLockSettingAvailabilityProvider);
+    }
+
+    @Test
+    public void updateState_duoActive_disablesTheRowAndShowsAlways() {
+        Settings.System.putString(mContext.getContentResolver(),
+                Settings.System.FOLD_LOCK_BEHAVIOR,
+                FoldLockBehaviorSettings.SETTING_VALUE_SLEEP_ON_FOLD);
+        mDuoActive = true;
+        final Preference preference = new Preference(mContext);
+
+        duoAwareController().updateState(preference);
+
+        assertThat(preference.isEnabled()).isFalse();
+        assertThat(preference.getSummary().toString()).isEqualTo(mContext.getString(
+                R.string.yrrp_fold_lock_set_by_duo_summary,
+                mContext.getString(R.string.stay_awake_on_fold_title)));
+    }
+
+    @Test
+    public void updateState_duoInactive_enablesTheRowAndShowsTheStoredValue() {
+        Settings.System.putString(mContext.getContentResolver(),
+                Settings.System.FOLD_LOCK_BEHAVIOR,
+                FoldLockBehaviorSettings.SETTING_VALUE_SLEEP_ON_FOLD);
+        final Preference preference = new Preference(mContext);
+        preference.setEnabled(false);
+
+        duoAwareController().updateState(preference);
+
+        assertThat(preference.isEnabled()).isTrue();
+        assertThat(preference.getSummary().toString())
+                .isEqualTo(mContext.getString(R.string.sleep_on_fold_title));
+    }
+
+    private FoldLockBehaviorPreferenceController duoAwareController() {
+        return new FoldLockBehaviorPreferenceController(mContext, "key",
+                mFoldLockSettingAvailabilityProvider, () -> mDuoActive);
     }
 
     @Test
