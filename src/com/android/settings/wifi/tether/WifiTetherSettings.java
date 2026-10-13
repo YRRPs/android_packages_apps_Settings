@@ -45,11 +45,17 @@ import com.android.settings.search.BaseSearchIndexProvider;
 import com.android.settings.widget.SettingsMainSwitchBar;
 import com.android.settings.wifi.WifiUtils;
 import com.android.settings.wifi.repository.SharedConnectivityRepository;
+import com.android.settings.yrrp.YrrpHotspotBlockedEntryPreferenceController;
+import com.android.settings.yrrp.YrrpHotspotClientsPreferenceController;
+import com.android.settings.yrrp.YrrpHotspotControls;
+import com.android.settings.yrrp.YrrpHotspotMaxClientsPreferenceController;
 import com.android.settingslib.TetherUtil;
 import com.android.settingslib.core.AbstractPreferenceController;
 import com.android.settingslib.search.SearchIndexable;
 import com.android.settingslib.wifi.WifiEnterpriseRestrictionUtils;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,6 +67,11 @@ public class WifiTetherSettings extends RestrictedDashboardFragment
     private static final String TAG = "WifiTetherSettings";
     private static final IntentFilter TETHER_STATE_CHANGE_FILTER;
     private static final String KEY_WIFI_TETHER_SCREEN = "wifi_tether_settings_screen";
+
+    // YRRPs: connected clients, client limit, and blocked clients (YRRPs/project#74).
+    private static final String KEY_YRRP_HOTSPOT_MAX_CLIENTS = "yrrp_hotspot_max_clients";
+    private static final String KEY_YRRP_HOTSPOT_BLOCKED_ENTRY = "yrrp_hotspot_blocked_entry";
+    private YrrpHotspotControls mYrrpHotspotControls;
 
     @VisibleForTesting
     static final String KEY_WIFI_TETHER_NETWORK_NAME = "wifi_tether_network_name";
@@ -205,6 +216,25 @@ public class WifiTetherSettings extends RestrictedDashboardFragment
         mPasswordPreferenceController = use(WifiTetherPasswordPreferenceController.class);
         mMaxCompatibilityPrefController =
                 use(WifiTetherMaximizeCompatibilityPreferenceController.class);
+
+        if (mYrrpHotspotControls == null) {
+            mYrrpHotspotControls = new YrrpHotspotControls(context);
+            getSettingsLifecycle().addObserver(mYrrpHotspotControls.lifecycleObserver());
+        }
+        mYrrpHotspotControls.bind(this,
+                use(YrrpHotspotClientsPreferenceController.class),
+                use(YrrpHotspotMaxClientsPreferenceController.class),
+                use(YrrpHotspotBlockedEntryPreferenceController.class));
+    }
+
+    /** Adds the YRRPs client-control gates; read with {@code dumpsys activity top}. */
+    @Override
+    public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
+            @NonNull PrintWriter writer, @Nullable String[] args) {
+        super.dump(prefix, fd, writer, args);
+        if (mYrrpHotspotControls != null) {
+            mYrrpHotspotControls.dump(writer);
+        }
     }
 
     @Override
@@ -396,6 +426,8 @@ public class WifiTetherSettings extends RestrictedDashboardFragment
                 keys.add(KEY_WIFI_TETHER_MAXIMIZE_COMPATIBILITY);
                 keys.add(KEY_WIFI_HOTSPOT_SPEED);
                 keys.add(KEY_INSTANT_HOTSPOT);
+                keys.add(KEY_YRRP_HOTSPOT_MAX_CLIENTS);
+                keys.add(KEY_YRRP_HOTSPOT_BLOCKED_ENTRY);
             } else {
                 if (!isSpeedFeatureAvailable()) {
                     keys.add(KEY_WIFI_HOTSPOT_SECURITY);

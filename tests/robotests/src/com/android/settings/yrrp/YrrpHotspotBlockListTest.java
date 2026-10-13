@@ -49,6 +49,12 @@ public class YrrpHotspotBlockListTest {
     }
 
     @Test
+    public void normalizeLowercasesDedupesAndDropsMalformed() {
+        assertEquals(List.of(A, B), YrrpHotspotBlockList.normalize(
+                List.of("AA:AA:AA:AA:AA:AA", "junk", B, A)));
+    }
+
+    @Test
     public void containsMatchesCaseInsensitively() {
         assertTrue(YrrpHotspotBlockList.contains(List.of(A), "AA:AA:AA:AA:AA:AA"));
         assertFalse(YrrpHotspotBlockList.contains(List.of(A), B));

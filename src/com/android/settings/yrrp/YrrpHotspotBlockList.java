@@ -17,7 +17,7 @@ final class YrrpHotspotBlockList {
 
     /** Appends {@code mac}; a duplicate or malformed MAC leaves the list unchanged. */
     static List<String> add(List<String> blocked, String mac) {
-        final List<String> result = normalizedCopy(blocked);
+        final List<String> result = normalize(blocked);
         final String normalized = YrrpHotspotMac.normalize(mac);
         if (normalized != null && !result.contains(normalized)) {
             result.add(normalized);
@@ -27,17 +27,18 @@ final class YrrpHotspotBlockList {
 
     /** Removes {@code mac}; removing an absent MAC leaves the list unchanged. */
     static List<String> remove(List<String> blocked, String mac) {
-        final List<String> result = normalizedCopy(blocked);
+        final List<String> result = normalize(blocked);
         result.remove(YrrpHotspotMac.normalize(mac));
         return result;
     }
 
     static boolean contains(List<String> blocked, String mac) {
         final String normalized = YrrpHotspotMac.normalize(mac);
-        return normalized != null && normalizedCopy(blocked).contains(normalized);
+        return normalized != null && normalize(blocked).contains(normalized);
     }
 
-    private static List<String> normalizedCopy(List<String> blocked) {
+    /** Lowercase MACs in first-seen order, without duplicates or malformed entries. */
+    static List<String> normalize(List<String> blocked) {
         final List<String> result = new ArrayList<>(blocked.size());
         for (String entry : blocked) {
             final String normalized = YrrpHotspotMac.normalize(entry);

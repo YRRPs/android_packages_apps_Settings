@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-FileCopyrightText: Yim's Riced ROM Project
+     SPDX-License-Identifier: Apache-2.0 -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:settings="http://schemas.android.com/apk/res-auto"
+        android:key="yrrp_hotspot_blocked_settings_screen"
+        android:title="@string/yrrp_hotspot_blocked_title">
+
+    <com.android.settingslib.widget.TopIntroPreference
+        android:key="yrrp_hotspot_blocked_intro"
+        android:title="@string/yrrp_hotspot_blocked_intro"
+        settings:searchable="false"/>
+
+    <PreferenceCategory
+        android:key="yrrp_hotspot_blocked_list"
+        android:title="@string/yrrp_hotspot_blocked_list"
+        settings:searchable="false"
+        settings:controller="com.android.settings.yrrp.YrrpHotspotBlockedListPreferenceController"/>
+
+</PreferenceScreen>
