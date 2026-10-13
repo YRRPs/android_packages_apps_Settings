@@ -61,7 +61,7 @@ public class YrrpHotspotBlockedEntryPreferenceController extends BasePreferenceC
             return;
         }
         final YrrpHotspotDump.Snapshot snapshot = mMonitor.snapshot();
-        preference.setVisible(snapshot.forceDisconnectSupported || snapshot.blocked > 0);
+        preference.setVisible(YrrpHotspotDump.blockedEntryVisible(snapshot));
         preference.setSummary(snapshot.blocked == 0
                 ? mContext.getString(R.string.yrrp_hotspot_blocked_none)
                 : mContext.getResources().getQuantityString(

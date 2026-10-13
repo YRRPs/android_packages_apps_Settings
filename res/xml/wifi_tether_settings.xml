@@ -77,7 +77,8 @@
     <PreferenceCategory
         android:key="yrrp_hotspot_controls"
         android:title="@string/yrrp_hotspot_controls_title"
-        settings:searchable="false">
+        settings:searchable="false"
+        settings:controller="com.android.settings.yrrp.YrrpHotspotControlsCategoryPreferenceController">
 
         <com.android.settingslib.widget.SliderPreference
             android:key="yrrp_hotspot_max_clients"
