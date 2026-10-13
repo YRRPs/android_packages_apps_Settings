@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Joins the hotspot's connected MACs (from the Wi-Fi module) with DHCP details (from tethering).
@@ -38,6 +39,22 @@ final class YrrpHotspotClients {
 
         Row(String mac) {
             this.mac = mac;
+        }
+
+        /** Equal rows render identically, so the page can skip rebuilding them. */
+        @Override
+        public boolean equals(Object other) {
+            if (!(other instanceof Row)) {
+                return false;
+            }
+            final Row row = (Row) other;
+            return mac.equals(row.mac) && Objects.equals(hostname, row.hostname)
+                    && Objects.equals(ipv4, row.ipv4);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mac, hostname, ipv4);
         }
     }
 

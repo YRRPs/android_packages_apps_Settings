@@ -73,18 +73,25 @@
         settings:searchable="false"
         settings:controller="com.android.settings.yrrp.YrrpHotspotClientsPreferenceController"/>
 
-    <com.android.settingslib.widget.SliderPreference
-        android:key="yrrp_hotspot_max_clients"
-        android:title="@string/yrrp_hotspot_max_clients_title"
-        android:persistent="false"
-        settings:keywords="@string/yrrp_hotspot_max_clients_keywords"
-        settings:controller="com.android.settings.yrrp.YrrpHotspotMaxClientsPreferenceController"/>
+    <!-- Its own titled group, so the limit and block list do not read as connected clients. -->
+    <PreferenceCategory
+        android:key="yrrp_hotspot_controls"
+        android:title="@string/yrrp_hotspot_controls_title"
+        settings:searchable="false">
 
-    <Preference
-        android:key="yrrp_hotspot_blocked_entry"
-        android:title="@string/yrrp_hotspot_blocked_title"
-        android:summary="@string/summary_placeholder"
-        android:fragment="com.android.settings.yrrp.YrrpHotspotBlockedSettings"
-        settings:keywords="@string/yrrp_hotspot_blocked_keywords"
-        settings:controller="com.android.settings.yrrp.YrrpHotspotBlockedEntryPreferenceController"/>
+        <com.android.settingslib.widget.SliderPreference
+            android:key="yrrp_hotspot_max_clients"
+            android:title="@string/yrrp_hotspot_max_clients_title"
+            android:persistent="false"
+            settings:keywords="@string/yrrp_hotspot_max_clients_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpHotspotMaxClientsPreferenceController"/>
+
+        <Preference
+            android:key="yrrp_hotspot_blocked_entry"
+            android:title="@string/yrrp_hotspot_blocked_title"
+            android:summary="@string/summary_placeholder"
+            android:fragment="com.android.settings.yrrp.YrrpHotspotBlockedSettings"
+            settings:keywords="@string/yrrp_hotspot_blocked_keywords"
+            settings:controller="com.android.settings.yrrp.YrrpHotspotBlockedEntryPreferenceController"/>
+    </PreferenceCategory>
 </PreferenceScreen>
