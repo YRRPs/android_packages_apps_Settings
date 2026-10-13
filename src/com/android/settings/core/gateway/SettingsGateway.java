@@ -224,6 +224,7 @@ import com.android.settings.wifi.tether.WifiTetherSettings;
 import com.android.settings.yrrp.YrrpAdBlockSettings;
 import com.android.settings.yrrp.YrrpBootAnimationSettings;
 import com.android.settings.yrrp.YrrpFoldAnimationSettings;
+import com.android.settings.yrrp.YrrpHotspotBlockedSettings;
 import com.android.settings.yrrp.YrrpPulseSettings;
 import com.android.settings.yrrp.YrrpScreenOffAnimationSettings;
 import com.android.settings.yrrp.YrrpSettings;
@@ -444,6 +445,7 @@ public class SettingsGateway {
             YrrpBootAnimationSettings.class.getName(),
             YrrpFoldAnimationSettings.class.getName(),
             YrrpAdBlockSettings.class.getName(),
+            YrrpHotspotBlockedSettings.class.getName(),
     };
 
     public static final String[] SETTINGS_FOR_RESTRICTED = {

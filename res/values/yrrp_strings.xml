@@ -290,4 +290,66 @@
     <string name="yrrp_ad_block_error_save">Could not save the change</string>
     <!-- YRRPs settings: footer of the ad blocking page about its limits. [CHAR LIMIT=NONE] -->
     <string name="yrrp_ad_block_footer">Browsers with secure DNS, apps with their own DNS, and apps that connect straight to an IP address skip the hosts file. Apps may keep a cached answer for a short while after a change.</string>
+
+    <!-- Wi-Fi hotspot: category listing the devices connected to the hotspot. [CHAR LIMIT=40] -->
+    <string name="yrrp_hotspot_clients_title">Connected devices</string>
+    <!-- Wi-Fi hotspot: row shown while no device is connected. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_clients_empty">No devices connected</string>
+    <!-- Wi-Fi hotspot: title of a connected device that sent no name. [CHAR LIMIT=40] -->
+    <string name="yrrp_hotspot_client_unknown">Unknown device</string>
+    <!-- Wi-Fi hotspot: connected device summary. %1$s is its IPv4 address, %2$s its MAC address.
+         [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_client_summary">%1$s · %2$s</string>
+    <!-- Wi-Fi hotspot: device details dialog. %1$s is the IPv4 address, %2$s the MAC address.
+         [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_client_details_ip">IP address: %1$s\nMAC address: %2$s</string>
+    <!-- Wi-Fi hotspot: device details dialog without an IP address. %1$s is the MAC address.
+         [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_client_details">MAC address: %1$s</string>
+    <!-- Wi-Fi hotspot: device details note about blocking. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_block_note">Blocking disconnects this device now and keeps it out until you unblock it. A device that changes its MAC address can still connect.</string>
+    <!-- Wi-Fi hotspot: button that blocks a connected device. [CHAR LIMIT=20] -->
+    <string name="yrrp_hotspot_block">Block</string>
+    <!-- Wi-Fi hotspot: button that closes the device details. [CHAR LIMIT=20] -->
+    <string name="yrrp_hotspot_close">Close</string>
+    <!-- Wi-Fi hotspot: error when the hotspot configuration was not saved. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_write_failed">Couldn’t change the hotspot settings</string>
+    <!-- Wi-Fi hotspot: slider row for the client limit. [CHAR LIMIT=40] -->
+    <string name="yrrp_hotspot_max_clients_title">Maximum connected devices</string>
+    <!-- Wi-Fi hotspot: search synonyms for the client limit. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_max_clients_keywords">client limit, connection limit, device limit, max clients</string>
+    <!-- Wi-Fi hotspot: client limit slider start label. [CHAR LIMIT=10] -->
+    <string name="yrrp_hotspot_max_clients_one">1</string>
+    <!-- Wi-Fi hotspot: client limit slider end label and top value. [CHAR LIMIT=20] -->
+    <string name="yrrp_hotspot_max_clients_no_limit">No limit</string>
+    <!-- Wi-Fi hotspot: client limit summary. %1$s is "N devices", %2$s where it comes from.
+         [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_max_clients_summary">Up to %1$s · %2$s</string>
+    <!-- Wi-Fi hotspot: the client limit was set on this page. [CHAR LIMIT=30] -->
+    <string name="yrrp_hotspot_limit_source_user">Set by you</string>
+    <!-- Wi-Fi hotspot: the client limit comes from the SIM carrier. [CHAR LIMIT=30] -->
+    <string name="yrrp_hotspot_limit_source_carrier">Set by your carrier</string>
+    <!-- Wi-Fi hotspot: the client limit is the hardware maximum. [CHAR LIMIT=30] -->
+    <string name="yrrp_hotspot_limit_source_device">Device maximum</string>
+    <!-- Wi-Fi hotspot: a count of devices. [CHAR LIMIT=20] -->
+    <plurals name="yrrp_hotspot_devices">
+        <item quantity="one">%d device</item>
+        <item quantity="other">%d devices</item>
+    </plurals>
+    <!-- Wi-Fi hotspot: row and page listing blocked devices. [CHAR LIMIT=40] -->
+    <string name="yrrp_hotspot_blocked_title">Blocked devices</string>
+    <!-- Wi-Fi hotspot: search synonyms for blocked devices. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_blocked_keywords">block, kick, deauth, ban, hotspot clients</string>
+    <!-- Wi-Fi hotspot: Blocked devices summary when none are blocked. [CHAR LIMIT=30] -->
+    <string name="yrrp_hotspot_blocked_none">None</string>
+    <!-- Wi-Fi hotspot: intro of the Blocked devices page. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_blocked_intro">Blocked devices can’t connect to your hotspot. Unblock a device to let it connect again.</string>
+    <!-- Wi-Fi hotspot: category holding the blocked MAC addresses. [CHAR LIMIT=40] -->
+    <string name="yrrp_hotspot_blocked_list">MAC addresses</string>
+    <!-- Wi-Fi hotspot: row shown while no device is blocked. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_blocked_empty">No blocked devices</string>
+    <!-- Wi-Fi hotspot: unblock dialog title. %1$s is the MAC address. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_hotspot_unblock_title">Unblock %1$s?</string>
+    <!-- Wi-Fi hotspot: button that unblocks a device. [CHAR LIMIT=20] -->
+    <string name="yrrp_hotspot_unblock">Unblock</string>
 </resources>
