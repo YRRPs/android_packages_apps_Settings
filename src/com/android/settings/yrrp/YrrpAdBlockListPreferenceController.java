@@ -14,6 +14,8 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceScreen;
@@ -28,9 +30,11 @@ import java.util.List;
 /**
  * A category of removable rows with an Add row at the end: the hosts lists and the allowed
  * hosts. Edits are saved off the main thread under the update lock, then the blocklist is
- * rebuilt from the caches with no download, and the rows are redrawn.
+ * rebuilt from the caches with no download, and the rows are redrawn. While the page is
+ * started, the rows also redraw after every update, so new list statuses show at once.
  */
-public abstract class YrrpAdBlockListPreferenceController extends BasePreferenceController {
+public abstract class YrrpAdBlockListPreferenceController extends BasePreferenceController
+        implements DefaultLifecycleObserver {
     private static final String TAG = "YrrpAdBlock";
     private static final String ADD_KEY_SUFFIX = "_add";
 
@@ -39,6 +43,7 @@ public abstract class YrrpAdBlockListPreferenceController extends BasePreference
         YrrpAdBlockStore.AddResult apply(YrrpAdBlockUpdater updater) throws IOException;
     }
 
+    private final Runnable mRefresh = this::refreshRows;
     private Fragment mHost;
     private PreferenceCategory mCategory;
 
@@ -81,6 +86,16 @@ public abstract class YrrpAdBlockListPreferenceController extends BasePreference
         super.displayPreference(screen);
         mCategory = screen.findPreference(getPreferenceKey());
         refreshRows();
+    }
+
+    @Override
+    public void onStart(@NonNull LifecycleOwner owner) {
+        YrrpAdBlockAndroid.updateObservers().add(mRefresh);
+    }
+
+    @Override
+    public void onStop(@NonNull LifecycleOwner owner) {
+        YrrpAdBlockAndroid.updateObservers().remove(mRefresh);
     }
 
     /** Redraws on resume, so list statuses from an update made meanwhile show. */

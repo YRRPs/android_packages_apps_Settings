@@ -10,6 +10,8 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 
@@ -18,12 +20,15 @@ import com.android.settings.core.BasePreferenceController;
 
 /**
  * Update lists now. A tap downloads every enabled list in the background; the row stays
- * disabled until the update ends, then shows when it last succeeded or why it failed.
+ * disabled until the update ends, then shows when it last succeeded or why it failed. The
+ * summary reads only saved state, so it is the same after leaving and reopening the page, and
+ * it redraws after an update the job started.
  */
-public class YrrpAdBlockUpdateNowPreferenceController extends BasePreferenceController {
+public class YrrpAdBlockUpdateNowPreferenceController extends BasePreferenceController
+        implements DefaultLifecycleObserver {
+    private final Runnable mRefresh = this::refresh;
     private Preference mPreference;
     private boolean mUpdating;
-    private YrrpAdBlockUpdater.Outcome mLastOutcome;
 
     public YrrpAdBlockUpdateNowPreferenceController(
             @NonNull Context context, @NonNull String preferenceKey) {
@@ -42,6 +47,22 @@ public class YrrpAdBlockUpdateNowPreferenceController extends BasePreferenceCont
     }
 
     @Override
+    public void onStart(@NonNull LifecycleOwner owner) {
+        YrrpAdBlockAndroid.updateObservers().add(mRefresh);
+    }
+
+    @Override
+    public void onStop(@NonNull LifecycleOwner owner) {
+        YrrpAdBlockAndroid.updateObservers().remove(mRefresh);
+    }
+
+    private void refresh() {
+        if (mPreference != null) {
+            updateState(mPreference);
+        }
+    }
+
+    @Override
     public void updateState(@NonNull Preference preference) {
         super.updateState(preference);
         preference.setEnabled(!mUpdating);
@@ -54,13 +75,8 @@ public class YrrpAdBlockUpdateNowPreferenceController extends BasePreferenceCont
         }
         mUpdating = true;
         updateState(preference);
-        YrrpAdBlockAndroid.runUpdate(mContext, true, outcome -> {
-            mUpdating = false;
-            mLastOutcome = outcome;
-            if (mPreference != null) {
-                updateState(mPreference);
-            }
-        });
+        // The update observers redraw the row once this clears the flag.
+        YrrpAdBlockAndroid.runUpdate(mContext, true, outcome -> mUpdating = false);
         return true;
     }
 
@@ -80,22 +96,13 @@ public class YrrpAdBlockUpdateNowPreferenceController extends BasePreferenceCont
         if (YrrpAdBlockUpdater.Result.FAILED.name().equals(result)) {
             return mContext.getText(R.string.yrrp_ad_block_failed);
         }
-        if (mLastOutcome != null && mLastOutcome.failedSources > 0) {
+        final int failed = state.failedSources();
+        if (failed > 0) {
             return mContext.getString(R.string.yrrp_ad_block_some_failed,
-                    mLastOutcome.failedSources, enabledCount(state));
+                    failed, state.enabledSources());
         }
         return mContext.getString(R.string.yrrp_ad_block_updated,
                 DateUtils.getRelativeTimeSpanString(state.lastUpdateMillis),
                 state.lastEntries);
-    }
-
-    private static int enabledCount(YrrpAdBlockStore.State state) {
-        int count = 0;
-        for (YrrpAdBlockSource source : state.sources) {
-            if (source.enabled) {
-                count++;
-            }
-        }
-        return count;
     }
 }

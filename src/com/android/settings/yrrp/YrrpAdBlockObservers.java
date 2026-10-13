@@ -8,10 +8,11 @@ package com.android.settings.yrrp;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * Callbacks run after the switch path writes the enabled property, so an open page follows a
- * change made from the Quick Settings tile. The tile and the page share the Settings process.
+ * Callbacks an open page registers to follow a change made elsewhere: a switch write from the
+ * Quick Settings tile, or an update that finished. The tile, the job, and the page share the
+ * Settings process.
  */
-final class YrrpAdBlockEnabledObservers {
+final class YrrpAdBlockObservers {
     private final CopyOnWriteArraySet<Runnable> mObservers = new CopyOnWriteArraySet<>();
 
     void add(Runnable observer) {

@@ -8,6 +8,8 @@ package com.android.settings.yrrp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import java.util.EnumSet;
+
 import org.junit.Test;
 
 /** Plain JUnit; no Robolectric. */
@@ -44,5 +46,15 @@ public class YrrpAdBlockStatusLabelTest {
         assertEquals(YrrpAdBlockStatusLabel.UNKNOWN, YrrpAdBlockStatusLabel.of("SOMETHING_NEW"));
         assertEquals(YrrpAdBlockStatusLabel.UNKNOWN, YrrpAdBlockStatusLabel.of(""));
         assertEquals(YrrpAdBlockStatusLabel.UNKNOWN, YrrpAdBlockStatusLabel.of(null));
+    }
+
+    @Test
+    public void onlyAFailedDownloadIsAFailure() {
+        final EnumSet<YrrpAdBlockStatusLabel> notFailures = EnumSet.of(
+                YrrpAdBlockStatusLabel.NOT_DOWNLOADED, YrrpAdBlockStatusLabel.UP_TO_DATE,
+                YrrpAdBlockStatusLabel.UNCHANGED, YrrpAdBlockStatusLabel.UNKNOWN);
+        for (YrrpAdBlockStatusLabel label : YrrpAdBlockStatusLabel.values()) {
+            assertEquals(label.name(), !notFailures.contains(label), label.isFailure());
+        }
     }
 }

@@ -49,6 +49,20 @@ public class YrrpAdBlockStoreTest {
     }
 
     @Test
+    public void failedSourcesCountsOnlyEnabledListsWhoseLastDownloadFailed() throws IOException {
+        final YrrpAdBlockStore.State state = mStore.load();
+        state.sources.get(0).status = "IO_ERROR";
+        state.sources.get(1).status = "TIMEOUT";
+        state.sources.get(1).enabled = false;
+        state.sources.get(2).status = "NOT_MODIFIED";
+        assertTrue(state.addSource("https://lists.example/hosts") == YrrpAdBlockStore.AddResult.OK);
+
+        // The new list was never downloaded, which is not a failure.
+        assertEquals(1, state.failedSources());
+        assertEquals(3, state.enabledSources());
+    }
+
+    @Test
     public void roundTripsEveryField() throws IOException {
         final YrrpAdBlockStore.State state = mStore.load();
         final YrrpAdBlockSource source = state.sources.get(1);

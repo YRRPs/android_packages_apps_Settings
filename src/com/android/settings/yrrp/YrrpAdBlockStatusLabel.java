@@ -29,6 +29,22 @@ enum YrrpAdBlockStatusLabel {
             Map.entry(YrrpAdBlockFetcher.Status.TIMEOUT.name(), TIMED_OUT),
             Map.entry(YrrpAdBlockFetcher.Status.IO_ERROR.name(), CONNECTION_FAILED));
 
+    /**
+     * Whether the last download failed, so the list kept its last good copy. Matches the
+     * updater's failure count; an unknown status is not counted.
+     */
+    boolean isFailure() {
+        switch (this) {
+            case NOT_DOWNLOADED:
+            case UP_TO_DATE:
+            case UNCHANGED:
+            case UNKNOWN:
+                return false;
+            default:
+                return true;
+        }
+    }
+
     /** UNKNOWN for a status this build does not know, such as one saved by a later build. */
     static YrrpAdBlockStatusLabel of(String status) {
         return status == null ? UNKNOWN : BY_STATUS.getOrDefault(status, UNKNOWN);
