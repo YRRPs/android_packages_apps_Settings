@@ -228,9 +228,35 @@
     <string name="yrrp_ad_block_auto_update_summary">Once a week on Wi‑Fi while the phone is idle</string>
     <!-- YRRPs settings: category holding the hosts lists. [CHAR LIMIT=40] -->
     <string name="yrrp_ad_block_sources">Lists</string>
-    <!-- YRRPs settings: list row summary. %1$s is a status such as "OK", %2$d entries.
-         [CHAR LIMIT=NONE] -->
+    <!-- YRRPs settings: list row summary. %1$s is one of the yrrp_ad_block_status_* strings,
+         %2$d the hosts the list holds. [CHAR LIMIT=NONE] -->
     <string name="yrrp_ad_block_source_summary">%1$s · %2$d hosts</string>
+    <!-- YRRPs settings: list status before its first download. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_status_not_downloaded">Not downloaded yet</string>
+    <!-- YRRPs settings: list status after a download that brought a new copy. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_status_up_to_date">Up to date</string>
+    <!-- YRRPs settings: list status when the server reported no change since the last
+         download. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_status_unchanged">Unchanged since last update</string>
+    <!-- YRRPs settings: list status when the server redirected to an address that is not
+         https. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_status_not_https">Redirected to a non-https address</string>
+    <!-- YRRPs settings: list status when the server redirected too many times. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_status_too_many_redirects">Too many redirects</string>
+    <!-- YRRPs settings: list status when the server answered with an error. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_status_server_error">Server error</string>
+    <!-- YRRPs settings: list status when the list was over the size limit. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_status_too_large">Too large</string>
+    <!-- YRRPs settings: list status when the download took too long. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_status_timed_out">Timed out</string>
+    <!-- YRRPs settings: list status when the phone was offline or the connection
+         failed. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_status_connection_failed">Offline or connection failed</string>
+    <!-- YRRPs settings: list status when the download held no hosts, so the last good copy
+         stays in use. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_ad_block_status_empty">Download was empty; the last good copy is still in use</string>
+    <!-- YRRPs settings: list status this build does not recognize. [CHAR LIMIT=40] -->
+    <string name="yrrp_ad_block_status_unknown">Status unknown</string>
     <!-- YRRPs settings: row that adds a hosts list. [CHAR LIMIT=40] -->
     <string name="yrrp_ad_block_add_source">Add list</string>
     <!-- YRRPs settings: hint in the add list dialog. [CHAR LIMIT=NONE] -->

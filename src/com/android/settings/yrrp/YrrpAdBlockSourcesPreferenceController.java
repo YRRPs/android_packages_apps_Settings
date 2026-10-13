@@ -8,6 +8,7 @@ package com.android.settings.yrrp;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.preference.Preference;
 
 import com.android.settings.R;
@@ -52,7 +53,8 @@ public class YrrpAdBlockSourcesPreferenceController extends YrrpAdBlockListPrefe
             row.setKey(source.url);
             row.setTitle(source.host());
             row.setSummary(mContext.getString(R.string.yrrp_ad_block_source_summary,
-                    source.status, source.entries));
+                    mContext.getString(statusText(YrrpAdBlockStatusLabel.of(source.status))),
+                    source.entries));
             row.setChecked(source.enabled);
             row.setPersistent(false);
             row.setOnPreferenceChangeListener((preference, value) -> {
@@ -73,6 +75,35 @@ public class YrrpAdBlockSourcesPreferenceController extends YrrpAdBlockListPrefe
     @Override
     void remove(YrrpAdBlockUpdater updater, String rowKey) throws IOException {
         updater.removeSource(rowKey);
+    }
+
+    /** The row text for a status label; every label has one. */
+    @StringRes
+    static int statusText(YrrpAdBlockStatusLabel label) {
+        switch (label) {
+            case NOT_DOWNLOADED:
+                return R.string.yrrp_ad_block_status_not_downloaded;
+            case UP_TO_DATE:
+                return R.string.yrrp_ad_block_status_up_to_date;
+            case UNCHANGED:
+                return R.string.yrrp_ad_block_status_unchanged;
+            case NOT_HTTPS:
+                return R.string.yrrp_ad_block_status_not_https;
+            case TOO_MANY_REDIRECTS:
+                return R.string.yrrp_ad_block_status_too_many_redirects;
+            case SERVER_ERROR:
+                return R.string.yrrp_ad_block_status_server_error;
+            case TOO_LARGE:
+                return R.string.yrrp_ad_block_status_too_large;
+            case TIMED_OUT:
+                return R.string.yrrp_ad_block_status_timed_out;
+            case CONNECTION_FAILED:
+                return R.string.yrrp_ad_block_status_connection_failed;
+            case EMPTY:
+                return R.string.yrrp_ad_block_status_empty;
+            default:
+                return R.string.yrrp_ad_block_status_unknown;
+        }
     }
 
     private static YrrpAdBlockStore.AddResult setEnabled(

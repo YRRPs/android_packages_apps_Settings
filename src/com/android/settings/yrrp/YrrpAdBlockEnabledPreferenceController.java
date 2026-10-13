@@ -17,11 +17,13 @@ import com.android.settings.R;
 import com.android.settings.core.TogglePreferenceController;
 
 /**
- * The Use ad blocking switch. Writes go through the same path as the Quick Settings tile; the
- * switch re-reads on start, so a change made from the tile shows when the page returns.
+ * The Use ad blocking switch. Writes go through the same path as the Quick Settings tile. The
+ * switch re-reads on start, and while started it re-reads after every write, so a change made
+ * from the tile shows at once even though pulling down Quick Settings does not stop the page.
  */
 public class YrrpAdBlockEnabledPreferenceController extends TogglePreferenceController
         implements DefaultLifecycleObserver {
+    private final Runnable mRefresh = this::refresh;
     private Preference mPreference;
 
     public YrrpAdBlockEnabledPreferenceController(
@@ -42,6 +44,16 @@ public class YrrpAdBlockEnabledPreferenceController extends TogglePreferenceCont
 
     @Override
     public void onStart(@NonNull LifecycleOwner owner) {
+        YrrpAdBlockAndroid.enabledObservers().add(mRefresh);
+        refresh();
+    }
+
+    @Override
+    public void onStop(@NonNull LifecycleOwner owner) {
+        YrrpAdBlockAndroid.enabledObservers().remove(mRefresh);
+    }
+
+    private void refresh() {
         if (mPreference != null) {
             updateState(mPreference);
         }

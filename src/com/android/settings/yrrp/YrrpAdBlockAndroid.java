@@ -30,6 +30,9 @@ final class YrrpAdBlockAndroid {
     private static final File MOUNTINFO = new File("/proc/self/mountinfo");
     private static final String DIR_NAME = "yrrp_adblock";
 
+    private static final YrrpAdBlockEnabledObservers sEnabledObservers =
+            new YrrpAdBlockEnabledObservers();
+
     private static YrrpAdBlockUpdater sUpdater;
     private static YrrpAdBlockEventLog sLog;
 
@@ -76,14 +79,21 @@ final class YrrpAdBlockAndroid {
         ThreadUtils.postOnBackgroundThread(() -> log(app).record(event));
     }
 
+    /** Run on the main thread after every switch write, from the page or the tile. */
+    static YrrpAdBlockEnabledObservers enabledObservers() {
+        return sEnabledObservers;
+    }
+
     /**
      * The one switch path for the page and the tile. Turning on with no hosts.blocked yet
-     * starts a download, because init has nothing to copy until one finishes.
+     * starts a download, because init has nothing to copy until one finishes. Observers run
+     * after the caller returns, so the page switch that made the change is not re-entered.
      */
     static boolean setEnabled(Context context, boolean enabled) {
         final Context app = context.getApplicationContext();
         final boolean written = state().setEnabled(enabled);
         record(app, "toggle enabled=" + enabled + " written=" + written);
+        ThreadUtils.postOnMainThread(sEnabledObservers::notifyChanged);
         if (written && enabled && !BLOCKED_FILE.exists()) {
             runUpdate(app, true, null);
         }
