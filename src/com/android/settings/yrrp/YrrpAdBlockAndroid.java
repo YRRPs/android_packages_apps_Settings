@@ -84,7 +84,10 @@ final class YrrpAdBlockAndroid {
         return sEnabledObservers;
     }
 
-    /** Run on the main thread after every {@link #runUpdate}, from the page, the job, or init. */
+    /**
+     * Run on the main thread after every {@link #runUpdate}, from the page, the job, or init,
+     * and after a list edit rebuilds the blocklist.
+     */
     static YrrpAdBlockObservers updateObservers() {
         return sUpdateObservers;
     }

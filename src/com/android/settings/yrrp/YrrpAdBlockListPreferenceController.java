@@ -154,8 +154,13 @@ public abstract class YrrpAdBlockListPreferenceController extends BasePreference
             ThreadUtils.postOnMainThread(() -> {
                 if (shown != YrrpAdBlockStore.AddResult.OK) {
                     toast(errorText(shown));
+                    refreshRows();
+                    return;
                 }
+                // The rebuild changed saved counts, so this list, the other list, and the
+                // Update lists now summary all redraw. Redraw here too in case the page stopped.
                 refreshRows();
+                YrrpAdBlockAndroid.updateObservers().notifyChanged();
             });
         });
     }
