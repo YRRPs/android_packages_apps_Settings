@@ -235,7 +235,8 @@ public class YrrpFeatureCatalogTest {
     }
 
     private static final class FakeEnvironment implements YrrpFeatureEnvironment {
-        YrrpFoldAnimationAvailability.Snapshot fold = fold(Probe.YES, Probe.YES, Probe.YES);
+        YrrpFoldAnimationAvailability.Snapshot fold =
+                YrrpFeatureCatalogTest.fold(Probe.YES, Probe.YES, Probe.YES);
         Probe primaryUser = Probe.YES;
         Probe salamiDevice = Probe.YES;
         Probe cameraPackage = Probe.YES;
@@ -244,7 +245,7 @@ public class YrrpFeatureCatalogTest {
         HotspotControls hotspotControls = HotspotControls.SUPPORTED;
 
         void setEveryProbe(Probe value) {
-            fold = fold(value, value, value);
+            fold = YrrpFeatureCatalogTest.fold(value, value, value);
             primaryUser = value;
             salamiDevice = value;
             cameraPackage = value;
