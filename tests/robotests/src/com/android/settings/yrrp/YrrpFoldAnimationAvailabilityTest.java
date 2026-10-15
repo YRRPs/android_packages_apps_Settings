@@ -25,6 +25,8 @@ import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
+import com.android.settings.yrrp.YrrpFeatureAvailability.Probe;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -74,6 +76,71 @@ public class YrrpFoldAnimationAvailabilityTest {
                 .thenReturn(0);
 
         assertThat(YrrpFoldAnimationAvailability.isSupported(res, sensors(true))).isFalse();
+    }
+
+    @Test
+    public void snapshot_exposesEveryGate() {
+        final YrrpFoldAnimationAvailability.Snapshot snapshot =
+                YrrpFoldAnimationAvailability.snapshot(resources(true, false), sensors(true));
+
+        assertThat(snapshot.unfoldEnabled).isEqualTo(Probe.YES);
+        assertThat(snapshot.hingeAngleEnabled).isEqualTo(Probe.NO);
+        assertThat(snapshot.hingeSensorPresent).isEqualTo(Probe.YES);
+        assertThat(snapshot.available()).isFalse();
+    }
+
+    @Test
+    public void snapshot_availableWhenEveryGateIsTrue() {
+        final YrrpFoldAnimationAvailability.Snapshot snapshot =
+                YrrpFoldAnimationAvailability.snapshot(resources(true, true), sensors(true));
+
+        assertThat(snapshot.available()).isTrue();
+    }
+
+    @Test
+    public void snapshot_missingSensorServiceIsUnknown() {
+        final YrrpFoldAnimationAvailability.Snapshot snapshot =
+                YrrpFoldAnimationAvailability.snapshot(resources(true, true), null);
+
+        assertThat(snapshot.hingeSensorPresent).isEqualTo(Probe.UNKNOWN);
+        assertThat(snapshot.available()).isFalse();
+    }
+
+    @Test
+    public void snapshot_missingResourceIsFalseGate() {
+        final Resources res = mock(Resources.class);
+
+        final YrrpFoldAnimationAvailability.Snapshot snapshot =
+                YrrpFoldAnimationAvailability.snapshot(res, sensors(true));
+
+        assertThat(snapshot.unfoldEnabled).isEqualTo(Probe.NO);
+        assertThat(snapshot.hingeAngleEnabled).isEqualTo(Probe.NO);
+        assertThat(snapshot.hingeSensorPresent).isEqualTo(Probe.YES);
+    }
+
+    @Test
+    public void snapshot_resourceFailureIsUnknown() {
+        final Resources res = resources(true, true);
+        when(res.getBoolean(UNFOLD_ID)).thenThrow(new IllegalStateException("private-value"));
+
+        final YrrpFoldAnimationAvailability.Snapshot snapshot =
+                YrrpFoldAnimationAvailability.snapshot(res, sensors(true));
+
+        assertThat(snapshot.unfoldEnabled).isEqualTo(Probe.UNKNOWN);
+        assertThat(snapshot.hingeAngleEnabled).isEqualTo(Probe.YES);
+        assertThat(snapshot.hingeSensorPresent).isEqualTo(Probe.YES);
+    }
+
+    @Test
+    public void snapshot_sensorFailureIsUnknown() {
+        final SensorManager sensors = mock(SensorManager.class);
+        when(sensors.getDefaultSensor(Sensor.TYPE_HINGE_ANGLE))
+                .thenThrow(new IllegalStateException("private-value"));
+
+        final YrrpFoldAnimationAvailability.Snapshot snapshot =
+                YrrpFoldAnimationAvailability.snapshot(resources(true, true), sensors);
+
+        assertThat(snapshot.hingeSensorPresent).isEqualTo(Probe.UNKNOWN);
     }
 
     private static Resources resources(boolean unfold, boolean hingeAngle) {

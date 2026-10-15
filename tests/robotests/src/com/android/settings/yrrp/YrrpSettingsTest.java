@@ -53,7 +53,7 @@ public class YrrpSettingsTest {
     }
 
     @Test
-    public void hubXml_hasOnlyAudioAndAnimationsEntries() throws Exception {
+    public void hubXml_hasApprovedEntries() throws Exception {
         assertThat(YrrpXmlElements.outline(mContext, R.xml.yrrp_settings))
                 .containsExactly(
                         "PreferenceScreen#yrrp_settings_screen",
@@ -64,7 +64,9 @@ public class YrrpSettingsTest {
                         "    Preference#yrrp_boot_animation_entry",
                         "    Preference#yrrp_fold_animation_entry",
                         "  PreferenceCategory#yrrp_category_network",
-                        "    Preference#yrrp_ad_block_entry")
+                        "    Preference#yrrp_ad_block_entry",
+                        "  PreferenceCategory#yrrp_category_misc",
+                        "    Preference#yrrp_feature_inventory_entry")
                 .inOrder();
         // Kept alongside the outline check on purpose: this one runs the production key parser.
         assertThat(XmlTestUtils.getKeysFromPreferenceXml(mContext, R.xml.yrrp_settings))
@@ -77,7 +79,9 @@ public class YrrpSettingsTest {
                         "yrrp_boot_animation_entry",
                         "yrrp_fold_animation_entry",
                         "yrrp_category_network",
-                        "yrrp_ad_block_entry")
+                        "yrrp_ad_block_entry",
+                        "yrrp_category_misc",
+                        "yrrp_feature_inventory_entry")
                 .inOrder();
     }
 
@@ -137,13 +141,29 @@ public class YrrpSettingsTest {
     }
 
     @Test
+    public void featureInventoryEntry_opensInventoryPageWithItsKeywords() throws Exception {
+        final YrrpXmlElements.Element entry =
+                YrrpXmlElements.find(
+                        YrrpXmlElements.read(mContext, R.xml.yrrp_settings),
+                        "yrrp_feature_inventory_entry");
+
+        assertThat(entry.value("fragment"))
+                .isEqualTo(YrrpFeatureInventorySettings.class.getName());
+        assertThat(entry.resourceId("keywords"))
+                .isEqualTo(R.string.yrrp_feature_inventory_keywords);
+    }
+
+    @Test
     public void searchProvider_hidesCategoriesButIndexesEntriesAndScreen() {
         YrrpFoldAnimationAvailability.sSource = c -> true;
         final List<String> nonIndexable =
                 YrrpSettings.SEARCH_INDEX_DATA_PROVIDER.getNonIndexableKeys(mContext);
 
         assertThat(nonIndexable).containsAtLeast(
-                "yrrp_category_audio", "yrrp_category_animations", "yrrp_category_network");
+                "yrrp_category_audio",
+                "yrrp_category_animations",
+                "yrrp_category_network",
+                "yrrp_category_misc");
         assertThat(nonIndexable)
                 .containsNoneOf(
                         "yrrp_pulse_entry",
@@ -151,6 +171,7 @@ public class YrrpSettingsTest {
                         "yrrp_boot_animation_entry",
                         "yrrp_fold_animation_entry",
                         "yrrp_ad_block_entry",
+                        "yrrp_feature_inventory_entry",
                         "yrrp_settings_screen");
     }
 }

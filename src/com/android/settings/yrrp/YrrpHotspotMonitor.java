@@ -32,20 +32,19 @@ import java.util.concurrent.Executor;
  * module, and DHCP details from tethering. Callbacks run on the main thread between onStart and
  * onStop; the module replays its current state to each new registration.
  */
-final class YrrpHotspotMonitor implements DefaultLifecycleObserver {
+final class YrrpHotspotMonitor
+        implements DefaultLifecycleObserver, YrrpFeatureHotspotSource {
     private static final String TAG = "YrrpHotspot";
 
     /** Notified on the main thread after any input or a write changes. */
-    interface Listener {
-        void onHotspotChanged();
-    }
+    interface Listener extends YrrpFeatureHotspotSource.Listener {}
 
     private final Context mContext;
     private final WifiManager mWifiManager;
     private final TetheringManager mTetheringManager;
     private final YrrpHotspotConfigWriter mWriter;
     private final YrrpHotspotEventLog mLog = YrrpHotspotEventLog.INSTANCE;
-    private final List<Listener> mListeners = new ArrayList<>();
+    private final List<YrrpFeatureHotspotSource.Listener> mListeners = new ArrayList<>();
     private final SoftApCallback mSoftApCallback = new SoftApCallback();
     private final TetheringCallback mTetheringCallback = new TetheringCallback();
 
@@ -55,6 +54,8 @@ final class YrrpHotspotMonitor implements DefaultLifecycleObserver {
     private List<YrrpHotspotClients.Detail> mDetails = List.of();
     private int mCarrierMax;
     private boolean mStarted;
+    private boolean mSoftApRegistered;
+    private boolean mTetheringRegistered;
 
     YrrpHotspotMonitor(@NonNull Context context) {
         mContext = context.getApplicationContext();
@@ -64,36 +65,86 @@ final class YrrpHotspotMonitor implements DefaultLifecycleObserver {
     }
 
     /** Adds {@code listener} once; a page may re-attach and bind its controllers again. */
-    void addListener(@NonNull Listener listener) {
+    @Override
+    public void addListener(@NonNull YrrpFeatureHotspotSource.Listener listener) {
         if (!mListeners.contains(listener)) {
             mListeners.add(listener);
         }
     }
 
+    /** Removes a page-scoped listener without affecting monitor callback registration. */
+    @Override
+    public void removeListener(@NonNull YrrpFeatureHotspotSource.Listener listener) {
+        mListeners.remove(listener);
+    }
+
+    @Override
+    public boolean callbacksRegistered() {
+        return mSoftApRegistered || mTetheringRegistered;
+    }
+
     @Override
     public void onStart(@NonNull LifecycleOwner owner) {
+        start();
+    }
+
+    void start() {
         if (mStarted || mWifiManager == null) {
             return;
         }
         mStarted = true;
         mCarrierMax = readCarrierMax();
         final Executor main = mContext.getMainExecutor();
-        mWifiManager.registerSoftApCallback(main, mSoftApCallback);
-        if (mTetheringManager != null) {
-            mTetheringManager.registerTetheringEventCallback(main, mTetheringCallback);
+        try {
+            mWifiManager.registerSoftApCallback(main, mSoftApCallback);
+            mSoftApRegistered = true;
+        } catch (RuntimeException e) {
+            Log.w(TAG, "register soft AP callback failed error="
+                    + e.getClass().getSimpleName());
         }
-        mLog.record("monitor started carrierMax=" + mCarrierMax);
+        if (mTetheringManager != null) {
+            try {
+                mTetheringManager.registerTetheringEventCallback(main, mTetheringCallback);
+                mTetheringRegistered = true;
+            } catch (RuntimeException e) {
+                Log.w(TAG, "register tethering callback failed error="
+                        + e.getClass().getSimpleName());
+            }
+        }
+        mLog.record("monitor started carrierMax=" + mCarrierMax
+                + " softApRegistered=" + mSoftApRegistered
+                + " tetheringRegistered=" + mTetheringRegistered);
     }
 
     @Override
     public void onStop(@NonNull LifecycleOwner owner) {
+        stop();
+    }
+
+    void stop() {
         if (!mStarted) {
             return;
         }
         mStarted = false;
-        mWifiManager.unregisterSoftApCallback(mSoftApCallback);
-        if (mTetheringManager != null) {
-            mTetheringManager.unregisterTetheringEventCallback(mTetheringCallback);
+        if (mSoftApRegistered) {
+            try {
+                mWifiManager.unregisterSoftApCallback(mSoftApCallback);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "unregister soft AP callback failed error="
+                        + e.getClass().getSimpleName());
+            } finally {
+                mSoftApRegistered = false;
+            }
+        }
+        if (mTetheringRegistered) {
+            try {
+                mTetheringManager.unregisterTetheringEventCallback(mTetheringCallback);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "unregister tethering callback failed error="
+                        + e.getClass().getSimpleName());
+            } finally {
+                mTetheringRegistered = false;
+            }
         }
         mLog.record("monitor stopped");
     }
@@ -121,6 +172,7 @@ final class YrrpHotspotMonitor implements DefaultLifecycleObserver {
         return YrrpHotspotBlockList.normalize(macs);
     }
 
+    @NonNull
     YrrpHotspotDump.Snapshot snapshot() {
         final YrrpHotspotDump.Snapshot s = new YrrpHotspotDump.Snapshot();
         s.apEnabled = mApEnabled;
@@ -176,7 +228,7 @@ final class YrrpHotspotMonitor implements DefaultLifecycleObserver {
     }
 
     private void notifyListeners() {
-        for (Listener listener : new ArrayList<>(mListeners)) {
+        for (YrrpFeatureHotspotSource.Listener listener : new ArrayList<>(mListeners)) {
             listener.onHotspotChanged();
         }
     }

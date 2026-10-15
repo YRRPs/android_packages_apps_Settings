@@ -16,6 +16,10 @@
 
 package com.android.settings.yrrp;
 
+import static com.android.settings.yrrp.YrrpFeatureAvailability.Probe.NO;
+import static com.android.settings.yrrp.YrrpFeatureAvailability.Probe.UNKNOWN;
+import static com.android.settings.yrrp.YrrpFeatureAvailability.Probe.YES;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.hardware.Sensor;
@@ -24,6 +28,8 @@ import android.hardware.SensorManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+
+import com.android.settings.yrrp.YrrpFeatureAvailability.Probe;
 
 import java.util.function.Predicate;
 
@@ -38,9 +44,7 @@ final class YrrpFoldAnimationAvailability {
 
     /** The production check. */
     @VisibleForTesting
-    static final Predicate<Context> READ_DEVICE =
-            context -> isSupported(
-                    Resources.getSystem(), context.getSystemService(SensorManager.class));
+    static final Predicate<Context> READ_DEVICE = context -> snapshot(context).available();
 
     /** Where {@link #isAvailable} reads; tests replace it and must restore {@link #READ_DEVICE}. */
     @VisibleForTesting static Predicate<Context> sSource = READ_DEVICE;
@@ -50,17 +54,59 @@ final class YrrpFoldAnimationAvailability {
         return sSource.test(context);
     }
 
+    static Snapshot snapshot(@NonNull Context context) {
+        return snapshot(Resources.getSystem(), context.getSystemService(SensorManager.class));
+    }
+
     /** Reads the same resources as SystemUI's ResourceUnfoldTransitionConfig. */
     @VisibleForTesting
     static boolean isSupported(@NonNull Resources res, @Nullable SensorManager sensors) {
-        return readBool(res, "config_unfoldTransitionEnabled")
-                && readBool(res, "config_unfoldTransitionHingeAngle")
-                && sensors != null
-                && sensors.getDefaultSensor(Sensor.TYPE_HINGE_ANGLE) != null;
+        return snapshot(res, sensors).available();
     }
 
-    private static boolean readBool(Resources res, String name) {
-        int id = res.getIdentifier(name, "bool", "android");
-        return id != 0 && res.getBoolean(id);
+    @VisibleForTesting
+    static Snapshot snapshot(@NonNull Resources res, @Nullable SensorManager sensors) {
+        return new Snapshot(
+                readBool(res, "config_unfoldTransitionEnabled"),
+                readBool(res, "config_unfoldTransitionHingeAngle"),
+                readHingeSensor(sensors));
+    }
+
+    private static Probe readBool(Resources res, String name) {
+        try {
+            final int id = res.getIdentifier(name, "bool", "android");
+            return id != 0 && res.getBoolean(id) ? YES : NO;
+        } catch (RuntimeException e) {
+            return UNKNOWN;
+        }
+    }
+
+    private static Probe readHingeSensor(@Nullable SensorManager sensors) {
+        if (sensors == null) {
+            return UNKNOWN;
+        }
+        try {
+            return sensors.getDefaultSensor(Sensor.TYPE_HINGE_ANGLE) == null ? NO : YES;
+        } catch (RuntimeException e) {
+            return UNKNOWN;
+        }
+    }
+
+    static final class Snapshot {
+        final Probe unfoldEnabled;
+        final Probe hingeAngleEnabled;
+        final Probe hingeSensorPresent;
+
+        Snapshot(Probe unfoldEnabled, Probe hingeAngleEnabled, Probe hingeSensorPresent) {
+            this.unfoldEnabled = unfoldEnabled;
+            this.hingeAngleEnabled = hingeAngleEnabled;
+            this.hingeSensorPresent = hingeSensorPresent;
+        }
+
+        boolean available() {
+            return unfoldEnabled == YES
+                    && hingeAngleEnabled == YES
+                    && hingeSensorPresent == YES;
+        }
     }
 }
