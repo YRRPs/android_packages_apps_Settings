@@ -11,8 +11,8 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.android.settings.R;
-import com.android.settings.core.AbstractPreferenceController;
 import com.android.settings.dashboard.DashboardFragment;
+import com.android.settingslib.core.AbstractPreferenceController;
 import com.android.settings.search.BaseSearchIndexProvider;
 import com.android.settings.yrrp.YrrpFeatureAvailability.HotspotControls;
 import com.android.settingslib.search.SearchIndexable;
