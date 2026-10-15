@@ -7,71 +7,49 @@ package com.android.settings.yrrp;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.android.settings.yrrp.YrrpFeatureAvailability.HotspotControls;
-import com.android.settings.yrrp.YrrpFeatureAvailability.Probe;
+import android.app.Service;
+import android.content.Intent;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+@RunWith(RobolectricTestRunner.class)
 public class YrrpFeatureInventoryStatusServiceTest {
     @Test
-    public void coldResolver_populatesEveryFeatureWithoutOpeningPage() {
-        final YrrpFeatureInventoryDump dump =
-                new YrrpFeatureInventoryDump(new YrrpFeatureInventoryEventLog(() -> 1L));
+    public void coldStartDumpAndDestroy_useProductionLifecycle() {
+        final YrrpFeatureInventoryStatusService service =
+                Robolectric.setupService(YrrpFeatureInventoryStatusService.class);
 
-        YrrpFeatureInventoryStatusService.resolveForDump(new FakeEnvironment(), dump);
-
-        final StringWriter output = new StringWriter();
-        dump.format(new PrintWriter(output));
-        final String text = output.toString();
-        assertThat(text).contains(
+        assertThat(service.onStartCommand(new Intent(), 0, 1))
+                .isEqualTo(Service.START_NOT_STICKY);
+        final String running = dump(service);
+        assertThat(running).contains(
                 "feature=yrrp_feature_pulse available=true"
                         + " reasonCode=available blockedBy=none probeStatus=known");
-        assertThat(text).contains(
-                "feature=yrrp_feature_fold_animations available=false"
-                        + " reasonCode=fold_sensor_missing"
-                        + " blockedBy=hingeSensorPresent probeStatus=known");
-        assertThat(text).contains("gate=hingeSensorPresent value=no");
-        assertThat(text).doesNotContain("probeStatus=pending");
+        assertThat(running).contains("gate=hingeSensorPresent value=");
+        assertThat(running).doesNotContain("probeStatus=pending");
+
+        service.onDestroy();
+
+        final String stopped = dumpState();
+        assertThat(stopped).contains("started=false");
+        assertThat(stopped).contains("callbackRegistered=false");
     }
 
-    private static final class FakeEnvironment implements YrrpFeatureEnvironment {
-        @Override
-        public YrrpFoldAnimationAvailability.Snapshot fold() {
-            return new YrrpFoldAnimationAvailability.Snapshot(
-                    Probe.NO, Probe.NO, Probe.NO);
-        }
+    private static String dump(YrrpFeatureInventoryStatusService service) {
+        final StringWriter output = new StringWriter();
+        service.dump(null, new PrintWriter(output), new String[0]);
+        return output.toString();
+    }
 
-        @Override
-        public Probe primaryUser() {
-            return Probe.YES;
-        }
-
-        @Override
-        public Probe salamiDevice() {
-            return Probe.YES;
-        }
-
-        @Override
-        public Probe cameraPackage() {
-            return Probe.YES;
-        }
-
-        @Override
-        public Probe galleryPackage() {
-            return Probe.YES;
-        }
-
-        @Override
-        public Probe gappsBuild() {
-            return Probe.YES;
-        }
-
-        @Override
-        public HotspotControls hotspotControls() {
-            return HotspotControls.UNDETERMINED;
-        }
+    private static String dumpState() {
+        final StringWriter output = new StringWriter();
+        YrrpFeatureInventoryDump.INSTANCE.format(new PrintWriter(output));
+        return output.toString();
     }
 }

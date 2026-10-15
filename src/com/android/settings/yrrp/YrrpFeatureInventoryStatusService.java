@@ -14,12 +14,9 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 
 import com.android.settings.yrrp.YrrpFeatureAvailability.HotspotControls;
-import com.android.settings.yrrp.YrrpFeatureCatalog.Id;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /** DUMP-protected, short-lived dumpsys surface for bounded inventory state. */
@@ -64,17 +61,6 @@ public class YrrpFeatureInventoryStatusService extends Service {
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         ensureRuntime();
         YrrpFeatureInventoryDump.INSTANCE.format(writer);
-    }
-
-    static void resolveForDump(
-            YrrpFeatureEnvironment environment, YrrpFeatureInventoryDump dump) {
-        final YrrpFeatureEnvironment.Snapshot gates =
-                YrrpFeatureEnvironment.Snapshot.capture(environment);
-        final Map<Id, YrrpFeatureAvailability> results = new EnumMap<>(Id.class);
-        for (Id id : YrrpFeatureCatalog.ids()) {
-            results.put(id, YrrpFeatureCatalog.resolve(id, gates));
-        }
-        dump.update(results, gates, false, false);
     }
 
     private void ensureRuntime() {
