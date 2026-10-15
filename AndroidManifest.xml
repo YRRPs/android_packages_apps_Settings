@@ -5206,6 +5206,11 @@
             android:exported="true"
             android:permission="android.permission.DUMP" />
 
+        <service
+            android:name=".yrrp.YrrpFeatureInventoryStatusService"
+            android:exported="true"
+            android:permission="android.permission.DUMP" />
+
         <!-- Quick Settings tiles for Developer Options -->
         <service
             android:name=".development.qstile.DevelopmentTiles$ShowLayout"
