@@ -86,7 +86,8 @@ public class YrrpSettingsNavigationTest {
                         YrrpPulseSettings.class.getName(),
                         YrrpScreenOffAnimationSettings.class.getName(),
                         YrrpBootAnimationSettings.class.getName(),
-                        YrrpFoldAnimationSettings.class.getName());
+                        YrrpFoldAnimationSettings.class.getName(),
+                        YrrpFeatureInventorySettings.class.getName());
     }
 
     @Test
