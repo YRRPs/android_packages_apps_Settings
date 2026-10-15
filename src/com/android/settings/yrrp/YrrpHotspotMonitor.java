@@ -32,20 +32,19 @@ import java.util.concurrent.Executor;
  * module, and DHCP details from tethering. Callbacks run on the main thread between onStart and
  * onStop; the module replays its current state to each new registration.
  */
-final class YrrpHotspotMonitor implements DefaultLifecycleObserver {
+final class YrrpHotspotMonitor
+        implements DefaultLifecycleObserver, YrrpFeatureHotspotSource {
     private static final String TAG = "YrrpHotspot";
 
     /** Notified on the main thread after any input or a write changes. */
-    interface Listener {
-        void onHotspotChanged();
-    }
+    interface Listener extends YrrpFeatureHotspotSource.Listener {}
 
     private final Context mContext;
     private final WifiManager mWifiManager;
     private final TetheringManager mTetheringManager;
     private final YrrpHotspotConfigWriter mWriter;
     private final YrrpHotspotEventLog mLog = YrrpHotspotEventLog.INSTANCE;
-    private final List<Listener> mListeners = new ArrayList<>();
+    private final List<YrrpFeatureHotspotSource.Listener> mListeners = new ArrayList<>();
     private final SoftApCallback mSoftApCallback = new SoftApCallback();
     private final TetheringCallback mTetheringCallback = new TetheringCallback();
 
@@ -64,10 +63,17 @@ final class YrrpHotspotMonitor implements DefaultLifecycleObserver {
     }
 
     /** Adds {@code listener} once; a page may re-attach and bind its controllers again. */
-    void addListener(@NonNull Listener listener) {
+    @Override
+    public void addListener(@NonNull YrrpFeatureHotspotSource.Listener listener) {
         if (!mListeners.contains(listener)) {
             mListeners.add(listener);
         }
+    }
+
+    /** Removes a page-scoped listener without affecting monitor callback registration. */
+    @Override
+    public void removeListener(@NonNull YrrpFeatureHotspotSource.Listener listener) {
+        mListeners.remove(listener);
     }
 
     @Override
@@ -121,7 +127,9 @@ final class YrrpHotspotMonitor implements DefaultLifecycleObserver {
         return YrrpHotspotBlockList.normalize(macs);
     }
 
-    YrrpHotspotDump.Snapshot snapshot() {
+    @Override
+    @NonNull
+    public YrrpHotspotDump.Snapshot snapshot() {
         final YrrpHotspotDump.Snapshot s = new YrrpHotspotDump.Snapshot();
         s.apEnabled = mApEnabled;
         s.capabilityKnown = mCapability != null;
@@ -176,7 +184,7 @@ final class YrrpHotspotMonitor implements DefaultLifecycleObserver {
     }
 
     private void notifyListeners() {
-        for (Listener listener : new ArrayList<>(mListeners)) {
+        for (YrrpFeatureHotspotSource.Listener listener : new ArrayList<>(mListeners)) {
             listener.onHotspotChanged();
         }
     }

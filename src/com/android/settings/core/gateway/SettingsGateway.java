@@ -224,6 +224,7 @@ import com.android.settings.wifi.tether.WifiTetherSettings;
 import com.android.settings.yrrp.YrrpAdBlockSettings;
 import com.android.settings.yrrp.YrrpBootAnimationSettings;
 import com.android.settings.yrrp.YrrpFoldAnimationSettings;
+import com.android.settings.yrrp.YrrpFeatureInventorySettings;
 import com.android.settings.yrrp.YrrpHotspotBlockedSettings;
 import com.android.settings.yrrp.YrrpPulseSettings;
 import com.android.settings.yrrp.YrrpScreenOffAnimationSettings;
@@ -444,6 +445,7 @@ public class SettingsGateway {
             YrrpScreenOffAnimationSettings.class.getName(),
             YrrpBootAnimationSettings.class.getName(),
             YrrpFoldAnimationSettings.class.getName(),
+            YrrpFeatureInventorySettings.class.getName(),
             YrrpAdBlockSettings.class.getName(),
             YrrpHotspotBlockedSettings.class.getName(),
     };

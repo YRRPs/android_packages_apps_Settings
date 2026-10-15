@@ -25,6 +25,51 @@
     <string name="yrrp_category_audio">Audio</string>
     <!-- YRRPs settings: category heading for animation features on the YRRPs page. [CHAR LIMIT=40] -->
     <string name="yrrp_category_animations">Animations</string>
+    <!-- YRRPs settings: category heading for inventory and other utilities. [CHAR LIMIT=40] -->
+    <string name="yrrp_category_misc">Misc</string>
+    <!-- YRRPs feature inventory: page and hub entry title. [CHAR LIMIT=40] -->
+    <string name="yrrp_feature_inventory_title">Features</string>
+    <!-- YRRPs feature inventory: search terms for the inventory page. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_inventory_keywords">YRRP features, availability, supported, unavailable, device support, build flavor</string>
+    <!-- YRRPs feature inventory: group headings. [CHAR LIMIT=40] -->
+    <string name="yrrp_feature_category_customization">Customization</string>
+    <string name="yrrp_feature_category_system_services">System services</string>
+    <string name="yrrp_feature_category_device_integrations">Device integrations</string>
+
+    <!-- YRRPs feature inventory: static feature names, descriptions, and search terms. -->
+    <string name="yrrp_feature_pulse_title">Pulse visualizer</string>
+    <string name="yrrp_feature_pulse_summary">Shows live media energy in the navigation bar</string>
+    <string name="yrrp_feature_pulse_keywords">Pulse, audio, music, spectrum, visualizer</string>
+    <string name="yrrp_feature_screen_off_title">Screen-off effects</string>
+    <string name="yrrp_feature_screen_off_summary">Adds CRT and glitch effects when the display turns off</string>
+    <string name="yrrp_feature_screen_off_keywords">screen off, CRT, glitch, power animation</string>
+    <string name="yrrp_feature_matrix_title">Matrix boot and shutdown animation</string>
+    <string name="yrrp_feature_matrix_summary">Shows a Matrix-style animation while starting and shutting down</string>
+    <string name="yrrp_feature_matrix_keywords">Matrix, boot animation, shutdown animation</string>
+    <string name="yrrp_feature_fold_title">Fold animations</string>
+    <string name="yrrp_feature_fold_summary">Animates the display while folding and unfolding</string>
+    <string name="yrrp_feature_fold_keywords">fold, unfold, hinge, animation, foldable</string>
+    <string name="yrrp_feature_theming_title">Full theming</string>
+    <string name="yrrp_feature_theming_summary">Applies YRRP colors and styling across the system</string>
+    <string name="yrrp_feature_theming_keywords">theme, colors, style, appearance</string>
+    <string name="yrrp_feature_ad_blocking_title">Ad blocking</string>
+    <string name="yrrp_feature_ad_blocking_summary">Blocks configured advertising and tracking hosts</string>
+    <string name="yrrp_feature_ad_blocking_keywords">ads, hosts, block list, tracking</string>
+    <string name="yrrp_feature_hotspot_title">Hotspot client management</string>
+    <string name="yrrp_feature_hotspot_summary">Shows connected clients and available client controls</string>
+    <string name="yrrp_feature_hotspot_keywords">hotspot, tethering, clients, block, limit</string>
+    <string name="yrrp_feature_gapps_title">GApps integration</string>
+    <string name="yrrp_feature_gapps_summary">Includes Google apps and services in this build flavor</string>
+    <string name="yrrp_feature_gapps_keywords">Google apps, GApps, vanilla, build flavor</string>
+    <string name="yrrp_feature_auto_brightness_title">Indoor auto-brightness tuning</string>
+    <string name="yrrp_feature_auto_brightness_summary">Tunes automatic brightness for indoor use on OnePlus 11</string>
+    <string name="yrrp_feature_auto_brightness_keywords">brightness, automatic, indoor, OnePlus 11, salami</string>
+    <string name="yrrp_feature_camera_title">OnePlus Camera integration</string>
+    <string name="yrrp_feature_camera_summary">Includes the OnePlus Camera application</string>
+    <string name="yrrp_feature_camera_keywords">OnePlus Camera, camera, OPlus</string>
+    <string name="yrrp_feature_gallery_title">OnePlus Gallery</string>
+    <string name="yrrp_feature_gallery_summary">Includes the OnePlus Gallery application on OnePlus 11</string>
+    <string name="yrrp_feature_gallery_keywords">OnePlus Gallery, photos, gallery, salami</string>
 
     <!-- YRRPs settings: Pulse row on the YRRPs page and title of the Pulse page. Both must stay
          this one string: SettingsIntelligence's site-map lookup matches on class name plus title.

@@ -75,4 +75,17 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:key="yrrp_category_misc"
+        android:title="@string/yrrp_category_misc"
+        settings:searchable="false">
+
+        <Preference
+            android:key="yrrp_feature_inventory_entry"
+            android:title="@string/yrrp_feature_inventory_title"
+            android:fragment="com.android.settings.yrrp.YrrpFeatureInventorySettings"
+            settings:keywords="@string/yrrp_feature_inventory_keywords" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-FileCopyrightText: Yim's Riced ROM Project
+     SPDX-License-Identifier: Apache-2.0 -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:settings="http://schemas.android.com/apk/res-auto"
+    android:key="yrrp_feature_inventory_settings_screen"
+    android:title="@string/yrrp_feature_inventory_title">
+
+    <PreferenceCategory
+        android:key="yrrp_feature_category_customization"
+        android:title="@string/yrrp_feature_category_customization"
+        settings:searchable="false">
+
+        <com.android.settings.yrrp.YrrpFeaturePreference
+            android:key="yrrp_feature_pulse"
+            android:title="@string/yrrp_feature_pulse_title"
+            android:summary="@string/yrrp_feature_pulse_summary"
+            android:icon="@drawable/ic_settings_voice_calls"
+            settings:keywords="@string/yrrp_feature_pulse_keywords" />
+        <com.android.settings.yrrp.YrrpFeaturePreference
+            android:key="yrrp_feature_screen_off"
+            android:title="@string/yrrp_feature_screen_off_title"
+            android:summary="@string/yrrp_feature_screen_off_summary"
+            android:icon="@drawable/ic_settings_display"
+            settings:keywords="@string/yrrp_feature_screen_off_keywords" />
+        <com.android.settings.yrrp.YrrpFeaturePreference
+            android:key="yrrp_feature_matrix_boot_shutdown"
+            android:title="@string/yrrp_feature_matrix_title"
+            android:summary="@string/yrrp_feature_matrix_summary"
+            android:icon="@drawable/ic_settings_backup"
+            settings:keywords="@string/yrrp_feature_matrix_keywords" />
+        <com.android.settings.yrrp.YrrpFeaturePreference
+            android:key="yrrp_feature_fold_animations"
+            android:title="@string/yrrp_feature_fold_title"
+            android:summary="@string/yrrp_feature_fold_summary"
+            android:icon="@drawable/ic_settings_gestures"
+            settings:keywords="@string/yrrp_feature_fold_keywords" />
+        <com.android.settings.yrrp.YrrpFeaturePreference
+            android:key="yrrp_feature_full_theming"
+            android:title="@string/yrrp_feature_theming_title"
+            android:summary="@string/yrrp_feature_theming_summary"
+            android:icon="@drawable/ic_theme"
+            settings:keywords="@string/yrrp_feature_theming_keywords" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="yrrp_feature_category_system_services"
+        android:title="@string/yrrp_feature_category_system_services"
+        settings:searchable="false">
+
+        <com.android.settings.yrrp.YrrpFeaturePreference
+            android:key="yrrp_feature_ad_blocking"
+            android:title="@string/yrrp_feature_ad_blocking_title"
+            android:summary="@string/yrrp_feature_ad_blocking_summary"
+            android:icon="@drawable/ic_settings_security"
+            settings:keywords="@string/yrrp_feature_ad_blocking_keywords" />
+        <com.android.settings.yrrp.YrrpFeaturePreference
+            android:key="yrrp_feature_hotspot_client_management"
+            android:title="@string/yrrp_feature_hotspot_title"
+            android:summary="@string/yrrp_feature_hotspot_summary"
+            android:icon="@drawable/ic_settings_wireless"
+            settings:keywords="@string/yrrp_feature_hotspot_keywords" />
+        <com.android.settings.yrrp.YrrpFeaturePreference
+            android:key="yrrp_feature_gapps"
+            android:title="@string/yrrp_feature_gapps_title"
+            android:summary="@string/yrrp_feature_gapps_summary"
+            android:icon="@drawable/ic_settings_globe"
+            settings:keywords="@string/yrrp_feature_gapps_keywords" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="yrrp_feature_category_device_integrations"
+        android:title="@string/yrrp_feature_category_device_integrations"
+        settings:searchable="false">
+
+        <com.android.settings.yrrp.YrrpFeaturePreference
+            android:key="yrrp_feature_indoor_auto_brightness"
+            android:title="@string/yrrp_feature_auto_brightness_title"
+            android:summary="@string/yrrp_feature_auto_brightness_summary"
+            android:icon="@drawable/ic_settings_adaptive_sleep"
+            settings:keywords="@string/yrrp_feature_auto_brightness_keywords" />
+        <com.android.settings.yrrp.YrrpFeaturePreference
+            android:key="yrrp_feature_oneplus_camera"
+            android:title="@string/yrrp_feature_camera_title"
+            android:summary="@string/yrrp_feature_camera_summary"
+            android:icon="@drawable/ic_settings_camera"
+            settings:keywords="@string/yrrp_feature_camera_keywords" />
+        <com.android.settings.yrrp.YrrpFeaturePreference
+            android:key="yrrp_feature_oneplus_gallery"
+            android:title="@string/yrrp_feature_gallery_title"
+            android:summary="@string/yrrp_feature_gallery_summary"
+            android:icon="@drawable/ic_photo_library"
+            settings:keywords="@string/yrrp_feature_gallery_keywords" />
+    </PreferenceCategory>
+</PreferenceScreen>
