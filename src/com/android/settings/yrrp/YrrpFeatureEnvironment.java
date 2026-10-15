@@ -38,6 +38,91 @@ interface YrrpFeatureEnvironment {
         void requireInstalled(String packageName) throws NameNotFoundException;
     }
 
+    /** Immutable, privacy-safe values captured together for resolution and diagnostics. */
+    final class Snapshot implements YrrpFeatureEnvironment {
+        private final YrrpFoldAnimationAvailability.Snapshot mFold;
+        private final Probe mPrimaryUser;
+        private final Probe mSalamiDevice;
+        private final Probe mCameraPackage;
+        private final Probe mGalleryPackage;
+        private final Probe mGappsBuild;
+        private final HotspotControls mHotspotControls;
+
+        Snapshot(
+                YrrpFoldAnimationAvailability.Snapshot fold,
+                Probe primaryUser,
+                Probe salamiDevice,
+                Probe cameraPackage,
+                Probe galleryPackage,
+                Probe gappsBuild,
+                HotspotControls hotspotControls) {
+            mFold = fold;
+            mPrimaryUser = primaryUser;
+            mSalamiDevice = salamiDevice;
+            mCameraPackage = cameraPackage;
+            mGalleryPackage = galleryPackage;
+            mGappsBuild = gappsBuild;
+            mHotspotControls = hotspotControls;
+        }
+
+        static Snapshot capture(YrrpFeatureEnvironment environment) {
+            return new Snapshot(
+                    environment.fold(),
+                    environment.primaryUser(),
+                    environment.salamiDevice(),
+                    environment.cameraPackage(),
+                    environment.galleryPackage(),
+                    environment.gappsBuild(),
+                    environment.hotspotControls());
+        }
+
+        Snapshot withHotspot(HotspotControls hotspotControls) {
+            return new Snapshot(
+                    mFold,
+                    mPrimaryUser,
+                    mSalamiDevice,
+                    mCameraPackage,
+                    mGalleryPackage,
+                    mGappsBuild,
+                    hotspotControls);
+        }
+
+        @Override
+        public YrrpFoldAnimationAvailability.Snapshot fold() {
+            return mFold;
+        }
+
+        @Override
+        public Probe primaryUser() {
+            return mPrimaryUser;
+        }
+
+        @Override
+        public Probe salamiDevice() {
+            return mSalamiDevice;
+        }
+
+        @Override
+        public Probe cameraPackage() {
+            return mCameraPackage;
+        }
+
+        @Override
+        public Probe galleryPackage() {
+            return mGalleryPackage;
+        }
+
+        @Override
+        public Probe gappsBuild() {
+            return mGappsBuild;
+        }
+
+        @Override
+        public HotspotControls hotspotControls() {
+            return mHotspotControls;
+        }
+    }
+
     /** Android-backed environment with injectable probe boundaries for tests. */
     final class AndroidEnvironment implements YrrpFeatureEnvironment {
         private static final String TAG = "YrrpFeatureInventory";

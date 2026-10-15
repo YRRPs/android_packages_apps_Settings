@@ -102,6 +102,10 @@ final class YrrpFeatureCatalog {
 
     private static YrrpFeatureAvailability resolveFold(
             YrrpFoldAnimationAvailability.Snapshot fold) {
+        if (fold.hingeSensorPresent == NO) {
+            return unavailable(R.string.yrrp_feature_status_fold_sensor,
+                    "fold_sensor_missing", "hingeSensorPresent", KNOWN);
+        }
         YrrpFeatureAvailability result = foldGate(fold.unfoldEnabled,
                 R.string.yrrp_feature_status_fold_framework,
                 "fold_framework_disabled", "unfoldEnabled");

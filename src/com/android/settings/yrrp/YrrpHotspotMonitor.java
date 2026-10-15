@@ -54,6 +54,8 @@ final class YrrpHotspotMonitor
     private List<YrrpHotspotClients.Detail> mDetails = List.of();
     private int mCarrierMax;
     private boolean mStarted;
+    private boolean mSoftApRegistered;
+    private boolean mTetheringRegistered;
 
     YrrpHotspotMonitor(@NonNull Context context) {
         mContext = context.getApplicationContext();
@@ -77,29 +79,72 @@ final class YrrpHotspotMonitor
     }
 
     @Override
+    public boolean callbacksRegistered() {
+        return mSoftApRegistered || mTetheringRegistered;
+    }
+
+    @Override
     public void onStart(@NonNull LifecycleOwner owner) {
+        start();
+    }
+
+    void start() {
         if (mStarted || mWifiManager == null) {
             return;
         }
         mStarted = true;
         mCarrierMax = readCarrierMax();
         final Executor main = mContext.getMainExecutor();
-        mWifiManager.registerSoftApCallback(main, mSoftApCallback);
-        if (mTetheringManager != null) {
-            mTetheringManager.registerTetheringEventCallback(main, mTetheringCallback);
+        try {
+            mWifiManager.registerSoftApCallback(main, mSoftApCallback);
+            mSoftApRegistered = true;
+        } catch (RuntimeException e) {
+            Log.w(TAG, "register soft AP callback failed error="
+                    + e.getClass().getSimpleName());
         }
-        mLog.record("monitor started carrierMax=" + mCarrierMax);
+        if (mTetheringManager != null) {
+            try {
+                mTetheringManager.registerTetheringEventCallback(main, mTetheringCallback);
+                mTetheringRegistered = true;
+            } catch (RuntimeException e) {
+                Log.w(TAG, "register tethering callback failed error="
+                        + e.getClass().getSimpleName());
+            }
+        }
+        mLog.record("monitor started carrierMax=" + mCarrierMax
+                + " softApRegistered=" + mSoftApRegistered
+                + " tetheringRegistered=" + mTetheringRegistered);
     }
 
     @Override
     public void onStop(@NonNull LifecycleOwner owner) {
+        stop();
+    }
+
+    void stop() {
         if (!mStarted) {
             return;
         }
         mStarted = false;
-        mWifiManager.unregisterSoftApCallback(mSoftApCallback);
-        if (mTetheringManager != null) {
-            mTetheringManager.unregisterTetheringEventCallback(mTetheringCallback);
+        if (mSoftApRegistered) {
+            try {
+                mWifiManager.unregisterSoftApCallback(mSoftApCallback);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "unregister soft AP callback failed error="
+                        + e.getClass().getSimpleName());
+            } finally {
+                mSoftApRegistered = false;
+            }
+        }
+        if (mTetheringRegistered) {
+            try {
+                mTetheringManager.unregisterTetheringEventCallback(mTetheringCallback);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "unregister tethering callback failed error="
+                        + e.getClass().getSimpleName());
+            } finally {
+                mTetheringRegistered = false;
+            }
         }
         mLog.record("monitor stopped");
     }
@@ -127,9 +172,8 @@ final class YrrpHotspotMonitor
         return YrrpHotspotBlockList.normalize(macs);
     }
 
-    @Override
     @NonNull
-    public YrrpHotspotDump.Snapshot snapshot() {
+    YrrpHotspotDump.Snapshot snapshot() {
         final YrrpHotspotDump.Snapshot s = new YrrpHotspotDump.Snapshot();
         s.apEnabled = mApEnabled;
         s.capabilityKnown = mCapability != null;

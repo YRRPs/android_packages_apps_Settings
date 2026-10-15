@@ -32,8 +32,8 @@ final class YrrpFeatureInventoryController extends BasePreferenceController
     private final Map<Id, YrrpFeaturePreference> mRows = new EnumMap<>(Id.class);
     private final Map<Id, YrrpFeatureAvailability> mResults = new EnumMap<>(Id.class);
 
+    @Nullable private YrrpFeatureEnvironment.Snapshot mGates;
     private boolean mStarted;
-    private long mResolutionEpoch;
 
     YrrpFeatureInventoryController(
             @NonNull Context context,
@@ -72,37 +72,47 @@ final class YrrpFeatureInventoryController extends BasePreferenceController
     }
 
     void resolveAll() {
-        boolean changed = false;
+        final YrrpFeatureEnvironment.Snapshot gates =
+                YrrpFeatureEnvironment.Snapshot.capture(mEnvironment);
+        mGates = gates;
         for (Id id : YrrpFeatureCatalog.ids()) {
-            changed |= resolve(id);
+            resolve(id, gates);
         }
-        publish(changed);
+        publish();
     }
 
     @Override
     public void onStart(@NonNull LifecycleOwner owner) {
+        start();
+    }
+
+    void start() {
         if (mStarted) {
             return;
         }
         mStarted = true;
         mHotspot.addListener(this);
-        publish(resolve(Id.HOTSPOT_CLIENT_MANAGEMENT));
+        refreshHotspot();
     }
 
     @Override
     public void onStop(@NonNull LifecycleOwner owner) {
+        stop();
+    }
+
+    void stop() {
         if (!mStarted) {
             return;
         }
         mStarted = false;
         mHotspot.removeListener(this);
-        publish(false);
+        publish();
     }
 
     @Override
     public void onHotspotChanged() {
         if (mStarted) {
-            publish(resolve(Id.HOTSPOT_CLIENT_MANAGEMENT));
+            refreshHotspot();
         }
     }
 
@@ -115,41 +125,44 @@ final class YrrpFeatureInventoryController extends BasePreferenceController
         return Collections.unmodifiableMap(new EnumMap<>(mResults));
     }
 
-    private boolean resolve(Id id) {
-        final YrrpFeatureAvailability next = YrrpFeatureCatalog.resolve(id, mEnvironment);
+    private void refreshHotspot() {
+        final YrrpFeatureEnvironment.Snapshot previous = mGates;
+        final YrrpFeatureEnvironment.Snapshot gates = previous == null
+                ? YrrpFeatureEnvironment.Snapshot.capture(mEnvironment)
+                : previous.withHotspot(mEnvironment.hotspotControls());
+        mGates = gates;
+        resolve(Id.HOTSPOT_CLIENT_MANAGEMENT, gates);
+        publish();
+    }
+
+    private void resolve(Id id, YrrpFeatureEnvironment.Snapshot gates) {
+        final YrrpFeatureAvailability next = YrrpFeatureCatalog.resolve(id, gates);
         final YrrpFeatureAvailability previous = mResults.get(id);
         if (sameDecision(previous, next)) {
-            return false;
+            return;
         }
         mResults.put(id, next);
-        mDump.recordTransition(id, next);
         final YrrpFeaturePreference row = mRows.get(id);
         if (row != null) {
             row.bind(next);
         }
-        return true;
     }
 
-    private void publish(boolean changed) {
-        if (changed) {
-            mResolutionEpoch++;
+    private void publish() {
+        if (mGates != null) {
+            mDump.update(
+                    mResults,
+                    mGates,
+                    mStarted,
+                    mStarted && mHotspot.callbacksRegistered());
         }
-        mDump.update(
-                mResults,
-                mStarted,
-                mResolutionEpoch,
-                mEnvironment.hotspotControls(),
-                mStarted);
     }
 
     private static boolean sameDecision(
             @Nullable YrrpFeatureAvailability left,
             @NonNull YrrpFeatureAvailability right) {
         return left != null
-                && left.available == right.available
                 && left.statusRes == right.statusRes
-                && left.reasonCode.equals(right.reasonCode)
-                && left.blockedBy.equals(right.blockedBy)
-                && left.probeStatus == right.probeStatus;
+                && left.diagnosticFields().equals(right.diagnosticFields());
     }
 }

@@ -177,6 +177,11 @@ public class YrrpFeatureInventoryControllerTest {
             }
         }
 
+        @Override
+        public boolean callbacksRegistered() {
+            return listener != null;
+        }
+
         void fire() {
             if (listener != null) {
                 listener.onHotspotChanged();

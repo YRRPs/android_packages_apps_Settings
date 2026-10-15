@@ -32,7 +32,7 @@ public class YrrpFeatureInventoryDumpTest {
                 "hingeSensorPresent",
                 ProbeStatus.KNOWN));
         log.record(Id.FOLD_ANIMATIONS, results.get(Id.FOLD_ANIMATIONS));
-        dump.update(results, gates(), true, 3L, true);
+        dump.update(results, gates(), true, true);
 
         final String text = format(dump);
 
@@ -44,7 +44,7 @@ public class YrrpFeatureInventoryDumpTest {
                         + " reasonCode=fold_sensor_missing"
                         + " blockedBy=hingeSensorPresent probeStatus=known");
         assertThat(text).contains("started=true");
-        assertThat(text).contains("resolutionEpoch=3");
+        assertThat(text).contains("resolutionEpoch=1");
         assertThat(text).contains("hotspotCapabilityKnown=false");
         assertThat(text).contains("callbackRegistered=true");
         assertThat(text).contains("gate=unfoldEnabled value=yes");
@@ -70,7 +70,7 @@ public class YrrpFeatureInventoryDumpTest {
                 "com.oplus.camera\nro.yrrp.build.type=gapps",
                 "AA:BB:CC:DD:EE:FF 192.0.2.1 private-host",
                 ProbeStatus.FAILED));
-        dump.update(results, gates(), false, 1L, false);
+        dump.update(results, gates(), false, false);
 
         final String text = format(dump);
 

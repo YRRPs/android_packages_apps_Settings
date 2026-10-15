@@ -15,4 +15,5 @@ interface YrrpFeatureHotspotSource {
 
     void addListener(@NonNull Listener listener);
     void removeListener(@NonNull Listener listener);
+    boolean callbacksRegistered();
 }
