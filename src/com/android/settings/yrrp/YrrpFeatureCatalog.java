@@ -19,8 +19,6 @@ import com.android.settings.yrrp.YrrpFeatureAvailability.Probe;
 import com.android.settings.yrrp.YrrpFeatureAvailability.ProbeStatus;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /** Ordered feature definitions and pure availability policy. */
@@ -51,8 +49,7 @@ final class YrrpFeatureCatalog {
         }
     }
 
-    private static final List<Id> IDS =
-            Collections.unmodifiableList(Arrays.asList(Id.values()));
+    private static final List<Id> IDS = List.of(Id.values());
 
     private YrrpFeatureCatalog() {}
 
@@ -67,7 +64,7 @@ final class YrrpFeatureCatalog {
                 result.add(id);
             }
         }
-        return Collections.unmodifiableList(result);
+        return List.copyOf(result);
     }
 
     static YrrpFeatureAvailability resolve(Id id, YrrpFeatureEnvironment environment) {

@@ -67,10 +67,7 @@ final class YrrpFeatureInventoryDump {
                         + " blockedBy=none probeStatus=pending");
             } else {
                 writer.println("feature=" + id.key
-                        + " available=" + availability.available
-                        + " reasonCode=" + availability.diagnosticReasonCode()
-                        + " blockedBy=" + availability.diagnosticBlockedBy()
-                        + " probeStatus=" + availability.diagnosticProbeStatus());
+                        + " " + availability.diagnosticFields());
             }
         }
         writer.println("events:");

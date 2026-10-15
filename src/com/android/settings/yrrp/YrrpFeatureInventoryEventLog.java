@@ -28,10 +28,7 @@ final class YrrpFeatureInventoryEventLog {
     synchronized void record(Id id, YrrpFeatureAvailability availability) {
         mLines.addLast(mClock.getAsLong()
                 + " feature=" + id.key
-                + " available=" + availability.available
-                + " reasonCode=" + availability.diagnosticReasonCode()
-                + " blockedBy=" + availability.diagnosticBlockedBy()
-                + " probeStatus=" + availability.diagnosticProbeStatus());
+                + " " + availability.diagnosticFields());
         while (mLines.size() > CAPACITY) {
             mLines.removeFirst();
         }

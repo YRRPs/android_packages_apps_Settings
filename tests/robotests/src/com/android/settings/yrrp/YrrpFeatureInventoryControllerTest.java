@@ -171,11 +171,6 @@ public class YrrpFeatureInventoryControllerTest {
             }
         }
 
-        @Override
-        public YrrpHotspotDump.Snapshot snapshot() {
-            return new YrrpHotspotDump.Snapshot();
-        }
-
         void fire() {
             if (listener != null) {
                 listener.onHotspotChanged();

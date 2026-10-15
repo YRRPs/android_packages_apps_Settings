@@ -7,7 +7,7 @@ package com.android.settings.yrrp;
 
 import androidx.annotation.NonNull;
 
-/** Narrow callback and snapshot boundary used by the feature inventory. */
+/** Narrow hotspot callback boundary used by the feature inventory. */
 interface YrrpFeatureHotspotSource {
     interface Listener {
         void onHotspotChanged();
@@ -15,5 +15,4 @@ interface YrrpFeatureHotspotSource {
 
     void addListener(@NonNull Listener listener);
     void removeListener(@NonNull Listener listener);
-    @NonNull YrrpHotspotDump.Snapshot snapshot();
 }

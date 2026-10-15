@@ -63,15 +63,22 @@ final class YrrpFeatureAvailability {
         this.probeStatus = probeStatus;
     }
 
-    String diagnosticReasonCode() {
+    String diagnosticFields() {
+        return "available=" + available
+                + " reasonCode=" + diagnosticReasonCode()
+                + " blockedBy=" + diagnosticBlockedBy()
+                + " probeStatus=" + diagnosticProbeStatus();
+    }
+
+    private String diagnosticReasonCode() {
         return REASON_CODES.contains(reasonCode) ? reasonCode : "invalid";
     }
 
-    String diagnosticBlockedBy() {
+    private String diagnosticBlockedBy() {
         return GATE_NAMES.contains(blockedBy) ? blockedBy : "invalid";
     }
 
-    String diagnosticProbeStatus() {
+    private String diagnosticProbeStatus() {
         return probeStatus.name().toLowerCase(Locale.ROOT);
     }
 }
