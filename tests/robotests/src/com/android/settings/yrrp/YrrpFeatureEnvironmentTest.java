@@ -157,6 +157,35 @@ public class YrrpFeatureEnvironmentTest {
         assertThat(mEnvironment.fold().available()).isTrue();
     }
 
+    @Test
+    public void snapshotCapturesEveryBoundedGate() {
+        mHotspot.set(HotspotControls.UNSUPPORTED);
+
+        final YrrpFeatureEnvironment.Snapshot snapshot =
+                YrrpFeatureEnvironment.Snapshot.capture(mEnvironment);
+
+        assertThat(snapshot.fold().available()).isTrue();
+        assertThat(snapshot.primaryUser()).isEqualTo(Probe.YES);
+        assertThat(snapshot.salamiDevice()).isEqualTo(Probe.YES);
+        assertThat(snapshot.cameraPackage()).isEqualTo(Probe.YES);
+        assertThat(snapshot.galleryPackage()).isEqualTo(Probe.YES);
+        assertThat(snapshot.gappsBuild()).isEqualTo(Probe.YES);
+        assertThat(snapshot.hotspotControls()).isEqualTo(HotspotControls.UNSUPPORTED);
+    }
+
+    @Test
+    public void snapshotWithHotspot_preservesOtherGates() {
+        final YrrpFeatureEnvironment.Snapshot initial =
+                YrrpFeatureEnvironment.Snapshot.capture(mEnvironment);
+
+        final YrrpFeatureEnvironment.Snapshot changed =
+                initial.withHotspot(HotspotControls.SUPPORTED);
+
+        assertThat(changed.fold()).isSameInstanceAs(initial.fold());
+        assertThat(changed.primaryUser()).isEqualTo(initial.primaryUser());
+        assertThat(changed.hotspotControls()).isEqualTo(HotspotControls.SUPPORTED);
+    }
+
     private YrrpFeatureEnvironment.AndroidEnvironment environment(
             YrrpFeatureEnvironment.PackageLookup packages) {
         return new YrrpFeatureEnvironment.AndroidEnvironment(

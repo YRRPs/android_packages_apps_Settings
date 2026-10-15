@@ -77,21 +77,21 @@ public class YrrpFeatureCatalogTest {
     }
 
     @Test
-    public void foldReportsFirstFalseGate() {
+    public void foldPrioritizesMissingHardwareThenConfiguration() {
         mEnvironment.fold = fold(Probe.NO, Probe.NO, Probe.NO);
+        assertResult(Id.FOLD_ANIMATIONS, false,
+                R.string.yrrp_feature_status_fold_sensor,
+                "fold_sensor_missing", "hingeSensorPresent");
+
+        mEnvironment.fold = fold(Probe.NO, Probe.NO, Probe.YES);
         assertResult(Id.FOLD_ANIMATIONS, false,
                 R.string.yrrp_feature_status_fold_framework,
                 "fold_framework_disabled", "unfoldEnabled");
 
-        mEnvironment.fold = fold(Probe.YES, Probe.NO, Probe.NO);
+        mEnvironment.fold = fold(Probe.YES, Probe.NO, Probe.YES);
         assertResult(Id.FOLD_ANIMATIONS, false,
                 R.string.yrrp_feature_status_fold_hinge_config,
                 "fold_hinge_config_disabled", "hingeAngleEnabled");
-
-        mEnvironment.fold = fold(Probe.YES, Probe.YES, Probe.NO);
-        assertResult(Id.FOLD_ANIMATIONS, false,
-                R.string.yrrp_feature_status_fold_sensor,
-                "fold_sensor_missing", "hingeSensorPresent");
 
         mEnvironment.fold = fold(Probe.YES, Probe.YES, Probe.YES);
         assertResult(Id.FOLD_ANIMATIONS, true,

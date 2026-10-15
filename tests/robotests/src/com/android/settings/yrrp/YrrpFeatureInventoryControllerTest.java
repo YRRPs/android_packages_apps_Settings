@@ -131,6 +131,12 @@ public class YrrpFeatureInventoryControllerTest {
         mHotspot.fire();
         assertThat(dump.resolutionEpoch()).isEqualTo(2L);
         assertThat(log.lines()).hasSize(12);
+
+        final YrrpFeatureInventoryController recreated =
+                new YrrpFeatureInventoryController(mContext, mEnvironment, mHotspot, dump);
+        recreated.resolveAll();
+        assertThat(dump.resolutionEpoch()).isEqualTo(2L);
+        assertThat(log.lines()).hasSize(12);
     }
 
     @Test

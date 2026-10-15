@@ -32,7 +32,7 @@ public class YrrpFeatureInventoryDumpTest {
                 "hingeSensorPresent",
                 ProbeStatus.KNOWN));
         log.record(Id.FOLD_ANIMATIONS, results.get(Id.FOLD_ANIMATIONS));
-        dump.update(results, true, 3L, HotspotControls.UNDETERMINED, true);
+        dump.update(results, gates(), true, 3L, true);
 
         final String text = format(dump);
 
@@ -47,6 +47,15 @@ public class YrrpFeatureInventoryDumpTest {
         assertThat(text).contains("resolutionEpoch=3");
         assertThat(text).contains("hotspotCapabilityKnown=false");
         assertThat(text).contains("callbackRegistered=true");
+        assertThat(text).contains("gate=unfoldEnabled value=yes");
+        assertThat(text).contains("gate=hingeAngleEnabled value=yes");
+        assertThat(text).contains("gate=hingeSensorPresent value=no");
+        assertThat(text).contains("gate=primaryUser value=yes");
+        assertThat(text).contains("gate=salamiDevice value=yes");
+        assertThat(text).contains("gate=cameraPackage value=yes");
+        assertThat(text).contains("gate=galleryPackage value=no");
+        assertThat(text).contains("gate=gappsBuild value=yes");
+        assertThat(text).contains("gate=hotspotControls value=undetermined");
         assertThat(text).contains("events:");
     }
 
@@ -61,7 +70,7 @@ public class YrrpFeatureInventoryDumpTest {
                 "com.oplus.camera\nro.yrrp.build.type=gapps",
                 "AA:BB:CC:DD:EE:FF 192.0.2.1 private-host",
                 ProbeStatus.FAILED));
-        dump.update(results, false, 1L, HotspotControls.SUPPORTED, false);
+        dump.update(results, gates(), false, 1L, false);
 
         final String text = format(dump);
 
@@ -73,6 +82,20 @@ public class YrrpFeatureInventoryDumpTest {
         assertThat(text).doesNotContain("AA:BB:CC:DD:EE:FF");
         assertThat(text).doesNotContain("192.0.2.1");
         assertThat(text).doesNotContain("private-host");
+    }
+
+    private static YrrpFeatureEnvironment.Snapshot gates() {
+        return new YrrpFeatureEnvironment.Snapshot(
+                new YrrpFoldAnimationAvailability.Snapshot(
+                        YrrpFeatureAvailability.Probe.YES,
+                        YrrpFeatureAvailability.Probe.YES,
+                        YrrpFeatureAvailability.Probe.NO),
+                YrrpFeatureAvailability.Probe.YES,
+                YrrpFeatureAvailability.Probe.YES,
+                YrrpFeatureAvailability.Probe.YES,
+                YrrpFeatureAvailability.Probe.NO,
+                YrrpFeatureAvailability.Probe.YES,
+                HotspotControls.UNDETERMINED);
     }
 
     private static Map<Id, YrrpFeatureAvailability> allAvailable() {
