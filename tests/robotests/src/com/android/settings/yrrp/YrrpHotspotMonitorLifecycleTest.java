@@ -34,8 +34,8 @@ public class YrrpHotspotMonitorLifecycleTest {
     @Before
     public void setUp() {
         when(mContext.getApplicationContext()).thenReturn(mContext);
-        when(mContext.getSystemService(WifiManager.class)).thenReturn(mWifi);
-        when(mContext.getSystemService(TetheringManager.class)).thenReturn(mTethering);
+        when(mContext.getSystemService(Context.WIFI_SERVICE)).thenReturn(mWifi);
+        when(mContext.getSystemService(Context.TETHERING_SERVICE)).thenReturn(mTethering);
         when(mContext.getMainExecutor()).thenReturn(mExecutor);
     }
 
