@@ -112,6 +112,28 @@ public class YrrpFeatureInventoryControllerTest {
     }
 
     @Test
+    public void changedResult_incrementsEpochAndLogsWhileUnchangedRerenderDoesNot() {
+        final YrrpFeatureInventoryEventLog log = new YrrpFeatureInventoryEventLog(() -> 4L);
+        final YrrpFeatureInventoryDump dump = new YrrpFeatureInventoryDump(log);
+        mController = new YrrpFeatureInventoryController(
+                mContext, mEnvironment, mHotspot, dump);
+
+        mController.resolveAll();
+        assertThat(dump.resolutionEpoch()).isEqualTo(1L);
+        assertThat(log.lines()).hasSize(11);
+
+        mController.resolveAll();
+        assertThat(dump.resolutionEpoch()).isEqualTo(1L);
+        assertThat(log.lines()).hasSize(11);
+
+        mController.onStart(mOwner);
+        mEnvironment.hotspot = HotspotControls.UNSUPPORTED;
+        mHotspot.fire();
+        assertThat(dump.resolutionEpoch()).isEqualTo(2L);
+        assertThat(log.lines()).hasSize(12);
+    }
+
+    @Test
     public void recreationWithSameFacts_restoresSameResults() {
         mController.resolveAll();
         final YrrpFeatureInventoryController recreated =
