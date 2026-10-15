@@ -354,4 +354,31 @@
     <string name="yrrp_hotspot_unblock_title">Unblock %1$s?</string>
     <!-- Wi-Fi hotspot: button that unblocks a device. [CHAR LIMIT=20] -->
     <string name="yrrp_hotspot_unblock">Unblock</string>
+
+    <!-- YRRPs feature inventory: status shown when a feature is available. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_available">Available</string>
+    <!-- YRRPs feature inventory: fold support framework is disabled. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_fold_framework">Unavailable — Fold animation support is disabled for this device</string>
+    <!-- YRRPs feature inventory: hinge-driven fold support is disabled. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_fold_hinge_config">Unavailable — Hinge-angle fold animation support is disabled</string>
+    <!-- YRRPs feature inventory: hinge-angle sensor is absent. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_fold_sensor">Unavailable — This device has no hinge-angle sensor</string>
+    <!-- YRRPs feature inventory: feature is limited to the system user. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_primary_user">Unavailable — Only the device owner can use this feature</string>
+    <!-- YRRPs feature inventory: hotspot client details work but controls do not. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_hotspot_details_only">Available — Connected-client details only; block and limit controls are unsupported</string>
+    <!-- YRRPs feature inventory: hotspot control support is not known yet. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_hotspot_unknown">Available — Connected-client details; block and limit support could not be determined</string>
+    <!-- YRRPs feature inventory: feature targets OnePlus 11. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_salami_only">Unavailable — This feature targets OnePlus 11</string>
+    <!-- YRRPs feature inventory: OnePlus Camera package is absent. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_camera_missing">Unavailable — This build does not include OnePlus Camera</string>
+    <!-- YRRPs feature inventory: OnePlus Gallery targets another device. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_gallery_device">Unavailable — OnePlus Gallery targets OnePlus 11</string>
+    <!-- YRRPs feature inventory: OnePlus Gallery package is absent. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_gallery_missing">Unavailable — This Salami build does not include OnePlus Gallery</string>
+    <!-- YRRPs feature inventory: Google apps are absent from this build flavor. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_vanilla">Unavailable — Google apps are not included in vanilla builds</string>
+    <!-- YRRPs feature inventory: a required runtime probe failed. [CHAR LIMIT=NONE] -->
+    <string name="yrrp_feature_status_unknown">Unavailable — Status could not be determined</string>
 </resources>
