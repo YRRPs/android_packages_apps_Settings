@@ -8,6 +8,8 @@ package com.android.settings.yrrp;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
+import android.os.SystemProperties;
 
 import com.android.settings.yrrp.YrrpFeatureAvailability.HotspotControls;
 import com.android.settings.yrrp.YrrpFeatureAvailability.Probe;
@@ -17,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.shadows.ShadowLog;
+import org.robolectric.util.ReflectionHelpers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +44,40 @@ public class YrrpFeatureEnvironmentTest {
     public void setUp() {
         ShadowLog.clear();
         mEnvironment = environment(packageName -> mPackages.add(packageName));
+    }
+
+    @Test
+    public void factorySalamiProbe_usesLineageIdentityDespiteSpoofedBuildDevice() {
+        assertFactorySalamiProbe("OP594DL1", "salami", Probe.YES);
+    }
+
+    @Test
+    public void factorySalamiProbe_rejectsOtherLineageDeviceDespiteBuildDevice() {
+        assertFactorySalamiProbe("salami", "xueying", Probe.NO);
+    }
+
+    @Test
+    public void factorySalamiProbe_missingLineageIdentityDoesNotUseBuildDevice() {
+        assertFactorySalamiProbe("salami", "", Probe.NO);
+    }
+
+    private static void assertFactorySalamiProbe(
+            String buildDevice, String lineageDevice, Probe expected) {
+        final String originalDevice = Build.DEVICE;
+        final String originalLineageDevice = SystemProperties.get("ro.lineage.device", "");
+        try {
+            ReflectionHelpers.setStaticField(Build.class, "DEVICE", buildDevice);
+            SystemProperties.set("ro.lineage.device", lineageDevice);
+            // Other probes are lazy; this exercises the production factory wiring only.
+            final YrrpFeatureEnvironment environment =
+                    YrrpFeatureEnvironment.AndroidEnvironment.create(
+                            null, () -> HotspotControls.UNDETERMINED);
+
+            assertThat(environment.salamiDevice()).isEqualTo(expected);
+        } finally {
+            ReflectionHelpers.setStaticField(Build.class, "DEVICE", originalDevice);
+            SystemProperties.set("ro.lineage.device", originalLineageDevice);
+        }
     }
 
     @Test

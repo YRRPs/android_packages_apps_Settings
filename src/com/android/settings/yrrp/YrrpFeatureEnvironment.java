@@ -7,7 +7,6 @@ package com.android.settings.yrrp;
 
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Build;
 import android.os.SystemProperties;
 import android.os.UserManager;
 import android.util.Log;
@@ -156,7 +155,8 @@ interface YrrpFeatureEnvironment {
             return new AndroidEnvironment(
                     () -> YrrpFoldAnimationAvailability.snapshot(context),
                     () -> context.getSystemService(UserManager.class).isSystemUser(),
-                    () -> "salami".equals(Build.DEVICE),
+                    // Product properties can be spoofed; Lineage preserves the target codename.
+                    () -> "salami".equals(SystemProperties.get("ro.lineage.device", "")),
                     packageName -> context.getPackageManager().getPackageInfo(packageName, 0),
                     () -> SystemProperties.get("ro.yrrp.build.type", ""),
                     hotspotControls);
