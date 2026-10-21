@@ -26,7 +26,8 @@ public class YrrpBootAnimationStylePreferenceController extends BasePreferenceCo
     // Must match the radio keys in R.xml.yrrp_boot_animation_settings.
     static final String KEY_MATRIX = "yrrp_boot_animation_matrix";
     static final String KEY_LINEAGE = "yrrp_boot_animation_lineage";
-    private static final String[] KEYS = {KEY_MATRIX, KEY_LINEAGE};
+    static final String KEY_XP = "yrrp_boot_animation_xp";
+    private static final String[] KEYS = {KEY_MATRIX, KEY_LINEAGE, KEY_XP};
 
     protected final YrrpBootAnimationStore mStore;
     private final String mStyle;
@@ -101,6 +102,8 @@ public class YrrpBootAnimationStylePreferenceController extends BasePreferenceCo
                 return YrrpBootAnimationStore.STYLE_MATRIX;
             case KEY_LINEAGE:
                 return YrrpBootAnimationStore.STYLE_LINEAGE;
+            case KEY_XP:
+                return YrrpBootAnimationStore.STYLE_XP;
             default:
                 throw new IllegalArgumentException("unknown boot animation key");
         }

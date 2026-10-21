@@ -42,6 +42,12 @@
             android:persistent="false"
             settings:controller="com.android.settings.yrrp.YrrpBootAnimationStylePreferenceController"/>
 
+        <com.android.settingslib.widget.SelectorWithWidgetPreference
+            android:key="yrrp_boot_animation_xp"
+            android:title="@string/yrrp_boot_animation_xp"
+            android:persistent="false"
+            settings:controller="com.android.settings.yrrp.YrrpBootAnimationStylePreferenceController"/>
+
     </PreferenceCategory>
 
     <com.android.settingslib.widget.FooterPreference

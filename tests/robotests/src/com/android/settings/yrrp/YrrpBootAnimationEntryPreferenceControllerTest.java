@@ -32,6 +32,9 @@ public class YrrpBootAnimationEntryPreferenceControllerTest {
         mBackend.values.put(YrrpBootAnimationStore.STYLE_PROPERTY, "lineage");
         assertThat(controller.getSummary().toString())
                 .isEqualTo(mContext.getString(R.string.yrrp_boot_animation_lineage));
+        mBackend.values.put(YrrpBootAnimationStore.STYLE_PROPERTY, "xp");
+        assertThat(controller.getSummary().toString())
+                .isEqualTo(mContext.getString(R.string.yrrp_boot_animation_xp));
         assertThat(mBackend.writes).isEmpty();
     }
 }

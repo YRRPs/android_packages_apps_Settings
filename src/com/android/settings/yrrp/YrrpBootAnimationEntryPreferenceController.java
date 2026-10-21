@@ -40,9 +40,16 @@ public class YrrpBootAnimationEntryPreferenceController extends BasePreferenceCo
     /** Names the normalized stored style; an unknown stored value shows Matrix. */
     @Override
     public CharSequence getSummary() {
-        return mContext.getText(
-                YrrpBootAnimationStore.STYLE_LINEAGE.equals(mStore.getStyle())
-                        ? R.string.yrrp_boot_animation_lineage
-                        : R.string.yrrp_boot_animation_matrix);
+        return mContext.getText(summaryFor(mStore.getStyle()));
+    }
+
+    private static int summaryFor(String style) {
+        if (YrrpBootAnimationStore.STYLE_LINEAGE.equals(style)) {
+            return R.string.yrrp_boot_animation_lineage;
+        }
+        if (YrrpBootAnimationStore.STYLE_XP.equals(style)) {
+            return R.string.yrrp_boot_animation_xp;
+        }
+        return R.string.yrrp_boot_animation_matrix;
     }
 }

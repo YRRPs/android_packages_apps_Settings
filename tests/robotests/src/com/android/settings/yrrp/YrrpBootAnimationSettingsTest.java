@@ -50,6 +50,7 @@ public class YrrpBootAnimationSettingsTest {
                         "  PreferenceCategory#yrrp_boot_animation_style_category",
                         "    " + SELECTOR + "#yrrp_boot_animation_matrix",
                         "    " + SELECTOR + "#yrrp_boot_animation_lineage",
+                        "    " + SELECTOR + "#yrrp_boot_animation_xp",
                         "  " + WIDGET + "FooterPreference#yrrp_boot_animation_footer")
                 .inOrder();
         // Kept alongside the outline check on purpose: this one runs the production key parser.
@@ -62,6 +63,7 @@ public class YrrpBootAnimationSettingsTest {
                         "yrrp_boot_animation_style_category",
                         "yrrp_boot_animation_matrix",
                         "yrrp_boot_animation_lineage",
+                        "yrrp_boot_animation_xp",
                         "yrrp_boot_animation_footer")
                 .inOrder();
     }
@@ -89,6 +91,8 @@ public class YrrpBootAnimationSettingsTest {
                 YrrpXmlElements.find(elements, "yrrp_boot_animation_matrix");
         final YrrpXmlElements.Element lineage =
                 YrrpXmlElements.find(elements, "yrrp_boot_animation_lineage");
+        final YrrpXmlElements.Element xp =
+                YrrpXmlElements.find(elements, "yrrp_boot_animation_xp");
 
         assertThat(matrix.value("controller"))
                 .isEqualTo(YrrpBootAnimationMatrixPreferenceController.class.getName());
@@ -96,8 +100,13 @@ public class YrrpBootAnimationSettingsTest {
                 .isEqualTo(R.string.yrrp_boot_animation_keywords);
         assertThat(lineage.value("controller"))
                 .isEqualTo(YrrpBootAnimationStylePreferenceController.class.getName());
+        assertThat(xp.value("controller"))
+                .isEqualTo(YrrpBootAnimationStylePreferenceController.class.getName());
         assertThat(nonIndexableKeys())
-                .containsNoneOf("yrrp_boot_animation_matrix", "yrrp_boot_animation_lineage");
+                .containsNoneOf(
+                        "yrrp_boot_animation_matrix",
+                        "yrrp_boot_animation_lineage",
+                        "yrrp_boot_animation_xp");
     }
 
     @Test
