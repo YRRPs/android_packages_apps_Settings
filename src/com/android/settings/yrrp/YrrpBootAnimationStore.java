@@ -16,6 +16,7 @@ public final class YrrpBootAnimationStore {
     static final String FULL_INTRO_PROPERTY = "persist.yrrp.bootanim.full_intro";
     static final String STYLE_MATRIX = "matrix";
     static final String STYLE_LINEAGE = "lineage";
+    static final String STYLE_XP = "xp";
 
     /** System property access for this store; see {@link YrrpPropertyBackend}. */
     interface Backend extends YrrpPropertyBackend {}
@@ -32,14 +33,16 @@ public final class YrrpBootAnimationStore {
         return new YrrpBootAnimationStore(new YrrpSystemPropertiesBackend());
     }
 
-    /** Exact "lineage" reads as LineageOS; anything else, unset included, as Matrix. */
+    /** Exact "lineage" or "xp" read as that style; anything else, unset included, as Matrix. */
     public String getStyle() {
-        return STYLE_LINEAGE.equals(mBackend.get(STYLE_PROPERTY)) ? STYLE_LINEAGE : STYLE_MATRIX;
+        final String value = mBackend.get(STYLE_PROPERTY);
+        return STYLE_LINEAGE.equals(value) || STYLE_XP.equals(value) ? value : STYLE_MATRIX;
     }
 
     /** Writes a known style; rejects anything else. Returns false if nothing was written. */
     public boolean setStyle(String style) {
-        if (!STYLE_MATRIX.equals(style) && !STYLE_LINEAGE.equals(style)) {
+        if (!STYLE_MATRIX.equals(style) && !STYLE_LINEAGE.equals(style)
+                && !STYLE_XP.equals(style)) {
             return false;
         }
         return mBackend.set(STYLE_PROPERTY, style);
