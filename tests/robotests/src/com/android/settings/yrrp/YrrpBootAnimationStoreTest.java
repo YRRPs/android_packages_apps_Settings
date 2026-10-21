@@ -25,16 +25,24 @@ public class YrrpBootAnimationStoreTest {
     }
 
     @Test
+    public void xpStyleValue_matchesBootanimation() {
+        assertEquals("xp", YrrpBootAnimationStore.STYLE_XP);
+    }
+
+    @Test
     public void unset_readsMatrixAndFullIntro() {
         assertEquals(YrrpBootAnimationStore.STYLE_MATRIX, mStore.getStyle());
         assertTrue(mStore.isFullIntro());
     }
 
     @Test
-    public void style_onlyExactLineageReadsAsLineage() {
+    public void style_onlyExactLineageOrXpReadAsThemselves() {
         mBackend.values.put(YrrpBootAnimationStore.STYLE_PROPERTY, "lineage");
         assertEquals(YrrpBootAnimationStore.STYLE_LINEAGE, mStore.getStyle());
-        for (String value : new String[] {"LINEAGE", "garbage", " lineage", "matrix"}) {
+        mBackend.values.put(YrrpBootAnimationStore.STYLE_PROPERTY, "xp");
+        assertEquals(YrrpBootAnimationStore.STYLE_XP, mStore.getStyle());
+        for (String value :
+                new String[] {"LINEAGE", "garbage", " lineage", "matrix", "XP", "xp "}) {
             mBackend.values.put(YrrpBootAnimationStore.STYLE_PROPERTY, value);
             assertEquals(value, YrrpBootAnimationStore.STYLE_MATRIX, mStore.getStyle());
         }
@@ -66,12 +74,14 @@ public class YrrpBootAnimationStoreTest {
     public void setStyle_writesKnownStylesAndRejectsOthers() {
         assertTrue(mStore.setStyle(YrrpBootAnimationStore.STYLE_LINEAGE));
         assertTrue(mStore.setStyle(YrrpBootAnimationStore.STYLE_MATRIX));
+        assertTrue(mStore.setStyle(YrrpBootAnimationStore.STYLE_XP));
         assertFalse(mStore.setStyle("garbage"));
         assertFalse(mStore.setStyle(null));
         assertEquals(
                 Arrays.asList(
                         "persist.yrrp.bootanim.style=lineage",
-                        "persist.yrrp.bootanim.style=matrix"),
+                        "persist.yrrp.bootanim.style=matrix",
+                        "persist.yrrp.bootanim.style=xp"),
                 mBackend.writes);
     }
 

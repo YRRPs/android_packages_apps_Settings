@@ -28,8 +28,10 @@ public class YrrpBootAnimationStylePreferenceControllerTest {
     private YrrpRecordingPropertyBackend mBackend;
     private YrrpBootAnimationStylePreferenceController mMatrix;
     private YrrpBootAnimationStylePreferenceController mLineage;
+    private YrrpBootAnimationStylePreferenceController mXp;
     private SelectorWithWidgetPreference mMatrixRow;
     private SelectorWithWidgetPreference mLineageRow;
+    private SelectorWithWidgetPreference mXpRow;
 
     @Before
     public void setUp() {
@@ -44,14 +46,22 @@ public class YrrpBootAnimationStylePreferenceControllerTest {
                         mContext,
                         YrrpBootAnimationStylePreferenceController.KEY_LINEAGE,
                         mBackend.newStore());
+        mXp =
+                new YrrpBootAnimationStylePreferenceController(
+                        mContext,
+                        YrrpBootAnimationStylePreferenceController.KEY_XP,
+                        mBackend.newStore());
         mMatrixRow = radio(YrrpBootAnimationStylePreferenceController.KEY_MATRIX);
         mLineageRow = radio(YrrpBootAnimationStylePreferenceController.KEY_LINEAGE);
+        mXpRow = radio(YrrpBootAnimationStylePreferenceController.KEY_XP);
         final PreferenceScreen screen =
                 new PreferenceManager(mContext).createPreferenceScreen(mContext);
         screen.addPreference(mMatrixRow);
         screen.addPreference(mLineageRow);
+        screen.addPreference(mXpRow);
         mMatrix.displayPreference(screen);
         mLineage.displayPreference(screen);
+        mXp.displayPreference(screen);
     }
 
     @Test
@@ -60,6 +70,8 @@ public class YrrpBootAnimationStylePreferenceControllerTest {
                 .isEqualTo("yrrp_boot_animation_matrix");
         assertThat(YrrpBootAnimationStylePreferenceController.KEY_LINEAGE)
                 .isEqualTo("yrrp_boot_animation_lineage");
+        assertThat(YrrpBootAnimationStylePreferenceController.KEY_XP)
+                .isEqualTo("yrrp_boot_animation_xp");
     }
 
     @Test
@@ -98,6 +110,15 @@ public class YrrpBootAnimationStylePreferenceControllerTest {
         assertThat(mBackend.writes).containsExactly("persist.yrrp.bootanim.style=lineage");
         assertThat(mLineageRow.isChecked()).isTrue();
         assertThat(mMatrixRow.isChecked()).isFalse();
+    }
+
+    @Test
+    public void clickingXp_writesAndRefreshesAllRows() {
+        mXpRow.onClick();
+        assertThat(mBackend.writes).containsExactly("persist.yrrp.bootanim.style=xp");
+        assertThat(mXpRow.isChecked()).isTrue();
+        assertThat(mMatrixRow.isChecked()).isFalse();
+        assertThat(mLineageRow.isChecked()).isFalse();
     }
 
     @Test

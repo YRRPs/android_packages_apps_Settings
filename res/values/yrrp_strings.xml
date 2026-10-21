@@ -184,7 +184,7 @@
          class name plus title. [CHAR LIMIT=40] -->
     <string name="yrrp_boot_animation_title">Boot animation</string>
     <!-- YRRPs settings: search keywords for the boot animation. [CHAR_LIMIT=NONE] -->
-    <string name="yrrp_boot_animation_keywords">boot, startup, reboot, shutdown, power on, matrix</string>
+    <string name="yrrp_boot_animation_keywords">boot, startup, reboot, shutdown, power on, matrix, windows xp</string>
     <!-- YRRPs settings: intro text at the top of the boot animation page. [CHAR LIMIT=NONE] -->
     <string name="yrrp_boot_animation_intro">Plays while the phone starts, restarts, and shuts down.</string>
     <!-- YRRPs settings: boot animation page category header above the style choices.
@@ -196,6 +196,9 @@
     <!-- YRRPs settings: boot animation style choice that plays the stock LineageOS
          animation. [CHAR LIMIT=30] -->
     <string name="yrrp_boot_animation_lineage">LineageOS</string>
+    <!-- YRRPs settings: boot animation style choice that plays the Windows XP boot screen.
+         [CHAR LIMIT=30] -->
+    <string name="yrrp_boot_animation_xp">Windows XP</string>
     <!-- YRRPs settings: title of the Matrix Finish intro dialog and its gear's description.
          [CHAR LIMIT=40] -->
     <string name="yrrp_boot_animation_finish_intro_title">Finish intro</string>
